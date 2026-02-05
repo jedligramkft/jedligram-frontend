@@ -7,7 +7,8 @@ const Navbar = () => {
     <>
     <nav className='bg-linear-to-r from-[#1a1d23] to-[#2a2d31] backdrop-blur-md border-b border-gray-700 text-white shadow-lg sticky top-0 z-50 poppins-regular'>
       <div className='sm:px-6 md:px-12 py-4 flex items-center justify-between'>
-        <h1 className='md:px-0 px-6 text-3xl font-black bg-linear-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent'>Jedligram</h1>
+        <img src="src/Images/jedligram_logo.png" alt="Jedligram logo" className='md:ml-0 ml-4 h-12 w-12 opacity-90 brightness-200' loading='lazy' />
+        {/* <h1 className='md:px-0 px-6 text-3xl font-black bg-linear-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent'>Jedligram</h1> */}
 
         <div className='hidden md:flex items-center space-x-4'>
           <button className='text-gray-300 hover:text-white transition font-medium'>Közösség</button>
