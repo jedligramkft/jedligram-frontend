@@ -5,7 +5,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 const Hero = () => {
   return (
     <div>
-        <div className='bg-linear-to-b from-[#424549] to-[#2a2d31] md:min-h-175 min-h-175 flex items-center justify-center relative overflow-hidden poppins-regular'>
+        <div className='bg-linear-to-b from-[#424549] to-[#2a2d31] md:min-h-150 min-h-150 flex items-center justify-center relative overflow-hidden poppins-regular'>
             <div className='absolute inset-0 bg-black opacity-20 z-0'></div>
             <img src="src/Images/hero-background.jpg" alt="Hero Image" className="absolute w-full h-full object-cover z-0 shadow-2xl" />
             <div className='text-center relative z-10 px-4'>
