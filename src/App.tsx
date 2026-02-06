@@ -1,21 +1,21 @@
-import { useState } from 'react'
-import './App.css'
-import Navbar from './Components/Navbar'
-import Hero from './Components/Hero'
-import Communities from './Components/Communities'
-import Footer from './Components/Footer'
+import "./App.css";
+import Navbar from "./Components/Navbar";
+import Hero from "./Components/Hero";
+import Communities from "./Components/Communities";
+import Footer from "./Components/Footer";
+import Android from "./Pages/Test/Android";
 
 function App() {
-  const [count, setCount] = useState(0)
+	return (
+		<>
+			<Navbar />
+			<Hero />
+			<Communities />
+			<Footer />
 
-  return (
-    <>
-      <Navbar />
-      <Hero />
-      <Communities />
-      <Footer />
-    </>
-  )
+			<Android />
+		</>
+	);
 }
 
-export default App
+export default App;
