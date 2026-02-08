@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -11,10 +12,10 @@ const Navbar = () => {
         {/* <h1 className='md:px-0 px-6 text-3xl font-black bg-linear-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent'>Jedligram</h1> */}
 
         <div className='hidden md:flex items-center space-x-4'>
-          <button className='text-gray-300 hover:text-white transition font-medium'>Közösség</button>
-          <button className='text-gray-300 hover:text-white transition font-medium'>Játékok</button>
-          <button className='text-gray-300 hover:text-white transition font-medium'>Profil</button>
-          <button className='bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md'>Bejelentkezés</button>
+          <a href="#" className='text-gray-300 hover:text-white transition font-medium'>Közösség</a>
+          <a href="#" className='text-gray-300 hover:text-white transition font-medium'>Játékok</a>
+          <a href="#" className='text-gray-300 hover:text-white transition font-medium'>Profil</a>
+          <Link to='/auth/login' className='bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md'>Bejelentkezés</Link>
         </div>
 
         <button type='button' className='md:px-0 px-6 md:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-200 hover:text-white hover:bg-white/10 transition' aria-label='Menü' aria-expanded={isOpen} onClick={() => setIsOpen((prev) => !prev)}>
@@ -28,10 +29,10 @@ const Navbar = () => {
 
       <div className={`sticky md:hidden overflow-hidden transition-[max-height,opacity] duration-700 ease-in-out ${ isOpen ? 'max-h-72 opacity-100' : 'max-h-0 opacity-0' }`}>
         <div className='px-6 pb-4 flex flex-col gap-3'>
-          <button className='text-left text-gray-300 hover:text-white transition font-medium'>Közösség</button>
-          <button className='text-left text-gray-300 hover:text-white transition font-medium'>Játékok</button>
-          <button className='text-left text-gray-300 hover:text-white transition font-medium'>Profil</button>
-          <button className='bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-semibold transition shadow-md text-left'>Bejelentkezés</button>
+          <a href="#" className='text-left text-gray-300 hover:text-white transition font-medium'>Közösség</a>
+          <a href="#" className='text-left text-gray-300 hover:text-white transition font-medium'>Játékok</a>
+          <a href="#" className='text-left text-gray-300 hover:text-white transition font-medium'>Profil</a>
+          <Link to='/auth/login' className='bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-semibold transition shadow-md text-left'>Bejelentkezés</Link>
         </div>
       </div>
     </nav>

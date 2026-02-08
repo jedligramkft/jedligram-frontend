@@ -1,4 +1,3 @@
-import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter } from '@fortawesome/free-solid-svg-icons'
 
@@ -60,12 +59,12 @@ const Communities = () => {
                     <div className='flex w-full flex-col gap-3 sm:flex-row md:w-auto'>
                         <div className='flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white shadow-lg'>
                             <FontAwesomeIcon icon={faFilter} className='text-white/70' />
-                            <select className='w-full bg-transparent text-sm text-white outline-none'>
-                                <option value='all' className='text-gray-900'>Összes kategória</option>
-                                <option value='action' className='text-gray-900'>Akció</option>
-                                <option value='rpg' className='text-gray-900'>RPG</option>
-                                <option value='strategy' className='text-gray-900'>Stratégia</option>
-                            </select>
+                        <select className='w-full bg-transparent text-sm text-white outline-none [&>option]:bg-[#1f2226] [&>option]:text-white [&>option]:py-2'>
+                            <option value='all'>Összes kategória</option>
+                            <option value='action'>Akció</option>
+                            <option value='rpg'>RPG</option>
+                            <option value='strategy'>Stratégia</option>
+                        </select>
                         </div>
                         <button className='rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50'>
                             Keresés
