@@ -1,19 +1,24 @@
 import "./App.css";
 import Navbar from "./Components/Navbar";
-import Hero from "./Components/Hero";
-import Communities from "./Components/Communities";
 import Footer from "./Components/Footer";
-import Android from "./Pages/Test/Android";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import CapacitorNavigator from "./Components/Utils/NavigationManager";
+import Home from "./Pages/Home/Home";
+import UserProfile from "./Pages/Test/UserProfile";
 
 function App() {
 	return (
 		<>
-			<Navbar />
-			<Hero />
-			<Communities />
-			<Footer />
+		<Navbar />
+		<BrowserRouter>
+			<CapacitorNavigator />
 
-			<Android />
+			<Routes>
+				<Route path="/" element={<Home />} />
+        		<Route path="/user/:id" element={<UserProfile />} />
+			</Routes>
+		</BrowserRouter>
+		<Footer />
 		</>
 	);
 }
