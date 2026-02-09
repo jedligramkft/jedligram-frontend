@@ -9,22 +9,24 @@ import Profile from './Pages/Profile/Profile'
 
 function App() {
   return (
-    <Routes>
+    <>
       <CapacitorNavigator />
-      
-      <Route element={<MainLayout />}>
-        <Route index element={<Home />} />
-      </Route>
+      <Routes>
+        
+        <Route element={<MainLayout />}>
+          <Route index element={<Home />} />
+        </Route>
 
-      <Route path='auth' element={<AuthLayout />}>
-        <Route path='login' element={<Login />} />
-        <Route path='register' element={<Register />} />
-      </Route>
+        <Route path='auth' element={<AuthLayout />}>
+          <Route path='login' element={<Login />} />
+          <Route path='register' element={<Register />} />
+        </Route>
 
-      <Route path='profile' element={<MainLayout />}>
-        <Route index element={<Profile />} />
-      </Route>
-    </Routes>
+        <Route path='profile' element={<MainLayout />}>
+          <Route index element={<Profile />} />
+        </Route>
+      </Routes>
+    </>
   )
 }
 
