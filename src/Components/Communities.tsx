@@ -47,43 +47,30 @@ const Communities = () => {
 			<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]" />
 			<div className="absolute inset-0 bg-black/25" />
 
-			<div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-20 pt-16 md:px-12">
-				<div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30 backdrop-blur md:flex-row md:items-center md:justify-between md:p-8">
-					<div>
-						<p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">
-							Kiemelt ajánlatok
-						</p>
-						<h1 className="mt-3 text-3xl font-black text-white drop-shadow md:text-5xl">
-							Kiemelt Közösségek
-						</h1>
-						<p className="mt-3 max-w-xl text-sm text-white/70 md:text-base">
-							Válogass a legaktívabb közösségek közül, szűrd őket kategória
-							szerint, és csatlakozz a kedvenceidhez.
-						</p>
-					</div>
-					<div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
-						<div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white shadow-lg">
-							<FontAwesomeIcon icon={faFilter} className="text-white/70" />
-							<select className="w-full bg-transparent text-sm text-white outline-none">
-								<option value="all" className="text-gray-900">
-									Összes kategória
-								</option>
-								<option value="action" className="text-gray-900">
-									Akció
-								</option>
-								<option value="rpg" className="text-gray-900">
-									RPG
-								</option>
-								<option value="strategy" className="text-gray-900">
-									Stratégia
-								</option>
-							</select>
-						</div>
-						<button className="rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50">
-							Keresés
-						</button>
-					</div>
-				</div>
+            <div className='relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-20 pt-16 md:px-12'>
+                <div className='flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30 backdrop-blur md:flex-row md:items-center md:justify-between md:p-8'>
+                    <div>
+                        <p className='text-sm font-semibold uppercase tracking-[0.2em] text-white/50'>Kiemelt ajánlatok</p>
+                        <h1 className='mt-3 text-3xl font-black text-white drop-shadow md:text-5xl'>Kiemelt Közösségek</h1>
+                        <p className='mt-3 max-w-xl text-sm text-white/70 md:text-base'>
+                            Válogass a legaktívabb közösségek közül, szűrd őket kategória szerint, és csatlakozz a kedvenceidhez.
+                        </p>
+                    </div>
+                    <div className='flex w-full flex-col gap-3 sm:flex-row md:w-auto'>
+                        <div className='flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white shadow-lg'>
+                            <FontAwesomeIcon icon={faFilter} className='text-white/70' />
+                        <select className='w-full bg-transparent text-sm text-white outline-none [&>option]:bg-[#1f2226] [&>option]:text-white [&>option]:py-2'>
+                            <option value='all'>Összes kategória</option>
+                            <option value='action'>Akció</option>
+                            <option value='rpg'>RPG</option>
+                            <option value='strategy'>Stratégia</option>
+                        </select>
+                        </div>
+                        <button className='rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50'>
+                            Keresés
+                        </button>
+                    </div>
+                </div>
 
 				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{communities.map((community) => (
