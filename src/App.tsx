@@ -1,3 +1,4 @@
+import CapacitorNavigator from "./Components/Utils/NavigationManager";
 import { Route, Routes } from 'react-router-dom'
 import AuthLayout from './Layouts/AuthLayout'
 import MainLayout from './Layouts/MainLayout'
@@ -9,6 +10,8 @@ import Profile from './Pages/Profile/Profile'
 function App() {
   return (
     <Routes>
+      <CapacitorNavigator />
+      
       <Route element={<MainLayout />}>
         <Route index element={<Home />} />
       </Route>
