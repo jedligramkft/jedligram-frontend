@@ -1,7 +1,7 @@
 import CapacitorNavigator from "./Components/Utils/NavigationManager";
 import { Route, Routes } from "react-router-dom";
 import AuthLayout from "./Layouts/AuthLayout";
-import NavbarLayout from "./Layouts/NavbarLayout";
+import NavbarLayout from "./Layouts/MainLayout";
 import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import Home from "./Pages/Home/Home";
