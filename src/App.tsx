@@ -6,6 +6,7 @@ import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import Home from "./Pages/Home/Home";
 import Profile from "./Pages/Profile/Profile";
+import AllCommunities from "./Pages/Communities/AllCommunities";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
 
         <Route element={<NavbarLayout />}>
           <Route index element={<Home />} />
+          <Route path="all-communities" element={<AllCommunities />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 

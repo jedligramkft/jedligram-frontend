@@ -22,7 +22,7 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
-          <a href="#" className="text-gray-300 hover:text-white transition font-medium">Közösség</a>
+          <Link to="/all-communities" className="text-gray-300 hover:text-white transition font-medium">Közösség</Link>
           <a href="#" className="text-gray-300 hover:text-white transition font-medium">Játékok</a>
           <Link to="/profile" className="text-gray-300 hover:text-white transition font-medium">Profil</Link>
           <Link to="/auth/login" className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md">Bejelentkezés</Link>
@@ -38,7 +38,7 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
 
       <div className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${isOpen ? "max-h-72 opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="px-6 pb-4 flex flex-col gap-3">
-          <a href="#" className="text-left text-gray-300 hover:text-white transition font-medium">Közösség</a>
+          <Link to="/all-communities" className="text-left text-gray-300 hover:text-white transition font-medium">Közösség</Link>
           <a href="#" className="text-left text-gray-300 hover:text-white transition font-medium">Játékok</a>
           <Link to="/profile" className="text-left text-gray-300 hover:text-white transition font-medium">Profil</Link>
           <Link to="/auth/login" className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-semibold transition shadow-md text-left">Bejelentkezés</Link>

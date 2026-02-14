@@ -10,7 +10,7 @@ const NavbarLayout = () => {
   return (
     <>
       <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} />
-      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} />
+      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} userCommunities={null} />
       <Outlet />
       <Footer />
     </>
