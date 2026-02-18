@@ -1,29 +1,36 @@
+import { Link } from "react-router-dom";
+
 const communities = [
 	{
+		id: 1,
 		name: "Jedlik Esport",
 		category: "Akció",
 		members: "3.2k tag",
 		accent: "from-cyan-400/30 to-blue-500/20",
 	},
 	{
+		id: 2,
 		name: "Arcane RPG Klub",
 		category: "RPG",
 		members: "1.1k tag",
 		accent: "from-purple-400/30 to-pink-500/20",
 	},
 	{
+		id: 3,
 		name: "Taktikus Stratégák",
 		category: "Stratégia",
 		members: "2.4k tag",
 		accent: "from-emerald-400/30 to-lime-500/20",
 	},
 	{
+		id: 4,
 		name: "Retro Arena",
 		category: "Akció",
 		members: "950 tag",
 		accent: "from-amber-400/30 to-orange-500/20",
 	},
 	{
+		id: 5,
 		name: "Dungeon Crafters",
 		category: "RPG",
 		members: "740 tag",
@@ -35,19 +42,22 @@ const communities = [
 		members: "1.8k tag",
 		accent: "from-rose-400/30 to-red-500/20",
 	},
-		{
+	{
+		id: 6,
 		name: "Retro Arena",
 		category: "Akció",
 		members: "950 tag",
 		accent: "from-amber-400/30 to-orange-500/20",
 	},
 	{
+		id: 7,
 		name: "Dungeon Crafters",
 		category: "RPG",
 		members: "740 tag",
 		accent: "from-indigo-400/30 to-slate-500/20",
 	},
 	{
+		id: 8,
 		name: "Legendás Hadjáratok",
 		category: "Stratégia",
 		members: "1.8k tag",
@@ -86,9 +96,9 @@ const AllCommunities = () => {
                                 <span className="text-sm font-semibold text-white/80">
                                     {community.members}
                                 </span>
-                                <button className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">
+                                <Link to={`/communities/${community.id}`} className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">
                                     Megnézem
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -7,6 +7,7 @@ import Register from "./Pages/Auth/Register";
 import Home from "./Pages/Home/Home";
 import Profile from "./Pages/Profile/Profile";
 import AllCommunities from "./Pages/Communities/AllCommunities";
+import Community from "./Pages/Community/Community";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route element={<NavbarLayout />}>
           <Route index element={<Home />} />
           <Route path="all-communities" element={<AllCommunities />} />
+          <Route path="communities/:id" element={<Community />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 

@@ -16,7 +16,7 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
         <div className="flex items-center">
           <button onClick={toggleSidebar} className="mr-4 p-2 rounded-lg hover:bg-white/10 transition text-white">
             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18" /><path d="M3 12h18" /><path d="M3 18h18" />
+              <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
           <Link to="/"><img src="/Images/jedligram_logo.png" alt="Jedligram logo" className="h-12 w-12 opacity-90 brightness-200" /></Link>
