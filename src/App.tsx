@@ -8,6 +8,7 @@ import Home from "./Pages/Home/Home";
 import Profile from "./Pages/Profile/Profile";
 import AllCommunities from "./Pages/Communities/AllCommunities";
 import Community from "./Pages/Community/Community";
+import CreateCommunity from "./Pages/Communities/CreateCommunity";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route element={<NavbarLayout />}>
           <Route index element={<Home />} />
           <Route path="all-communities" element={<AllCommunities />} />
+          <Route path="create-community" element={<CreateCommunity />} />
           <Route path="communities/:id" element={<Community />} />
           <Route path="profile" element={<Profile />} />
         </Route>
