@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getThreads } from "../api/threads";
+import { GetThreads } from "../api/threads";
 import type { ThreadData } from "../Interfaces/ThreadData";
 
 const Communities = () => {
@@ -11,7 +11,7 @@ const Communities = () => {
 	useEffect(() => {
 		const fetchThreads = async () => {
 			try {
-				const response = await getThreads();
+				const response = await GetThreads();
 				setThreads(response.data);
 			} catch (error) {
 				{
