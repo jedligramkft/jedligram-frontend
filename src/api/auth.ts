@@ -27,3 +27,22 @@ export const Register = async (userData: UserData): Promise<ResponseData> => {
 		data: response.data,
 	};
 };
+
+export const Logout = async (): Promise<void> => {
+	const response = await httpClient.post("/api/logout");
+
+	if (response.status === 200) {
+		console.log("Logged out successfully");
+		localStorage.removeItem(authTokenName);
+		window.location.href = "/";
+	}
+};
+
+export const getAuthToken = (): string | null => {
+	return localStorage.getItem(authTokenName);
+};
+
+export const isLoggedIn = (): boolean => {
+	const token = getAuthToken();
+	return typeof token === "string" && token.trim().length > 0;
+};

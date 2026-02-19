@@ -44,7 +44,9 @@ const RegisterPage = () => {
 			};
 
 			const response = await Register(userData);
-			console.log(response);
+			if (response.status === 201) {
+				window.location.href = "/auth/login";
+			}
 		}
 
 		(e.target as HTMLButtonElement).disabled = false;

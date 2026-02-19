@@ -20,6 +20,9 @@ const LoginPage = () => {
 		try {
 			const response = await Login(userData);
 			console.log("Login response:", response);
+			if (response.status === 200) {
+				window.location.href = "/";
+			}
 		} catch (error) {
 			//TODO display error to user
 			console.error("Login error:", error);
