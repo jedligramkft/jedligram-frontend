@@ -65,15 +65,26 @@ const communities = [
 	},
 ];
 
-const AllCommunities = () => {
+interface AllCommunityProps{
+	isLoggedIn: boolean;
+}
+
+const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
         <div className="container mx-auto px-6 py-12">
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold text-white">Közösségek</h1>
-                <Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white">
-                    Közösség létrehozása
-                </Link>
+				{isLoggedIn && (
+					<Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white">
+						Közösség létrehozása
+					</Link>
+				)}
+				{!isLoggedIn && (
+					<Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white">
+						Jelentkezz be
+					</Link>
+				)}
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {communities.map((community) => (
