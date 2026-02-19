@@ -1,11 +1,11 @@
 const Profile = () => {
   return (
-    <section className='relative min-h-screen bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular'>
+    <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular'>
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
       <div className='absolute inset-0 bg-black/30' />
 
-      <div className='relative z-10 mx-auto flex max-w-xl flex-col px-4 pt-20'>
+      <div className='relative z-10 mx-auto flex max-w-xl flex-col px-4 pt-12 pb-12'>
         <div className='rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur'>
           <h1 className='text-3xl font-black text-white'>Profil</h1>
           <p className='mt-2 text-sm text-white/70'>Kezeld a fiókadataidat és személyes beállításaidat</p>

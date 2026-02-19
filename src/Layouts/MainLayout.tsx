@@ -1,15 +1,20 @@
-import { Outlet } from 'react-router-dom'
-import Navbar from '../Components/Navbar'
-import Footer from '../Components/Footer'
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "../Components/Navbar";
+import Sidebar from "../Components/Sidebar";
+import Footer from "../Components/Footer";
 
 const MainLayout = () => {
-	return (
-		<>
-			<Navbar />
-			<Outlet />
-			<Footer />
-		</>
-	)
-}
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-export default MainLayout
+  return (
+    <>
+      <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} />
+      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} userCommunities={null} />
+      <Outlet />
+      <Footer />
+    </>
+  );
+};
+
+export default MainLayout;

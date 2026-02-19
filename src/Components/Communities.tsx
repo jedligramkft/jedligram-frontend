@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 const communities = [
 	{
@@ -21,6 +22,24 @@ const communities = [
 		accent: "from-emerald-400/30 to-lime-500/20",
 	},
 	{
+		name: "Retro Arena",
+		category: "Akció",
+		members: "950 tag",
+		accent: "from-amber-400/30 to-orange-500/20",
+	},
+	{
+		name: "Dungeon Crafters",
+		category: "RPG",
+		members: "740 tag",
+		accent: "from-indigo-400/30 to-slate-500/20",
+	},
+	{
+		name: "Legendás Hadjáratok",
+		category: "Stratégia",
+		members: "1.8k tag",
+		accent: "from-rose-400/30 to-red-500/20",
+	},
+		{
 		name: "Retro Arena",
 		category: "Akció",
 		members: "950 tag",
@@ -73,7 +92,7 @@ const Communities = () => {
                 </div>
 
 				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{communities.map((community) => (
+					{communities.slice(0, 6).map((community) => (
 						<div
 							key={community.name}
 							className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur transition hover:-translate-y-1 hover:border-white/20"
@@ -107,6 +126,9 @@ const Communities = () => {
 						</div>
 					))}
 				</div>
+				<Link to="/all-communities" className="mx-auto mt-8 block rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/10">
+					További közösségek
+				</Link>
 			</div>
 		</section>
 	);

@@ -1,33 +1,39 @@
 import CapacitorNavigator from "./Components/Utils/NavigationManager";
-import { Route, Routes } from 'react-router-dom'
-import AuthLayout from './Layouts/AuthLayout'
-import MainLayout from './Layouts/MainLayout'
-import Login from './Pages/Auth/Login'
-import RegisterPage from './Pages/Auth/Register'
-import Home from './Pages/Home/Home'
-import Profile from './Pages/Profile/Profile'
+import { Route, Routes } from "react-router-dom";
+import AuthLayout from "./Layouts/AuthLayout";
+import NavbarLayout from "./Layouts/MainLayout";
+import Login from "./Pages/Auth/Login";
+import Register from "./Pages/Auth/Register";
+import Home from "./Pages/Home/Home";
+import Profile from "./Pages/Profile/Profile";
+import AllCommunities from "./Pages/Communities/AllCommunities";
+import Community from "./Pages/Community/Community";
+import CreateCommunity from "./Pages/Communities/CreateCommunity";
+import VerifyEmail from "./Pages/Auth/VerifyEmail";
 
 function App() {
   return (
     <>
       <CapacitorNavigator />
       <Routes>
-        
-        <Route element={<MainLayout />}>
+
+        <Route element={<NavbarLayout />}>
           <Route index element={<Home />} />
+          <Route path="all-communities" element={<AllCommunities isLoggedIn={false} />} />
+          <Route path="create-community" element={<CreateCommunity isLoggedIn={false} />} />
+          <Route path="communities/:id" element={<Community />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
-        <Route path='auth' element={<AuthLayout />}>
-          <Route path='login' element={<Login />} />
-          <Route path='register' element={<RegisterPage />} />
+        <Route path="auth" element={<AuthLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="verify-email" element={<VerifyEmail />} />
         </Route>
 
-        <Route path='profile' element={<MainLayout />}>
-          <Route index element={<Profile />} />
-        </Route>
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

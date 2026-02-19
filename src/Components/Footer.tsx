@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
 	const currentYear = new Date().getFullYear();
 	const logoUrl = new URL("/Images/jedligram_logo.png", import.meta.url).href;
@@ -22,15 +24,15 @@ const Footer = () => {
 						<span>&copy; {currentYear} Jedligram. Minden jog fenntartva.</span>
 					</div>
 					<div className="flex items-center justify-center gap-4 md:justify-end">
-						<a href="#" className="text-white/70 hover:text-white transition">
+						<Link to="/all-communities" className="text-white/70 hover:text-white transition">
 							Közösség
-						</a>
-						<a href="#" className="text-white/70 hover:text-white transition">
+						</Link>
+						<Link to="/games" className="text-white/70 hover:text-white transition">
 							Játékok
-						</a>
-						<a href="#" className="text-white/70 hover:text-white transition">
+						</Link>
+						<Link to="/profile" className="text-white/70 hover:text-white transition">
 							Profil
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>
