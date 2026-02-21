@@ -56,14 +56,10 @@ const Community = () => {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-white">Feed</h2>
-        <Link
-          to={id ? `/communities/${id}/posts/new` : "/all-communities"}
-          className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
-        >
-          Új poszt
-        </Link>
+                <Link to={id ? `/communities/${id}/posts/new` : "/all-communities"} className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
+                  Új poszt
+                </Link>
               </div>
-
               <div className="mt-5 space-y-4">
                 {[1,2,3,4,5].map((n) => (
                   <article key={n} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
@@ -97,7 +93,9 @@ const Community = () => {
                         <div className="text-xs text-white/55">Tag</div>
                       </div>
                     </div>
-                    <button className="rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Profil</button>
+                      <Link to={`/users/${encodeURIComponent(name)}`} className="rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">
+                        Profil
+                      </Link>
                   </div>
                 ))}
               </div>

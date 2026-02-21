@@ -6,6 +6,7 @@ import Login from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import Home from "./Pages/Home/Home";
 import Profile from "./Pages/Profile/Profile";
+import UserProfile from "./Pages/Profile/UserProfile";
 import AllCommunities from "./Pages/Communities/AllCommunities";
 import Community from "./Pages/Community/Community";
 import CreateCommunity from "./Pages/Communities/CreateCommunity";
@@ -25,6 +26,7 @@ function App() {
           <Route path="communities/:id" element={<Community />} />
           <Route path="communities/:id/posts/new" element={<CreatePost />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="users/:id" element={<UserProfile />} />
         </Route>
 
         <Route path="auth" element={<AuthLayout />}>
