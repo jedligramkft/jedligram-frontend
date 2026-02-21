@@ -10,6 +10,7 @@ import AllCommunities from "./Pages/Communities/AllCommunities";
 import Community from "./Pages/Community/Community";
 import CreateCommunity from "./Pages/Communities/CreateCommunity";
 import VerifyEmail from "./Pages/Auth/VerifyEmail";
+import CreatePost from "./Pages/Community/CreatePost";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="all-communities" element={<AllCommunities isLoggedIn={false} />} />
           <Route path="create-community" element={<CreateCommunity isLoggedIn={false} />} />
           <Route path="communities/:id" element={<Community />} />
+          <Route path="communities/:id/posts/new" element={<CreatePost />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 
@@ -37,3 +39,4 @@ function App() {
 }
 
 export default App;
+
