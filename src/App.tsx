@@ -14,15 +14,18 @@ import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import CreatePost from "./Pages/Community/CreatePost";
 
 function App() {
+  const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
+  const isLoggedIn = Boolean(localStorage.getItem(authTokenName));
+
   return (
     <>
       <CapacitorNavigator />
       <Routes>
 
-        <Route element={<NavbarLayout />}>
+		    <Route element={<NavbarLayout isLoggedIn={isLoggedIn} />}>
           <Route index element={<Home />} />
-          <Route path="all-communities" element={<AllCommunities isLoggedIn={false} />} />
-          <Route path="create-community" element={<CreateCommunity isLoggedIn={false} />} />
+			    <Route path="all-communities" element={<AllCommunities isLoggedIn={isLoggedIn} />} />
+			    <Route path="create-community" element={<CreateCommunity isLoggedIn={isLoggedIn} />} />
           <Route path="communities/:id" element={<Community />} />
           <Route path="communities/:id/posts/new" element={<CreatePost />} />
           <Route path="profile" element={<Profile />} />

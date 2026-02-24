@@ -1,23 +1,26 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import axios from "axios";
 
 const Login = () => {
 
+const navigate = useNavigate();
 const [email, setEmail] = useState('')
 const [password, setPassword] = useState('')
 
-const dummyUser = {
-    email: 'asd@gmail.com',
-    password: '123456'
-}
+const handleLogin = async () => {
+  try {
+    const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/login`, {email, password});
 
-const handleLogin = () => {
-    if(email === dummyUser.email && password === dummyUser.password){
-        alert('Login successful')
-    }else{
-        alert('Invalid email or password')
-    }
-}
+	  const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
+	  localStorage.setItem(authTokenName, data.access_token);
+    navigate('/');
+    
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "An unknown error occurred";
+    alert(message);
+  }
+};
 
   return (
     <section className='w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur'>

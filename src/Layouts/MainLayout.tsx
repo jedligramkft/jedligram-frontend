@@ -4,13 +4,17 @@ import Navbar from "../Components/Navbar";
 import Sidebar from "../Components/Sidebar";
 import Footer from "../Components/Footer";
 
-const MainLayout = () => {
+interface MainLayoutProps {
+	isLoggedIn: boolean;
+}
+
+const MainLayout = ({ isLoggedIn }: MainLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <>
-      <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} />
-      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} userCommunities={null} isLoggedIn={false} />
+	    <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} isLoggedIn={isLoggedIn} />
+	    <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} userCommunities={null} isLoggedIn={isLoggedIn} />
       <Outlet />
       <Footer />
     </>
