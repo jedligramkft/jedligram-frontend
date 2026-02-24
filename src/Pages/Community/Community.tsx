@@ -1,7 +1,46 @@
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import httpClient from "../../api/httpClient";
 
 const Community = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [isJoining, setIsJoining] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
+
+  const handleJoin = async () => {
+    const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
+    const token = localStorage.getItem(authTokenName);
+
+    if (!token) {
+      navigate("/auth/login", { replace: true });
+      return;
+    }
+
+    if (!id) {
+      alert("Hibás közösség azonosító.");
+      return;
+    }
+
+    setIsJoining(true);
+    try {
+      await httpClient.post(`/api/threads/${encodeURIComponent(id)}/join`);
+      setIsJoined(true);
+      alert("Sikeresen csatlakoztál!");
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message = (err.response?.data as any)?.message;
+        alert(message ?? "Nem sikerült csatlakozni.");
+        return;
+      }
+
+      const message = err instanceof Error ? err.message : "Nem sikerült csatlakozni.";
+      alert(message);
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -23,7 +62,9 @@ const Community = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <button className="rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700">Csatlakozás</button>
+                <button type="button" onClick={handleJoin} disabled={isJoining || isJoined} className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
+                  {isJoined ? "Csatlakozva" : isJoining ? "Csatlakozás..." : "Csatlakozás"}
+                </button>
                 <button className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10">Meghívás</button>
                 <Link to="/all-communities" className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
                   Vissza
