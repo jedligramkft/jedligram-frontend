@@ -14,7 +14,8 @@ const handleLogin = async () => {
 
 	  const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
 	  localStorage.setItem(authTokenName, data.access_token);
-    navigate('/');
+    window.dispatchEvent(new Event("auth-changed"));
+    navigate('/', { replace: true });
     
   } catch (err) {
     const message = err instanceof Error ? err.message : "An unknown error occurred";

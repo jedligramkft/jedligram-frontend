@@ -1,5 +1,6 @@
 import CapacitorNavigator from "./Components/Utils/NavigationManager";
 import { Route, Routes } from "react-router-dom";
+import { useEffect, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import NavbarLayout from "./Layouts/MainLayout";
 import Login from "./Pages/Auth/Login";
@@ -15,7 +16,28 @@ import CreatePost from "./Pages/Community/CreatePost";
 
 function App() {
   const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
-  const isLoggedIn = Boolean(localStorage.getItem(authTokenName));
+  const [isLoggedIn, setIsLoggedIn] = useState(() =>
+    Boolean(localStorage.getItem(authTokenName)),
+  );
+
+  useEffect(() => {
+    const syncAuth = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem(authTokenName)));
+    };
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === authTokenName) {
+        syncAuth();
+      }
+    };
+
+    window.addEventListener("auth-changed", syncAuth);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("auth-changed", syncAuth);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [authTokenName]);
 
   return (
     <>
@@ -28,7 +50,7 @@ function App() {
 			    <Route path="create-community" element={<CreateCommunity isLoggedIn={isLoggedIn} />} />
           <Route path="communities/:id" element={<Community />} />
           <Route path="communities/:id/posts/new" element={<CreatePost />} />
-          <Route path="profile" element={<Profile />} />
+          <Route path="profile" element={<Profile isLoggedIn={isLoggedIn} />}  />
           <Route path="users/:id" element={<UserProfile />} />
         </Route>
 

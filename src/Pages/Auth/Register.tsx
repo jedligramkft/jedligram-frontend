@@ -12,9 +12,11 @@ const RegisterPage = () => {
 
 	
 	const handleRegister = async (e: React.FormEvent<HTMLButtonElement>) => {
+		
+
 		e.preventDefault();
 		(e.target as HTMLButtonElement).disabled = true;
-		let errors: string[] = [];
+		const errors: string[] = [];
 
 		if (
 			email.trim() === '' || 

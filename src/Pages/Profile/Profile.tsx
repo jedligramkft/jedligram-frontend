@@ -1,4 +1,65 @@
-const Profile = () => {
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom"
+
+interface ProfileProps {
+	isLoggedIn: boolean;
+}
+
+const Profile = ({ isLoggedIn }: ProfileProps) => {
+  const profileStorageKey = "jedligram_profile";
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
+
+  useEffect(() => {
+    const raw = localStorage.getItem(profileStorageKey);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw) as Partial<{
+        username: string;
+        email: string;
+        bio: string;
+      }>;
+
+      if (typeof parsed.username === "string") setUsername(parsed.username);
+      if (typeof parsed.email === "string") setEmail(parsed.email);
+      if (typeof parsed.bio === "string") setBio(parsed.bio);
+    } catch (err) {
+      console.error("Failed to parse profile data from localStorage:", err);
+    }
+  }, []);
+
+  const handleSave = () => {
+		const errors: string[] = [];
+
+    if (username.trim() === "") {
+      errors.push("A felhasználónév nem lehet üres!");
+    }
+    if (email.trim() === "") {
+      errors.push("Az email cím nem lehet üres!");
+    }
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
+    }
+
+    localStorage.setItem(
+      profileStorageKey,
+      JSON.stringify({ username, email, bio }),
+    );
+    alert("Változtatások mentve!");
+  }
+
+	if (!isLoggedIn) {
+		return <Navigate to="/auth/login" replace />
+	}
+
+  const handleLogout = () => {
+    localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token");
+	  window.dispatchEvent(new Event("auth-changed"));
+  }
+
   return (
     <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular'>
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
@@ -18,23 +79,27 @@ const Profile = () => {
           <div className='mt-10 grid gap-5'>
             <div>
               <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Felhasználónév</label>
-              <input type='text' placeholder='jedlik_user' className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
+              <input type='text' placeholder='jedlik_user' value={username} onChange={(e) => setUsername(e.target.value)} className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
             </div>
 
             <div>
               <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Email</label>
-              <input type='email' placeholder='email@pelda.hu' className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
+              <input type='email' placeholder='email@pelda.hu' value={email} onChange={(e) => setEmail(e.target.value)} className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
             </div>
 
             <div>
               <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Bemutatkozás</label>
-              <textarea placeholder='Pár szó magadról...' className='mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
+              <textarea placeholder='Pár szó magadról...' value={bio} onChange={(e) => setBio(e.target.value)} className='mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
             </div>
           </div>
 
           <div className='mt-8 flex items-center justify-between'>
             <button className='text-sm font-semibold text-white/60 transition hover:text-white'>Jelszó módosítása</button>
-            <button className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Mentés</button>
+            <button onClick={handleSave} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Mentés</button>
+          </div>
+
+          <div className='mt-6 border-t border-white/10 pt-4'>
+            <button onClick={handleLogout} className='text-sm font-semibold text-red-500 transition hover:text-red-400'>Kijelentkezés</button>
           </div>
         </div>
       </div>
