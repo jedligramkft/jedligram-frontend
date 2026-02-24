@@ -13,6 +13,7 @@ import Community from "./Pages/Community/Community";
 import CreateCommunity from "./Pages/Communities/CreateCommunity";
 import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import CreatePost from "./Pages/Community/CreatePost";
+import ChangePassword from "./Pages/Auth/ChangePassword";
 
 function App() {
   const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
@@ -58,6 +59,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="verify-email" element={<VerifyEmail />} />
+          <Route path="change-password" element={<ChangePassword />} />
         </Route>
 
       </Routes>

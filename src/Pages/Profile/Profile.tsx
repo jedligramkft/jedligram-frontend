@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
+import httpClient from "../../api/httpClient";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
 }
 
 const Profile = ({ isLoggedIn }: ProfileProps) => {
+	const navigate = useNavigate();
   const profileStorageKey = "jedligram_profile";
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -55,9 +57,19 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 		return <Navigate to="/auth/login" replace />
 	}
 
-  const handleLogout = () => {
-    localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token");
-	  window.dispatchEvent(new Event("auth-changed"));
+  const handleLogout = async () => {
+    try {
+      await httpClient.post("/api/logout");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An unknown error occurred";
+      alert(message);
+    } finally {
+      localStorage.removeItem(
+        import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token",
+      );
+      window.dispatchEvent(new Event("auth-changed"));
+      navigate("/auth/login", { replace: true });
+    }
   }
 
   return (
@@ -94,8 +106,8 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
           </div>
 
           <div className='mt-8 flex items-center justify-between'>
-            <button className='text-sm font-semibold text-white/60 transition hover:text-white'>Jelszó módosítása</button>
-            <button onClick={handleSave} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Mentés</button>
+            <Link to="/auth/change-password" className='text-sm font-semibold text-white/60 transition hover:text-blue-400'>Jelszó módosítása</Link>
+            <button onClick={handleSave} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 cursor-pointer'>Mentés</button>
           </div>
 
           <div className='mt-6 border-t border-white/10 pt-4'>
