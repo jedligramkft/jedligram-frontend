@@ -14,12 +14,13 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
     const [communityName, setCommunityName] = useState("");
     const [category, setCategory] = useState("Stratégia");
     const [description, setDescription] = useState("");
+    const [rules, setRules] = useState("");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         setCreating(true);
-        if(!communityName.trim() || !description.trim() || !category.trim()){
+        if(!communityName.trim() || !description.trim() || !category.trim() || !rules.trim()){
             alert("Kérem, töltse ki a kötelező mezőket!");
             setCreating(false);
             return;
@@ -30,6 +31,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                 name: communityName.trim(),
                 description: description.trim(),
                 category: category.trim(),
+                rules: rules.trim(),
             });
             setCreated(true);
             navigate("/all-communities");
@@ -91,6 +93,11 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                                         </svg>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="rules" className="mb-1.5 block text-sm font-medium text-white/90">Szabályok</label>
+                                <textarea id="rules" value={rules} onChange={(e) => setRules(e.target.value)} className="block w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder="Írd be a közösség szabályait"/>
                             </div>
 
                             <div>

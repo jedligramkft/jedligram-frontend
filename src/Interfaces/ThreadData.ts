@@ -3,7 +3,7 @@ export interface ThreadData {
 	name: string;
 	description: string;
 	category: string;
-
+	rules: string;
 	created_at?: Date;
 	updated_at?: Date;
 }
