@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import httpClient from "../../api/httpClient";
+import { GetPostsInThread, GetThreadById, JoinThread } from "../../api/threads";
+import type { ThreadData } from "../../Interfaces/ThreadData";
 
 interface CommunityProps {
   isLoggedIn: boolean;
@@ -12,6 +13,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
+  const [thread, setThread] = useState<ThreadData | null>(null);
+  const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const threadId = id ? Number(id) : NaN;
 
   const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isLoggedIn) return;
@@ -34,9 +41,14 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       return;
     }
 
+    if (Number.isNaN(threadId)) {
+      alert("Hibás közösség azonosító.");
+      return;
+    }
+
     setIsJoining(true);
     try {
-      await httpClient.post(`/api/threads/${encodeURIComponent(id)}/join`);
+      await JoinThread(threadId);
       setIsJoined(true);
       alert("Sikeresen csatlakoztál!");
     } catch (err) {
@@ -53,6 +65,65 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     }
   };
 
+  useEffect(() => {
+    if (!id) {
+      setLoadError("Hibás közösség azonosító.");
+      return;
+    }
+
+    if (Number.isNaN(threadId)) {
+      setLoadError("Hibás közösség azonosító.");
+      return;
+    }
+
+    if (!isLoggedIn) {
+      setLoadError("Jelentkezz be a közösség megtekintéséhez.");
+      return;
+    }
+
+    let isCancelled = false;
+    const load = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+      try {
+        const [threadRes, postsRes] = await Promise.all([
+          GetThreadById(threadId),
+          GetPostsInThread(threadId),
+        ]);
+
+        const threadData = (threadRes.data?.thread ?? threadRes.data) as ThreadData;
+        const postsData = (postsRes.data?.posts ?? postsRes.data) as unknown;
+
+        if (!isCancelled) {
+          setThread(threadData);
+          setPosts(Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : []);
+        }
+      } catch (err) {
+        if (isCancelled) return;
+
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          navigate("/auth/login", { replace: true });
+          return;
+        }
+
+        const message =
+          axios.isAxiosError(err)
+            ? ((err.response?.data as any)?.message as string | undefined) ?? err.message
+            : err instanceof Error
+              ? err.message
+              : "Nem sikerült betölteni a közösséget.";
+        setLoadError(message);
+      } finally {
+        if (!isCancelled) setIsLoading(false);
+      }
+    };
+
+    void load();
+    return () => {
+      isCancelled = true;
+    };
+  }, [id, isLoggedIn, navigate, threadId]);
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
@@ -67,8 +138,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 <div className="h-16 w-16 rounded-2xl bg-white/10 ring-1 ring-white/15" />
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Community {id ? `#${id}` : ""}</div>
-                  <h1 className="text-3xl font-bold text-white md:text-4xl">Jedlik teszt</h1>
-                  <p className="mt-1 text-sm text-white/70">Akció • 3.2k tag • Aktív</p>
+                  <h1 className="text-3xl font-bold text-white md:text-4xl">
+                    {thread?.name ?? (isLoading ? "Betöltés..." : "Közösség")}
+                  </h1>
+                  <p className="mt-1 text-sm text-white/70">
+                    {thread?.category ? `${thread.category} • ` : ""}Aktív
+                  </p>
                 </div>
               </div>
 
@@ -87,7 +162,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Leírás</div>
                 <div className="mt-2 text-sm text-white/75">
-                    Csatlakozz heti eseményekhez, közös stratégiákhoz és barátságos versenyekhez.
+                    {loadError
+                      ? loadError
+                      : thread?.description ?? (isLoading ? "Betöltés..." : "—")}
                 </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -116,21 +193,38 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 </Link>
               </div>
               <div className="mt-5 space-y-4">
-                {[1,2,3,4,5].map((n) => (
-                  <article key={n} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
-                    <div className="flex items-center justify-between text-xs text-white/55">
-                      <span>Admin • 2 órája</span>
-                      <span className="rounded-full bg-white/10 px-3 py-1">Esemény</span>
-                    </div>
-                    <h3 className="mt-3 text-lg font-semibold text-white">Tesztelés</h3>
-                    <p className="mt-2 text-sm text-white/75">sziasztok</p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Tetszik</button>
-                      <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Komment</button>
-                      <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button>
-                    </div>
-                  </article>
-                ))}
+                {isLoading && (
+                  <div className="text-sm text-white/70">Posztok betöltése...</div>
+                )}
+
+                {!isLoading && posts.length === 0 && (
+                  <div className="text-sm text-white/70">Nincs még poszt ebben a közösségben.</div>
+                )}
+
+                {posts.map((post, idx) => {
+                  const idValue = (post.id as number | string | undefined) ?? idx;
+                  const title = (post.title as string | undefined) ?? "Poszt";
+                  const content =
+                    (post.content as string | undefined) ??
+                    (post.body as string | undefined) ??
+                    "";
+
+                  return (
+                    <article key={String(idValue)} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
+                      <div className="flex items-center justify-between text-xs text-white/55">
+                        <span>•</span>
+                        <span className="rounded-full bg-white/10 px-3 py-1">Poszt</span>
+                      </div>
+                      <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>
+                      <p className="mt-2 whitespace-pre-wrap text-sm text-white/75">{content}</p>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Tetszik</button>
+                        <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Komment</button>
+                        <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </div>

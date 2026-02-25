@@ -19,6 +19,7 @@ export const CreateThread = async (
 		name: newThread.name,
 		description: newThread.description,
 		category: newThread.category,
+		rules: newThread.rules,
 	});
 
 	return {
@@ -48,7 +49,7 @@ export const JoinThread = async (threadId: number): Promise<ResponseData> => {
 };
 
 export const LeaveThread = async (threadId: number): Promise<ResponseData> => {
-	const response = await httpClient.post(`/api/threads/${threadId}/leave`);
+	const response = await httpClient.delete(`/api/threads/${threadId}/leave`);
 
 	return {
 		status: response.status,
@@ -69,10 +70,11 @@ export const GetPostsInThread = async (
 
 export const CreatePostInThread = async (
 	threadId: number,
-	content: string,
+	post: { title: string; content: string },
 ): Promise<ResponseData> => {
-	const response = await httpClient.post(`/api/threads/${threadId}/posts`, {
-		content,
+	const response = await httpClient.post(`/api/threads/${threadId}/post`, {
+		title: post.title,
+		content: post.content,
 	});
 
 	return {
