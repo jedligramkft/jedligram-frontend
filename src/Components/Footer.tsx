@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 
-const Footer = () => {
+interface FooterProps {
+	isLoggedIn?: boolean;
+}
+
+const Footer = ({ isLoggedIn }: FooterProps) => {
 	const currentYear = new Date().getFullYear();
 	const logoUrl = new URL("/Images/jedligram_logo.png", import.meta.url).href;
 
@@ -30,9 +34,15 @@ const Footer = () => {
 						<Link to="/games" className="text-white/70 hover:text-white transition">
 							Játékok
 						</Link>
-						<Link to="/profile" className="text-white/70 hover:text-white transition">
-							Profil
-						</Link>
+						{isLoggedIn ? (
+							<Link to="/profile" className="text-white/70 hover:text-white transition">
+								Profil
+							</Link>
+						) : (
+							<Link to="/auth/login" className="text-white/70 hover:text-white transition">
+								Bejelentkezés
+							</Link>
+						)}
 					</div>
 				</div>
 			</div>

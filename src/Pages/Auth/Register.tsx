@@ -11,6 +11,8 @@ const RegisterPage = () => {
 	const [userName, setUserName] = useState("");
 
 	const handleRegister = async (e: React.FormEvent<HTMLButtonElement>) => {
+		
+
 		e.preventDefault();
 		(e.target as HTMLButtonElement).disabled = true;
 		const errors: string[] = [];

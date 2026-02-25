@@ -3,8 +3,9 @@ import { AxiosError } from "axios";
 
 const backendUrl: string =
 	import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 const authTokenName: string =
-	import.meta.env.VITE_AUTH_TOKEN_NAME || "authToken";
+	import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
 
 // Create an Axios instance
 const httpClient = axios.create({

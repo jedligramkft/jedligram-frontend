@@ -5,25 +5,21 @@ import Sidebar from "../Components/Sidebar";
 import Footer from "../Components/Footer";
 import { isLoggedIn } from "../api/auth";
 
-const MainLayout = () => {
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+interface MainLayoutProps {
+	isLoggedIn: boolean;
+}
 
-	return (
-		<>
-			<Navbar
-				isLoggedIn={isLoggedIn()}
-				toggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-			/>
-			<Sidebar
-				isSidebarOpen={isSidebarOpen}
-				closeSidebar={() => setIsSidebarOpen(false)}
-				userCommunities={null}
-				isLoggedIn={isLoggedIn()}
-			/>
-			<Outlet />
-			<Footer />
-		</>
-	);
+const MainLayout = ({ isLoggedIn }: MainLayoutProps) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  return (
+    <>
+	    <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} isLoggedIn={isLoggedIn} />
+	    <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} userCommunities={null} isLoggedIn={isLoggedIn} />
+      <Outlet />
+      <Footer />
+    </>
+  );
 };
 
 export default MainLayout;

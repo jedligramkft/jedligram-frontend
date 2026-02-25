@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Login } from "../../api/auth";
 import type { UserData } from "../../Interfaces/UserData";
@@ -6,6 +6,7 @@ import type { UserData } from "../../Interfaces/UserData";
 const LoginPage = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
 	const handleLogin = async () => {
 		console.log("Attempting login with email:", email);
@@ -21,7 +22,8 @@ const LoginPage = () => {
 			const response = await Login(userData);
 			console.log("Login response:", response);
 			if (response.status === 200) {
-				window.location.href = "/";
+        window.dispatchEvent(new Event("auth-changed"));
+        navigate('/', { replace: true });
 			}
 		} catch (error) {
 			//TODO display error to user

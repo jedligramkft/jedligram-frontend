@@ -72,20 +72,24 @@ interface AllCommunityProps{
 const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
+		<div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
+      	<div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
+      	<div className='absolute inset-0 bg-black/30' />
         <div className="container mx-auto px-6 py-12">
             <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold text-white">Közösségek</h1>
+                <h1 className="text-3xl font-bold text-white z-10">Közösségek</h1>
 				{isLoggedIn && (
-					<Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white">
+					<Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white z-10">
 						Közösség létrehozása
 					</Link>
 				)}
 				{!isLoggedIn && (
-					<Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white">
+					<Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white z-10">
 						Jelentkezz be
 					</Link>
 				)}
             </div>
+			
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {communities.map((community) => (
                     <div key={community.name} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur transition hover:-translate-y-1 hover:border-white/20">

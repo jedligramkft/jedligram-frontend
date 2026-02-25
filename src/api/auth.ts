@@ -3,7 +3,7 @@ import type { UserData } from "../Interfaces/UserData";
 import httpClient from "./httpClient";
 
 const authTokenName: string =
-	import.meta.env.VITE_AUTH_TOKEN_NAME || "authToken";
+	import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
 
 export const Login = async (userData: UserData): Promise<ResponseData> => {
 	const response = await httpClient.post("/api/login", userData);
