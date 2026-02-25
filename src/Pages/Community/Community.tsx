@@ -3,11 +3,22 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import httpClient from "../../api/httpClient";
 
-const Community = () => {
+interface CommunityProps {
+  isLoggedIn: boolean;
+}
+
+const Community = ({ isLoggedIn }: CommunityProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
+
+  const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isLoggedIn) return;
+
+    e.preventDefault();
+    navigate("/auth/login", { replace: true });
+  };
 
   const handleJoin = async () => {
     const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
@@ -100,7 +111,7 @@ const Community = () => {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-white">Feed</h2>
-                <Link to={id ? `/communities/${id}/posts/new` : "/all-communities"} className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
+                <Link to={id ? `/communities/${id}/posts/new` : "/all-communities"} onClick={(e) => handleNewPost(e)} className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
                   Új poszt
                 </Link>
               </div>

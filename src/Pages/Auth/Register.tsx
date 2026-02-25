@@ -57,7 +57,7 @@ const RegisterPage = () => {
 				<input type='email' placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
 				<input type='password' placeholder='Jelszó' value={password} onChange={(e) => setPassword(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
 				<input type='password' placeholder='Jelszó újra' value={confirmpassword} onChange={(e) => setConfirmPassword(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
-				<button type='button' onClick={handleRegister} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Regisztráció</button>
+				<button type='button' onClick={handleRegister} className='cursor-pointer mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Regisztráció</button>
 			</div>
 
 			<p className='mt-4 text-sm text-white/70'>Van már fiókod?{' '}

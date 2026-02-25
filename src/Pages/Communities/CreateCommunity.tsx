@@ -20,7 +20,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
             <div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
             <div className='absolute inset-0 bg-black/30' />
 
-            <div className="relative mx-auto flex min-h-screen max-w-5xl items-center justify-center px-4 py-10">
+            <div className="relative container mx-auto px-6 py-10 flex max-w-5xl items-center justify-center">
                 <div className="w-full max-w-xl">
                     <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/30 backdrop-blur">
                         <div className="mb-6">

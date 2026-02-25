@@ -49,8 +49,8 @@ function App() {
           <Route index element={<Home />} />
 			    <Route path="all-communities" element={<AllCommunities isLoggedIn={isLoggedIn} />} />
 			    <Route path="create-community" element={<CreateCommunity isLoggedIn={isLoggedIn} />} />
-          <Route path="communities/:id" element={<Community />} />
-          <Route path="communities/:id/posts/new" element={<CreatePost />} />
+          <Route path="communities/:id" element={<Community isLoggedIn={isLoggedIn} /> } />
+          <Route path="communities/:id/posts/new" element={<CreatePost />}/>
           <Route path="profile" element={<Profile isLoggedIn={isLoggedIn} />}  />
           <Route path="users/:id" element={<UserProfile />} />
         </Route>

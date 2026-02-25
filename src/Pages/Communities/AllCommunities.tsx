@@ -85,7 +85,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
 				)}
 				{!isLoggedIn && (
 					<Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white z-10">
-						Jelentkezz be
+						Jelentkezz be közösség létrehozásához
 					</Link>
 				)}
             </div>
