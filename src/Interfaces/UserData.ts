@@ -1,7 +1,7 @@
 export interface UserData {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
-    passwordConfirmation?: string;
+	id: number;
+	name: string;
+	email: string;
+	password: string;
+	password_confirmation?: string;
 }
