@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CreateThread } from "../../api/threads";
 
 interface CreateCommunityProps {
     isLoggedIn: boolean;
@@ -7,6 +9,40 @@ interface CreateCommunityProps {
 
 const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
     const navigate = useNavigate();
+    const [created, setCreated] = useState(false);
+    const [creating, setCreating] = useState(false); 
+    const [communityName, setCommunityName] = useState("");
+    const [category, setCategory] = useState("Stratégia");
+    const [description, setDescription] = useState("");
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        setCreating(true);
+        if(!communityName.trim() || !description.trim() || !category.trim()){
+            alert("Kérem, töltse ki a kötelező mezőket!");
+            setCreating(false);
+            return;
+        }
+        try{
+            await CreateThread({
+                id: -1,
+                name: communityName.trim(),
+                description: description.trim(),
+                category: category.trim(),
+            });
+            setCreated(true);
+            navigate("/all-communities");
+        } catch(err){
+        if(axios.isAxiosError(err)){
+            const message = (err.response?.data as any)?.message;
+            alert(message ?? "Nem sikerült létrehozni a közösséget.");
+            return;
+        }
+        } finally {
+            setCreating(false);
+        }
+    };
 
     useEffect(() => {
         if(!isLoggedIn){
@@ -30,12 +66,12 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                             </p>
                         </div>
 
-                        <form className="space-y-5">
+                        <form className="space-y-5" onSubmit={handleSubmit}>
                             <div>
                                 <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-white/90">
                                     Közösség neve
                                 </label>
-                                <input type="text" id="name" className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder="Írd be a közösség nevét"/>
+                                <input type="text" id="name" value={communityName} onChange={(e) => setCommunityName(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder="Írd be a közösség nevét"/>
                             </div>
 
                             <div>
@@ -43,7 +79,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                                     Kategória
                                 </label>
                                 <div className="relative">
-                                    <select id="category" className="block w-full appearance-none rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 pr-10 text-sm text-white outline-none transition  focus:border-white/20">
+                                    <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="block w-full appearance-none rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 pr-10 text-sm text-white outline-none transition  focus:border-white/20">
                                         <option className="bg-[#1f2226]">Stratégia</option>
                                         <option className="bg-[#1f2226]">RPG</option>
                                         <option className="bg-[#1f2226]">Akció</option>
@@ -59,18 +95,21 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 
                             <div>
                                 <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-white/90">Leírás</label>
-                                <textarea id="description" rows={4} className="block w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-white/20" placeholder="Írd be a közösség leírását"/>
+                                <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="block w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-white/20" placeholder="Írd be a közösség leírását"/>
                                 <p className="mt-2 text-xs text-white/50">
                                     Tipp: pár mondatban írd le, miről szól a közösség és kinek ajánlott.
                                 </p>
                             </div>
-                            <button type="submit" className="group w-full rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/10 transition hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                            <button type="submit" disabled={creating} className="group w-full rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/10 transition hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
                                 Létrehozás
                             </button>
                             <div className="pt-1 text-center text-xs text-white/50">
                                 A „Létrehozás” gombbal elfogadod a közösségi irányelveket.
                             </div>
                         </form>
+                        {created && (
+                            <p className="mt-4 text-sm font-semibold text-emerald-300">Sikeresen létrehozva.</p>
+                        )}
                     </div>
                 </div>
             </div>

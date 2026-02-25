@@ -18,6 +18,7 @@ export const CreateThread = async (
 	const response = await httpClient.post("/api/threads", {
 		name: newThread.name,
 		description: newThread.description,
+		category: newThread.category,
 	});
 
 	return {

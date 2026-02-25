@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import NavbarLayout from "./Layouts/MainLayout";
-import LoginPage from "./Pages/Auth/Login";
 import Register from "./Pages/Auth/Register";
 import Home from "./Pages/Home/Home";
 import Profile from "./Pages/Profile/Profile";
@@ -14,6 +13,7 @@ import CreateCommunity from "./Pages/Communities/CreateCommunity";
 import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import CreatePost from "./Pages/Community/CreatePost";
 import ChangePassword from "./Pages/Auth/ChangePassword";
+import LoginPage from "./Pages/Auth/Login";
 
 function App() {
   const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
@@ -56,7 +56,7 @@ function App() {
         </Route>
 
         <Route path="auth" element={<AuthLayout />}>
-          <Route path="login" element={<Login />} />
+          <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<Register />} />
           <Route path="verify-email" element={<VerifyEmail />} />
           <Route path="change-password" element={<ChangePassword />} />

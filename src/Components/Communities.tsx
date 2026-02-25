@@ -15,7 +15,11 @@ const Communities = () => {
 				setThreads(response.data);
 			} catch (error) {
 				{
-					/* TODO Display the error message in the UI */
+					const message = (error as any)?.response?.data?.message;
+					if (message) {
+						alert(message);
+						return;
+					}
 				}
 				console.error("Error fetching threads:", error);
 			}
