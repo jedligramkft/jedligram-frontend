@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Sidebar from "../Components/Sidebar";
 import Footer from "../Components/Footer";
+import { isLoggedIn } from "../api/auth";
 
 interface MainLayoutProps {
 	isLoggedIn: boolean;
