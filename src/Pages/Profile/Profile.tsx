@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import httpClient from "../../api/httpClient";
+import { Logout } from "../../api/auth";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
@@ -12,6 +13,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [bio, setBio] = useState<string>("");
+  const [joinedThreads, setJoinedThreads] = useState<string[]>([]);
 
   useEffect(() => {
     const raw = localStorage.getItem(profileStorageKey);
@@ -22,11 +24,13 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
         username: string;
         email: string;
         bio: string;
+        joinedThreads: string[];
       }>;
 
       if (typeof parsed.username === "string") setUsername(parsed.username);
       if (typeof parsed.email === "string") setEmail(parsed.email);
       if (typeof parsed.bio === "string") setBio(parsed.bio);
+      if (Array.isArray(parsed.joinedThreads)) setJoinedThreads(parsed.joinedThreads);
     } catch (err) {
       console.error("Failed to parse profile data from localStorage:", err);
     }
@@ -48,7 +52,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
     localStorage.setItem(
       profileStorageKey,
-      JSON.stringify({ username, email, bio }),
+      JSON.stringify({ username, email, bio, joinedThreads }),
     );
     alert("Változtatások mentve!");
   }
@@ -59,7 +63,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
   const handleLogout = async () => {
     try {
-      await httpClient.post("/api/logout");
+      await Logout();
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unknown error occurred";
       alert(message);
@@ -102,6 +106,19 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
             <div>
               <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Bemutatkozás</label>
               <textarea placeholder='Pár szó magadról...' value={bio} onChange={(e) => setBio(e.target.value)} className='mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
+            </div>
+
+            <div>
+              <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Csatlakozott közösségek</label>
+              <div className='mt-2 flex flex-wrap gap-2'>
+                {joinedThreads.length === 0 ? (
+                  <p className='text-sm text-white/50'>Nem csatlakoztál még egy közösséghez sem.</p>
+                ) : (
+                  joinedThreads.map((thread) => (
+                    <span key={thread} className='rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-400'>{thread}</span>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
