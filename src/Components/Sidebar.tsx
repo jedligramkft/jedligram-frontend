@@ -1,39 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface SidebarProps {
   closeSidebar: () => void;
   isSidebarOpen: boolean;
-  userCommunities: { id: number; name: string; image: string }[] | null;
   isLoggedIn: boolean;
 }
 
 
-const Sidebar = ({ closeSidebar, isSidebarOpen, userCommunities, isLoggedIn }: SidebarProps) => {
+const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
   const [activeCommunity, setActiveCommunity] = useState(1);
+  const [joinedThreadIds, setJoinedThreadIds] = useState<number[]>([]);
 
-//   const communities = [
-//     { id: 1, name: "Community 1", image: "/Images/communityLogo.png" },
-//     { id: 2, name: "Community 2", image: "/Images/communityLogo.png" },
-//     { id: 3, name: "Community 3", image: "/Images/communityLogo.png" },
-//   ];
+  const loadJoinedFromStorage = () => {
+    const raw = localStorage.getItem("jedligram_profile");
+    if (!raw) {
+      setJoinedThreadIds([]);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as Partial<{ joinedThreadIds: number[] }>;
+      setJoinedThreadIds(Array.isArray(parsed.joinedThreadIds) ? parsed.joinedThreadIds : []);
+    } catch {
+      setJoinedThreadIds([]);
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    loadJoinedFromStorage();
+    const onThreadsChanged = () => loadJoinedFromStorage();
+    window.addEventListener("joined-threads-changed", onThreadsChanged);
+    return () => window.removeEventListener("joined-threads-changed", onThreadsChanged);
+  }, [isLoggedIn]);
 
   return (
     <>
       <div onClick={closeSidebar} className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 ${isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"}`} />
         <div className={`fixed top-0 left-0 h-screen w-48 md:w-64 z-50 flex flex-col py-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {isLoggedIn ? (
-          userCommunities && userCommunities.length > 0 ? (
-            userCommunities.map(c => (
-            <div key={c.id} onClick={() => { setActiveCommunity(c.id); closeSidebar(); }} className="flex items-center cursor-pointer mb-4">
-                <img src={c.image} alt={c.name} className={`w-12 h-12 rounded-full transition-all duration-200 ${activeCommunity === c.id ? "rounded-2xl" : "group-hover:rounded-2xl"}`} />
-                <span className="ml-4 text-white font-medium">{c.name}</span>
+          joinedThreadIds.length > 0 ? (
+          <div className="mt-4 w-full px-3">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">Csatlakozott közösségek</p>
+            <div className="flex flex-col gap-2">
+              {joinedThreadIds.map((id) => (
+                <Link
+                  key={id}
+                  to={`/communities/${id}`}
+                  onClick={() => { setActiveCommunity(id); closeSidebar(); }}
+                  className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/90 transition hover:bg-white/10 ${activeCommunity === id ? "bg-white/10" : ""}`}
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-sm font-bold">
+                    #{id}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">Közösség #{id}</p>
+                    <p className="text-xs text-white/60">Tag</p>
+                  </div>
+                </Link>
+              ))}
             </div>
-            ))
+          </div>
         ) : (
-            <div className="flex flex-col items-center justify-center mt-20 text-white text-center px-4">
-              <p className="mb-4">Nem vagy egy közösség tagja sem.</p>
-            </div>
+          <div className="flex flex-col items-center justify-center mt-20 text-white text-center px-4">
+            <p className="mb-4">Nem vagy egy közösség tagja sem.</p>
+          </div>
         )
       ) : (
         <div className="flex flex-col items-center justify-center mt-20 text-white text-center px-4">

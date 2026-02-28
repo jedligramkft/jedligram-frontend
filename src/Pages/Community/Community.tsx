@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { GetPostsInThread, GetThreadById, JoinThread } from "../../api/threads";
+import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../api/threads";
+import { RemoveVoteFromPost, VoteOnPost } from "../../api/posts";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 
 interface CommunityProps {
@@ -13,12 +14,94 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const [thread, setThread] = useState<ThreadData | null>(null);
   const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [likeStatuses, setLikeStatuses] = useState<Record<number, boolean>>({});
+  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
+  const [votingPostId, setVotingPostId] = useState<number | null>(null);
 
   const threadId = id ? Number(id) : NaN;
+
+  const profileStorageKey = "jedligram_profile";
+
+  const readProfile = (): any => {
+    try {
+      const raw = localStorage.getItem(profileStorageKey);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  };
+
+  const updateJoinedThreadsLocal = (threadIdValue: number, threadLabel: string, shouldBeJoined: boolean) => {
+    const profile = readProfile();
+    const joinedThreads: string[] = Array.isArray(profile.joinedThreads) ? profile.joinedThreads : [];
+    const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds) ? profile.joinedThreadIds : [];
+
+    const nextIds = shouldBeJoined
+      ? Array.from(new Set([...joinedThreadIds, threadIdValue]))
+      : joinedThreadIds.filter((t) => t !== threadIdValue);
+
+    const nextLabels = shouldBeJoined
+      ? Array.from(new Set([...joinedThreads, threadLabel]))
+      : joinedThreads.filter((t) => t !== threadLabel);
+
+    localStorage.setItem(
+      profileStorageKey,
+      JSON.stringify({ ...profile, joinedThreads: nextLabels, joinedThreadIds: nextIds }),
+    );
+
+    window.dispatchEvent(new Event("joined-threads-changed"));
+  };
+
+  const parsePostId = (value: unknown): number => {
+    const n = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+    return Number.isFinite(n) ? n : NaN;
+  };
+
+  useEffect(() => {
+    if (Number.isNaN(threadId)) return;
+    const profile = readProfile();
+    const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds) ? profile.joinedThreadIds : [];
+    setIsJoined(joinedThreadIds.includes(threadId));
+  }, [threadId]);
+
+  const syncLikeCountsFromPosts = (postsArray: Array<Record<string, unknown>>) => {
+    setLikeCounts((prev) => {
+      const next = { ...prev };
+
+      for (const post of postsArray) {
+        const postId = parsePostId(post.id);
+        if (Number.isNaN(postId)) continue;
+
+        const serverValue = (post.likes_count as unknown) ?? (post.likesCount as unknown);
+        const serverNumber =
+          typeof serverValue === "number"
+            ? serverValue
+            : typeof serverValue === "string"
+              ? Number(serverValue)
+              : NaN;
+
+        if (Number.isFinite(serverNumber)) {
+          next[postId] = Math.max(0, Math.trunc(serverNumber));
+        } else if (next[postId] === undefined) {
+          next[postId] = 0;
+        }
+      }
+
+      return next;
+    });
+  };
+
+  const getLikeCount = (postId: number, post: Record<string, unknown>): number => {
+    const serverValue = (post.likes_count as unknown) ?? (post.likesCount as unknown);
+    const value = serverValue ?? likeCounts[postId] ?? 0;
+    const n = typeof value === "number" ? value : typeof value === "string" ? Number(value) : 0;
+    return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
+  };
 
   const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isLoggedIn) return;
@@ -50,10 +133,19 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     try {
       await JoinThread(threadId);
       setIsJoined(true);
-      alert("Sikeresen csatlakoztál!");
+      updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, true);
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const message = (err.response?.data as any)?.message;
+        const message = ((err.response?.data as any)?.message as string | undefined) ?? err.message;
+        const lower = message.toLowerCase();
+        const alreadyMember = lower.includes("already") && lower.includes("member");
+
+        if (alreadyMember) {
+          setIsJoined(true);
+          updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, true);
+          return;
+        }
+
         alert(message ?? "Nem sikerült csatlakozni.");
         return;
       }
@@ -62,6 +154,41 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       alert(message);
     } finally {
       setIsJoining(false);
+    }
+  };
+
+  const handleLeave = async () => {
+    const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
+    const token = localStorage.getItem(authTokenName);
+
+    if (!token) {
+      navigate("/auth/login", { replace: true });
+      return;
+    }
+
+    if (!id) {
+      alert("Hibás közösség azonosító.");
+      return;
+    }
+
+    if (Number.isNaN(threadId)) {
+      alert("Hibás közösség azonosító.");
+      return;
+    }
+
+    setIsLeaving(true);
+    try {
+      await LeaveThread(threadId);
+      setIsJoined(false);
+      updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, false);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message = (err.response?.data as any)?.message;
+        alert(message ?? "Nem sikerült elhagyni a közösséget.");
+        return;
+      }
+    } finally {
+      setIsLeaving(false);
     }
   };
 
@@ -96,7 +223,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
         if (!isCancelled) {
           setThread(threadData);
-          setPosts(Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : []);
+          const postsArray = Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : [];
+          setPosts(postsArray);
+          syncLikeCountsFromPosts(postsArray);
         }
       } catch (err) {
         if (isCancelled) return;
@@ -124,6 +253,60 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     };
   }, [id, isLoggedIn, navigate, threadId]);
 
+  const reloadPosts = async () => {
+    if (!id || Number.isNaN(threadId)) return;
+
+    const postsRes = await GetPostsInThread(threadId);
+    const postsData = (postsRes.data?.posts ?? postsRes.data) as unknown;
+    const postsArray = Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : [];
+    setPosts(postsArray);
+    syncLikeCountsFromPosts(postsArray);
+  };
+
+  const handleToggleLike = async (postId: number) => {
+    if (!isLoggedIn) {
+      navigate("/auth/login", { replace: true });
+      return;
+    }
+
+    if (Number.isNaN(postId)) {
+      alert("Hibás poszt azonosító.");
+      return;
+    }
+
+    if (votingPostId === postId) return;
+    setVotingPostId(postId);
+
+    const wasLiked = likeStatuses[postId] === true;
+    const willLike = !wasLiked;
+    const previousCount = likeCounts[postId] ?? 0;
+
+    setLikeStatuses((prev) => ({ ...prev, [postId]: willLike }));
+    setLikeCounts((prev) => ({
+      ...prev,
+      [postId]: Math.max(0, (prev[postId] ?? previousCount) + (willLike ? 1 : -1)),
+    }));
+
+    try {
+      if (willLike) await VoteOnPost(postId, true);
+      else await RemoveVoteFromPost(postId);
+      void reloadPosts();
+    } catch (err) {
+      setLikeStatuses((prev) => ({ ...prev, [postId]: wasLiked }));
+      setLikeCounts((prev) => ({ ...prev, [postId]: previousCount }));
+
+      const message =
+        axios.isAxiosError(err)
+          ? ((err.response?.data as any)?.message as string | undefined) ?? err.message
+          : err instanceof Error
+            ? err.message
+            : "Nem sikerült szavazni.";
+      alert(message);
+    } finally {
+      setVotingPostId(null);
+    }
+  };
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
@@ -148,9 +331,23 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <button type="button" onClick={handleJoin} disabled={isJoining || isJoined} className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
-                  {isJoined ? "Csatlakozva" : isJoining ? "Csatlakozás..." : "Csatlakozás"}
-                </button>
+                {isJoined ? (
+                  <button
+                    onClick={handleLeave}
+                    disabled={isLeaving}
+                    className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {isLeaving ? "Elhagyás..." : "Elhagyás"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleJoin}
+                    disabled={isJoining}
+                    className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {isJoining ? "Csatlakozás..." : "Csatlakozás"}
+                  </button>
+                )}
                 <button className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10">Meghívás</button>
                 <Link to="/all-communities" className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
                   Vissza
@@ -188,9 +385,16 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-white">Feed</h2>
-                <Link to={id ? `/communities/${id}/posts/new` : "/all-communities"} onClick={(e) => handleNewPost(e)} className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
-                  Új poszt
-                </Link>
+                {isJoined && (
+                  <Link to={id ? `/communities/${id}/posts/new` : "/all-communities"} onClick={(e) => handleNewPost(e)} className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
+                    Új poszt
+                  </Link>
+                )}
+                {!isJoined && (
+                  <button onClick={handleJoin} className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
+                    Csatlakozás a posztoláshoz
+                  </button>
+                )}
               </div>
               <div className="mt-5 space-y-4">
                 {isLoading && (
@@ -202,7 +406,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 )}
 
                 {posts.map((post, idx) => {
-                  const idValue = (post.id as number | string | undefined) ?? idx;
+                  const postId = parsePostId(post.id);
+                  const isLiked = !Number.isNaN(postId) && likeStatuses[postId] === true;
+                  const isVoting = !Number.isNaN(postId) && votingPostId === postId;
+                  const likeCount = Number.isNaN(postId) ? 0 : getLikeCount(postId, post);
+
+                  const keyValue = Number.isNaN(postId) ? `fallback-${idx}` : String(postId);
                   const title = (post.title as string | undefined) ?? "Poszt";
                   const content =
                     (post.content as string | undefined) ??
@@ -210,7 +419,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     "";
 
                   return (
-                    <article key={String(idValue)} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
+                    <article key={keyValue} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
                       <div className="flex items-center justify-between text-xs text-white/55">
                         <span>•</span>
                         <span className="rounded-full bg-white/10 px-3 py-1">Poszt</span>
@@ -218,9 +427,22 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                       <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-white/75">{content}</p>
                       <div className="mt-4 flex flex-wrap gap-3">
-                        <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Tetszik</button>
                         <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Komment</button>
                         <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button>
+                        <button 
+                          type="button"
+                          onClick={() => handleToggleLike(postId)}
+                          disabled={Number.isNaN(postId) || isVoting}
+                          className={
+                            `cursor-pointer rounded-xl border px-4 py-2 text-xs font-semibold transition ` +
+                            (isLiked
+                              ? "border-white/35 bg-white/10 text-white"
+                              : "border-white/15 text-white/80 hover:bg-white/10") +
+                            " disabled:cursor-not-allowed disabled:opacity-70"
+                          }
+                        >
+                          {isLiked ? `Tetszik ✓ (${likeCount})` : `Tetszik (${likeCount})`}
+                        </button>
                       </div>
                     </article>
                   );

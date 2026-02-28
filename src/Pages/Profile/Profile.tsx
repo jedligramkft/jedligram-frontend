@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom"
-import httpClient from "../../api/httpClient";
+import { Logout } from "../../api/auth";
+import { ProfilePictureUpload } from "../../api/users";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
@@ -12,8 +13,10 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [bio, setBio] = useState<string>("");
+  const [joinedThreadIds, setJoinedThreadIds] = useState<number[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
+  const loadFromStorage = () => {
     const raw = localStorage.getItem(profileStorageKey);
     if (!raw) return;
 
@@ -22,14 +25,25 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
         username: string;
         email: string;
         bio: string;
+        joinedThreadIds: number[];
       }>;
 
       if (typeof parsed.username === "string") setUsername(parsed.username);
       if (typeof parsed.email === "string") setEmail(parsed.email);
       if (typeof parsed.bio === "string") setBio(parsed.bio);
+
+      if (Array.isArray(parsed.joinedThreadIds)) setJoinedThreadIds(parsed.joinedThreadIds);
     } catch (err) {
       console.error("Failed to parse profile data from localStorage:", err);
     }
+  };
+
+  useEffect(() => {
+    loadFromStorage();
+
+    const onThreadsChanged = () => loadFromStorage();
+    window.addEventListener("joined-threads-changed", onThreadsChanged);
+    return () => window.removeEventListener("joined-threads-changed", onThreadsChanged);
   }, []);
 
   const handleSave = () => {
@@ -46,12 +60,35 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
       return;
     }
 
-    localStorage.setItem(
-      profileStorageKey,
-      JSON.stringify({ username, email, bio }),
-    );
+    let existing: any = {};
+    try {
+      const raw = localStorage.getItem(profileStorageKey);
+      existing = raw ? JSON.parse(raw) : {};
+    } catch {
+      existing = {};
+    }
+
+    localStorage.setItem(profileStorageKey, JSON.stringify({ ...existing, username, email, bio, joinedThreadIds }));
     alert("Változtatások mentve!");
   }
+
+  const changeProfilePicture = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onProfilePictureSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await ProfilePictureUpload(file);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nem sikerült feltölteni a profilképet.";
+      alert(message);
+    } finally {
+      e.target.value = "";
+    }
+  };
 
 	if (!isLoggedIn) {
 		return <Navigate to="/auth/login" replace />
@@ -59,7 +96,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
   const handleLogout = async () => {
     try {
-      await httpClient.post("/api/logout");
+      await Logout();
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unknown error occurred";
       alert(message);
@@ -85,7 +122,14 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
           <div className='mt-8 flex flex-col items-center gap-4'>
             <div className='h-28 w-28 rounded-full border border-white/20 bg-linear-to-br from-blue-500/30 to-indigo-500/30 shadow-lg' />
-            <button className='text-sm font-semibold text-blue-400 transition hover:text-blue-300'>Profilkép módosítása</button>
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/*'
+              className='hidden'
+              onChange={onProfilePictureSelected}
+            />
+            <button className='text-sm font-semibold text-blue-400 transition hover:text-blue-300' onClick={changeProfilePicture}>Profilkép módosítása</button>
           </div>
 
           <div className='mt-10 grid gap-5'>
@@ -102,6 +146,27 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
             <div>
               <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Bemutatkozás</label>
               <textarea placeholder='Pár szó magadról...' value={bio} onChange={(e) => setBio(e.target.value)} className='mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
+            </div>
+
+            <div>
+              <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Csatlakozott közösségek</label>
+              <div className='mt-2 grid gap-2'>
+                {joinedThreadIds.length === 0 ? (
+                  <p className='text-sm text-white/50'>Nem csatlakoztál még egy közösséghez sem.</p>
+                ) : (
+                  joinedThreadIds.map((threadId) => (
+                  <div key={threadId} className='flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4'>
+                    <div>
+                      <p className='text-sm font-semibold text-white'>Közösség #{threadId}</p>
+                      <p className='text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>Tag</p>
+                    </div>
+                    <Link to={`/communities/${threadId}`} className='rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10'>
+                      Megnézem
+                    </Link>
+                  </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
 

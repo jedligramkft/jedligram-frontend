@@ -45,3 +45,15 @@ export const UpdateUserProfile = async (
 		data: response.data,
 	};
 };
+
+export const ProfilePictureUpload = async (file: File): Promise<ResponseData> => {
+	const formData = new FormData();
+	formData.append("profile_picture", file);
+	
+	const response = await httpClient.post(`/api/users/profile-picture`, formData);
+
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
