@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import { Logout } from "../../api/auth";
+import { ProfilePictureUpload } from "../../api/users";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
@@ -13,6 +14,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const [email, setEmail] = useState<string>("");
   const [bio, setBio] = useState<string>("");
   const [joinedThreadIds, setJoinedThreadIds] = useState<number[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadFromStorage = () => {
     const raw = localStorage.getItem(profileStorageKey);
@@ -70,6 +72,24 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
     alert("Változtatások mentve!");
   }
 
+  const changeProfilePicture = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onProfilePictureSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await ProfilePictureUpload(file);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nem sikerült feltölteni a profilképet.";
+      alert(message);
+    } finally {
+      e.target.value = "";
+    }
+  };
+
 	if (!isLoggedIn) {
 		return <Navigate to="/auth/login" replace />
 	}
@@ -102,7 +122,14 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
           <div className='mt-8 flex flex-col items-center gap-4'>
             <div className='h-28 w-28 rounded-full border border-white/20 bg-linear-to-br from-blue-500/30 to-indigo-500/30 shadow-lg' />
-            <button className='text-sm font-semibold text-blue-400 transition hover:text-blue-300'>Profilkép módosítása</button>
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/*'
+              className='hidden'
+              onChange={onProfilePictureSelected}
+            />
+            <button className='text-sm font-semibold text-blue-400 transition hover:text-blue-300' onClick={changeProfilePicture}>Profilkép módosítása</button>
           </div>
 
           <div className='mt-10 grid gap-5'>
