@@ -38,7 +38,19 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
       	<div className='absolute inset-0 bg-black/30' />
         <div className="container mx-auto px-6 py-12">
             <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold text-white z-10">Közösségek</h1>
+                <div className="z-10">
+                    <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                        Közösségek
+                    </h1>
+                    <p className="mt-2 max-w-2xl text-sm text-white/70">
+                        Fedezz fel témákat, csatlakozz beszélgetésekhez, és találd meg a helyed.
+                    </p>
+                    <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur">
+                        <span className="text-white/60">Összesen</span>
+                        <span className="text-white">{threads.length}</span>
+                        <span className="text-white/60">közösség</span>
+                    </div>
+                </div>
 				{isLoggedIn && (
 					<Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white z-10">
 						Közösség létrehozása
@@ -62,12 +74,19 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                                     Aktív
                                 </span>
                             </div>
-                            <h3 className="text-2xl font-semibold text-white">
-                                {thread.name}
-                            </h3>
-                            <p className="text-sm text-white/70">
-                                Csatlakozz heti eseményekhez, közös stratégiákhoz és barátságos versenyekhez.
-                            </p>
+                            <div className="flex items-start gap-4">
+                                <div className="shrink-0 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
+                                    <div className="h-16 w-16 rounded-2xl bg-white/10 ring-1 ring-white/15" />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-2xl font-semibold text-white">
+                                        {thread.name}
+                                    </h3>
+                                    <p className="text-sm text-white/70">
+                                        Csatlakozz heti eseményekhez, közös stratégiákhoz és barátságos versenyekhez.
+                                    </p>
+                                </div>
+                            </div>
                             <div className="mt-auto flex items-center justify-between">
                                 <span className="text-sm font-semibold text-white/80">
                                     {/* {thread.members} */}
