@@ -412,7 +412,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                   const likeCount = Number.isNaN(postId) ? 0 : getLikeCount(postId, post);
 
                   const keyValue = Number.isNaN(postId) ? `fallback-${idx}` : String(postId);
-                  const title = (post.title as string | undefined) ?? "Poszt";
+                  const title = (post.title as string | undefined) ?? "Poszt"; 
                   const content =
                     (post.content as string | undefined) ??
                     (post.body as string | undefined) ??
@@ -421,8 +421,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                   return (
                     <article key={keyValue} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
                       <div className="flex items-center justify-between text-xs text-white/55">
-                        <span>•</span>
-                        <span className="rounded-full bg-white/10 px-3 py-1">Poszt</span>
+                        {post.author ? `@${post.author}` : "Ismeretlen szerző"}
+                        <span>{new Date(post.created_at as string).toLocaleString()}</span>
                       </div>
                       <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-white/75">{content}</p>
