@@ -11,7 +11,7 @@ const Hero = () => {
 	const [threads, setThreads] = useState<ThreadData[]>([])
 
 	useEffect(() => {
-		const fetchThreads = async () => {
+		const fetchThreads = async () => { 
 			try{
 				const response = await GetThreads();
 				setThreads(Array.isArray(response.data) ? response.data : []);
@@ -88,7 +88,7 @@ const Hero = () => {
 							<div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 p-2 text-left shadow-xl">
 								{filteredThreads.length > 0 ? (
 									<div className="max-h-72 overflow-y-auto">
-										{filteredThreads.map((thread) => (
+										{filteredThreads.slice(0,3).map((thread) => (
 											<Link key={thread.id} to={`/communities/${thread.id}`} className="block rounded-xl px-4 py-3 transition hover:bg-white">
 												<div className="flex items-center justify-between gap-4">
 													<div>

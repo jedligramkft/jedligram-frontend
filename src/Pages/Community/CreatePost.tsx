@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import httpClient from "../../api/httpClient";
 import axios from "axios";
+import { CreatePostInThread } from "../../api/threads";
 
 const CreatePost = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,10 +27,7 @@ const CreatePost = () => {
 
     setCreating(true);
     try{
-      await httpClient.post(`/api/threads/${encodeURIComponent(id)}/post`, {
-        title,
-        content
-      });
+      await CreatePostInThread(Number(id), { title, content });
       setCreated(true);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -49,20 +46,49 @@ const CreatePost = () => {
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
       <div className='absolute inset-0 bg-black/30' />
       <div className="container mx-auto px-6 py-10">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/30 backdrop-blur">
+        <div className="relative mx-auto max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/30 backdrop-blur">
           <div className="absolute inset-0 bg-linear-to-br from-blue-500/15 via-cyan-400/10 to-purple-500/15" />
           <div className="relative z-10 p-8 md:p-10">
-            <h1 className="text-3xl font-bold text-white md:text-4xl">Új poszt létrehozása</h1>
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h1 className="text-3xl font-black text-white md:text-4xl">Új poszt</h1>
+                <p className="mt-2 text-sm text-white/70">Oszd meg a gondolataid a közösséggel</p>
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/10 px-4 py-2 text-xs font-semibold text-white/80">
+                  <span className="text-white/60">Közösség</span>
+                  <span className="text-white/90">#{id ?? "—"}</span>
+                </div>
+              </div>
 
-            <form className="mt-6 flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-              <input type="text" placeholder="Cím" className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500" value={title} onChange={(e) => setTitle(e.target.value)}/>
-              <textarea placeholder="Tartalom" className="h-40 w-full resize-none rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500" value={content} onChange={(e) => setContent(e.target.value)}/>
-              <button type="submit" disabled={creating} className="self-end rounded-lg bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:opacity-70">
-                Poszt létrehozása
+              <button type="button" onClick={() => navigate(id ? `/communities/${encodeURIComponent(id)}` : "/all-communities")} className="cursor-pointer h-10 rounded-xl border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
+                Vissza
               </button>
+            </div>
+            <form className="mt-8 grid gap-5" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-white/60">Cím</label>
+                <input type="text" placeholder="Adj egy rövid címet…" className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" value={title} onChange={(e) => setTitle(e.target.value)}/>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-white/60">Tartalom</label>
+                <textarea placeholder="Írd le részletesebben…" className="mt-2 h-44 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" value={content} onChange={(e) => setContent(e.target.value)}/>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs text-white/55">A poszt a közösség feedjében jelenik meg.</p>
+                <button type="submit" disabled={creating} className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
+                  {creating ? "Létrehozás…" : "Poszt létrehozása"}
+                </button>
+              </div>
             </form>
+
             {created && (
-              <p className="mt-4 text-sm font-semibold text-emerald-300">Sikeresen létrehozva.</p>
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/10 p-4">
+                <p className="text-sm font-semibold text-emerald-300">Sikeresen létrehozva.</p>
+                <button type="button" onClick={() => navigate(id ? `/communities/${encodeURIComponent(id)}` : "/all-communities")} className="cursor-pointer mt-3 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
+                  Vissza a közösségbe
+                </button>
+              </div>
             )}
           </div>
         </div>

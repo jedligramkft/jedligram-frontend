@@ -421,7 +421,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                   return (
                     <article key={keyValue} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
                       <div className="flex items-center justify-between text-xs text-white/55">
-                        <span>•</span>
                         <span className="rounded-full bg-white/10 px-3 py-1">Poszt</span>
                       </div>
                       <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>

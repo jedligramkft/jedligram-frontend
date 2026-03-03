@@ -252,7 +252,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
                       <p className='text-sm font-semibold text-white'>Közösség #{threadId}</p>
                       <p className='text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>Tag</p>
                     </div>
-                    <Link to={`/communities/${threadId}`} className='rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10'>
+                    <Link to={`/communities/${threadId}`} className='cursor-pointer rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10'>
                       Megnézem
                     </Link>
                   </div>
