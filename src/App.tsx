@@ -14,6 +14,7 @@ import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import CreatePost from "./Pages/Community/CreatePost";
 import ChangePassword from "./Pages/Auth/ChangePassword";
 import LoginPage from "./Pages/Auth/Login";
+import SearchResults from "./Pages/Search/SearchResults";
 
 function App() {
   const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
@@ -47,6 +48,7 @@ function App() {
 
 		    <Route element={<NavbarLayout isLoggedIn={isLoggedIn} />}>
           <Route index element={<Home />} />
+		      <Route path="search" element={<SearchResults/>} />
 			    <Route path="all-communities" element={<AllCommunities isLoggedIn={isLoggedIn} />} />
 			    <Route path="create-community" element={<CreateCommunity isLoggedIn={isLoggedIn} />} />
           <Route path="communities/:id" element={<Community isLoggedIn={isLoggedIn} /> } />

@@ -1,11 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { ThreadData } from '../Interfaces/ThreadData';
 import { GetThreads } from '../api/threads';
 
 const Hero = () => {
+	const navigate = useNavigate()
 	const [query, setQuery] = useState('')
 	const [threads, setThreads] = useState<ThreadData[]>([])
 
@@ -28,6 +29,12 @@ const Hero = () => {
 		};
 		fetchThreads();
 	}, [])
+
+	const handleClick = () => {
+		const q = query.trim()
+		if (q === '') return
+		navigate(`/search?q=${encodeURIComponent(q)}`)
+	}
 
 	const filteredThreads = useMemo(() => {
 		const normalizedQuery = query.trim().toLowerCase()
@@ -62,11 +69,19 @@ const Hero = () => {
 						Játék, közösség, és szórakozás egy helyen.
 					</p>
 					<div className="relative mx-auto mt-8 w-full max-w-2xl">
-						<div className="flex justify-center gap-2">
-							<input type="text" placeholder="Keress csoportot..." value={query} onChange={(e) => setQuery(e.target.value)} className="md:w-200 sm:w-xs px-6 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"/>
-							<button type="button" className="bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-lg text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md">
+					<div className="flex justify-center">
+						<div className="flex w-full max-w-xl">
+								<input
+									type="text"
+									placeholder="Keress csoportot..."
+									value={query}
+									onChange={(e) => setQuery(e.target.value)}
+									className="flex-1 px-6 py-3 bg-white text-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+								/>
+								<button type="button" onClick={handleClick} className="bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-r-lg text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md">
 								<FontAwesomeIcon icon={faMagnifyingGlass} />
 							</button>
+							</div>
 						</div>
 
 						{showDropdown && (
