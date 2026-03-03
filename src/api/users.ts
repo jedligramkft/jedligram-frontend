@@ -48,12 +48,16 @@ export const UpdateUserProfile = async (
 
 export const ProfilePictureUpload = async (file: File): Promise<ResponseData> => {
 	const formData = new FormData();
-	formData.append("profile_picture", file);
-	
-	const response = await httpClient.post(`/api/users/profile-picture`, formData);
+	formData.append("profile_picture", file, file.name);
 
-	return {
-		status: response.status,
-		data: response.data,
-	};
+	try {
+		const response = await httpClient.post("/api/users/profile-picture", formData);
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const serverMessage = err?.response?.data?.message;
+		throw new Error(typeof serverMessage === "string" ? serverMessage : "Nem sikerült feltölteni a profilképet.");
+	}
 };

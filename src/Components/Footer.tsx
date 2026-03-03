@@ -34,11 +34,12 @@ const Footer = ({ isLoggedIn }: FooterProps) => {
 						<Link to="/games" className="text-white/70 hover:text-white transition">
 							Játékok
 						</Link>
-						{isLoggedIn ? (
+						{isLoggedIn && (
 							<Link to="/profile" className="text-white/70 hover:text-white transition">
 								Profil
 							</Link>
-						) : (
+						)}
+						{!isLoggedIn && (
 							<Link to="/auth/login" className="text-white/70 hover:text-white transition">
 								Bejelentkezés
 							</Link>
