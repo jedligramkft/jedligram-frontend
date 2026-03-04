@@ -82,3 +82,14 @@ export const CreatePostInThread = async (
 		data: response.data,
 	};
 };
+
+export const searchThreads = async (query: string): Promise<ResponseData> => {
+	const response = await httpClient.get("/api/threads?search=", {
+		params: { search: query },
+	});
+	
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};

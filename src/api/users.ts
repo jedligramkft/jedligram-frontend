@@ -48,7 +48,7 @@ export const UpdateUserProfile = async (
 
 export const ProfilePictureUpload = async (file: File): Promise<ResponseData> => {
 	const formData = new FormData();
-	formData.append("profile_picture", file, file.name);
+	formData.append("image", file);
 
 	try {
 		const response = await httpClient.post("/api/users/profile-picture", formData);
