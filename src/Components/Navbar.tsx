@@ -14,7 +14,7 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
       <div className="sm:px-6 md:px-12 py-4 flex items-center justify-between">
         
         <div className="flex items-center">
-          <button onClick={toggleSidebar} className="mr-4 p-2 rounded-lg hover:bg-white/10 transition text-white">
+          <button onClick={toggleSidebar} className="mr-4 p-2 rounded-lg hover:bg-white/10 transition text-white md:hidden">
             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />
             </svg>

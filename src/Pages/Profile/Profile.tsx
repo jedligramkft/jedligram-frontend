@@ -9,7 +9,7 @@ interface ProfileProps {
 
 const Profile = ({ isLoggedIn }: ProfileProps) => {
 	const navigate = useNavigate();
-  const profileStorageKey = "jedligram_profile";
+	const profileStorageKey = "jedligram_profile";
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [bio, setBio] = useState<string>("");
@@ -160,9 +160,8 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
       const message = err instanceof Error ? err.message : "An unknown error occurred";
       alert(message);
     } finally {
-      localStorage.removeItem(
-        import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token",
-      );
+      localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token");
+      localStorage.removeItem("jedligram_profile");
       window.dispatchEvent(new Event("auth-changed"));
       navigate("/auth/login", { replace: true });
     }
