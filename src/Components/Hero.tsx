@@ -78,7 +78,7 @@ const Hero = () => {
 									onChange={(e) => setQuery(e.target.value)}
 									className="flex-1 px-6 py-3 bg-white text-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 								/>
-								<button type="button" onClick={handleClick} className="bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-r-lg text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md">
+								<button type="button" onClick={handleClick} className="cursor-pointer bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-r-lg text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md">
 								<FontAwesomeIcon icon={faMagnifyingGlass} />
 							</button>
 							</div>
