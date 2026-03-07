@@ -1,2 +1,9 @@
 @import "tailwindcss";
 
+.container{
+    max-width: 1400px;
+}
+
+button{
+    cursor: pointer;
+}
