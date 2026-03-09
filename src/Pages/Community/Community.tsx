@@ -4,6 +4,7 @@ import axios from "axios";
 import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../api/threads";
 import { RemoveVoteFromPost, VoteOnPost } from "../../api/posts";
 import type { ThreadData } from "../../Interfaces/ThreadData";
+import { GetUsers } from "../../api/users";
 
 interface CommunityProps {
   isLoggedIn: boolean;
@@ -22,6 +23,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const [likeStatuses, setLikeStatuses] = useState<Record<number, boolean>>({});
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [votingPostId, setVotingPostId] = useState<number | null>(null);
+
+  const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
+  const [showAllMembers, setShowAllMembers] = useState(false);
 
   const threadId = id ? Number(id) : NaN;
 
@@ -103,6 +107,16 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
   };
 
+  const fetchJoinedUsernames = async (threadIdValue: number): Promise<string[]> => {
+    if (Number.isNaN(threadIdValue)) return [];
+
+    const response = await GetUsers(`thread:${threadIdValue}`);
+    const usersData = response.data?.users ?? response.data;
+
+    if (!Array.isArray(usersData)) return [];
+    return usersData.map((u) => u.name).filter((name): name is string => typeof name === "string");
+  };
+
   const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isLoggedIn) return;
 
@@ -134,6 +148,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       await JoinThread(threadId);
       setIsJoined(true);
       updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, true);
+      const usernames = await fetchJoinedUsernames(threadId);
+      setJoinedUsernames(usernames);
+      setShowAllMembers(false);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const message = ((err.response?.data as any)?.message as string | undefined) ?? err.message;
@@ -143,6 +160,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
         if (alreadyMember) {
           setIsJoined(true);
           updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, true);
+          const usernames = await fetchJoinedUsernames(threadId);
+          setJoinedUsernames(usernames);
+          setShowAllMembers(false);
           return;
         }
 
@@ -181,6 +201,14 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       await LeaveThread(threadId);
       setIsJoined(false);
       updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, false);
+      setShowAllMembers(false);
+
+      const profile = readProfile();
+      const currentUsernameRaw = (profile?.username ?? profile?.name) as unknown;
+      const currentUsername = typeof currentUsernameRaw === "string" ? currentUsernameRaw.trim() : "";
+      if (currentUsername) {
+        setJoinedUsernames((prev) => prev.filter((u) => u.toLowerCase() !== currentUsername.toLowerCase()));
+      }
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const message = (err.response?.data as any)?.message;
@@ -212,6 +240,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     const load = async () => {
       setIsLoading(true);
       setLoadError(null);
+      setJoinedUsernames([]);
+      setShowAllMembers(false);
       try {
         const [threadRes, postsRes] = await Promise.all([
           GetThreadById(threadId),
@@ -226,6 +256,14 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
           const postsArray = Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : [];
           setPosts(postsArray);
           syncLikeCountsFromPosts(postsArray);
+        }
+
+        try {
+          const usernames = await fetchJoinedUsernames(threadId);
+          if (!isCancelled) setJoinedUsernames(usernames);
+        } catch (err) {
+          console.warn("Nem sikerült betölteni a tagokat.", err);
+          if (!isCancelled) setJoinedUsernames([]);
         }
       } catch (err) {
         if (isCancelled) return;
@@ -305,6 +343,10 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     } finally {
       setVotingPostId(null);
     }
+  };
+
+  const handleLoadMoreUsernames = () => {
+    setShowAllMembers(true);
   };
 
   return (
@@ -418,6 +460,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     (post.body as string | undefined) ??
                     "";
 
+                  
+
                   return (
                     <article key={keyValue} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
                       <div className="flex items-center justify-between text-xs text-white/55">
@@ -455,20 +499,26 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
               <h2 className="text-xl font-semibold text-white">Tagok</h2>
               <div className="mt-4 space-y-3">
-                {["Oliver", "Bence", "Anna", "Nóri"].map((name) => (
-                  <div key={name} className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-white/10 ring-1 ring-white/10" />
-                      <div>
-                        <div className="text-sm font-semibold text-white">{name}</div>
-                        <div className="text-xs text-white/55">Tag</div>
-                      </div>
-                    </div>
-                      <Link to={`/users/${encodeURIComponent(name)}`} className="rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">
+                {joinedUsernames.length === 0 ? (
+                  <div className="text-sm text-white/70">Nincsenek tagok ebben a közösségben.</div>
+                ) : (
+                  (showAllMembers ? joinedUsernames : joinedUsernames.slice(0, 5)).map((username, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-white/10 ring-1 ring-white/15" />
+                      <span className="text-sm text-white/80">@{username}</span>
+                      <Link to={`/users/${username}`} className="ml-auto rounded-xl border border-white/20 px-3 py-1 text-xs font-semibold text-white/90 transition hover:bg-white/10">
                         Profil
                       </Link>
-                  </div>
-                ))}
+                    </div>
+                  ))                  
+                )}
+                {joinedUsernames.length > 5 && !showAllMembers && (
+                  <button className="w-full rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold text-white/90 transition hover:bg-white/10" onClick={handleLoadMoreUsernames}>
+                    További {joinedUsernames.length - 5} tag megtekintése
+                  </button>
+                )}
+                
+                
               </div>
             </div>
 
