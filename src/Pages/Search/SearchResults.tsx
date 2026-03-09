@@ -1,22 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { GetThreads } from "../../api/threads";
-import { GetPosts } from "../../api/posts";
+import { searchThreads } from "../../api/threads";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 
-type PostResult = {
-  id: number;
-  title: string;
-  content: string;
-  thread_id: number;
-};
+// type PostResult = {
+//   id: number;
+//   title: string;
+//   content: string;
+//   thread_id: number;
+// };
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const q = (searchParams.get("q") ?? "").trim();
 
   const [threadResults, setThreadResults] = useState<ThreadData[]>([]);
-  const [postResults, setPostResults] = useState<PostResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -26,7 +24,6 @@ const SearchResults = () => {
     const load = async () => {
       if (!q) {
         setThreadResults([]);
-        setPostResults([]);
         setError("");
         return;
       }
@@ -35,46 +32,16 @@ const SearchResults = () => {
       setError("");
 
       try {
-        const nq = q.toLowerCase();
-        const [threadsRes, postsRes] = await Promise.all([
-          GetThreads(),
-          GetPosts()
-        ]);
+        const response = await searchThreads(q);
 
         if (cancelled) return;
 
-        const allThreads = threadsRes.data as ThreadData[];
-        const nextThreadResults = allThreads.filter((t) => {
-          return (
-            (t.name ?? "").toLowerCase().includes(nq) ||
-            (t.category ?? "").toLowerCase().includes(nq) ||
-            (t.description ?? "").toLowerCase().includes(nq)
-          );
-        });
+        setThreadResults(response.data ? response.data : []);
 
-        const rawPosts = postsRes ? (postsRes as any).data : [];
-        const allPosts = Array.isArray(rawPosts) ? rawPosts : [];
-
-        const nextPostResults: PostResult[] = allPosts
-          .map((p: any) => ({
-            id: Number(p.id),
-            title: String(p.title ?? "Poszt"),
-            content: String(p.content ?? p.body ?? ""),
-            thread_id: Number(p.thread_id),
-          }))
-          .filter((p: PostResult) => {
-            if (!p.id || !p.thread_id) return false;
-            return p.title.toLowerCase().includes(nq) || p.content.toLowerCase().includes(nq);
-          });
-
-        setThreadResults(nextThreadResults);
-        setPostResults(nextPostResults);
-
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (cancelled) return;
-
-        const message = err?.response?.data?.message || "Ismeretlen hiba történt a keresés során.";
-
+        const message = err instanceof Error ? err.message : "Ismeretlen hiba történt.";
+        
         setError(message);
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -110,44 +77,23 @@ const SearchResults = () => {
           )}
 
           {q && !isLoading && !error && (
-            <div className='mt-10 grid gap-8 md:grid-cols-2'>
-              <div>
-                <h2 className='text-xl font-semibold text-white'>Közösségek</h2>
-                <p className='mt-1 text-sm text-white/60'>Találatok: {threadResults.length}</p>
+            <div className='mt-8'>
+              <h2 className='text-xl font-semibold text-white'>Közösségek</h2>
+              <p className='mt-1 text-sm text-white/60'>Találatok: {threadResults.length}</p>
 
-                <div className='mt-4 grid gap-3'>
-                  {threadResults.length === 0 ? (
-                    <div className='text-sm text-white/60'>Nincs találat.</div>
-                  ) : (
-                    threadResults.map((t) => (
-                      <Link key={t.id} to={`/communities/${t.id}`} className='block rounded-2xl border border-white/10 bg-black/10 p-4 transition hover:border-white/20 hover:bg-white/5'>
-                        <p className='text-sm font-semibold text-white'>{t.name}</p>
-                        <p className='mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>{t.category}</p>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h2 className='text-xl font-semibold text-white'>Kommentek / posztok</h2>
-                <p className='mt-1 text-sm text-white/60'>Találatok: {postResults.length}</p>
-
-                <div className='mt-4 grid gap-3'>
-                  {postResults.length === 0 ? (
-                    <div className='text-sm text-white/60'>Nincs találat.</div>
-                  ) : (
-                    postResults.map((p) => (
-                      <Link key={p.id} to={`/communities/${p.thread_id}`} className='block'>
-                        <div className='md:w-96 w-40 rounded-2xl border border-white/10 bg-black/10 p-4 transition hover:border-white/20 hover:bg-white/5'>
-                          <p className='text-sm font-semibold text-white'>{p.title}</p>
-                          <p className='mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-white/70'>{p.content}</p>
-                          <p className='mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>Közösség #{p.thread_id}</p>
-                        </div>
-                      </Link>
-                    ))
-                  )}
-                </div>
+              <div className='mt-4 grid gap-3'>
+                {threadResults.length === 0 ? (
+                  <div className='text-sm text-white/60'>Nincs találat.</div>
+                ) : (
+                  threadResults.map((t) => (
+                    <Link key={t.id} to={`/communities/${t.id}`} className='block rounded-2xl border border-white/10 bg-black/10 p-4 transition hover:border-white/20 hover:bg-white/5'>
+                      <p className='text-sm font-semibold text-white'>{t.name}</p>
+                      <p className='mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>{t.category}</p>
+                      <p className='mt-2 text-sm text-white/70 line-clamp-2'>{t.description}</p>
+                      {/* <p className='mt-3 text-xs text-white/50'>Tagok: {t.member_count}</p> */}
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
           )}
