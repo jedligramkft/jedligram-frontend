@@ -1,13 +1,26 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom'
+import { GetUserThreads } from '../../api/users';
 
 const UserProfile = () => {
   const { id } = useParams<{ id: string }>();
+  const [joinedCommunities, setJoinedCommunities] = useState<{ id: number; name: string; role: string }[]>([]);
 
-  const communities = [
-    { name: 'Jedlik Esport', role: 'Member' },
-    { name: 'Arcane RPG Klub', role: 'Admin' },
-    { name: 'Taktikus Stratégák', role: 'Member' },
-  ]
+  useEffect(() => {
+    const fetchUserThreads = async () => {
+      if (!id) return;
+
+      try {
+        const response = await GetUserThreads(Number(id));
+        setJoinedCommunities(response.data);
+      } catch (err) {
+        console.warn("Nem sikerült betölteni a közösségeket.", err);
+        setJoinedCommunities([]);
+      }
+    };
+
+    fetchUserThreads();
+  }, [id]);
 
   return (
     <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular'>
@@ -57,17 +70,21 @@ const UserProfile = () => {
             <p className='mt-1 text-sm text-white/60'>Amikben benne van</p>
 
             <div className='mt-4 space-y-3'>
-              {communities.map((community) => (
-                <div key={community.name} className='flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4'>
-                  <div>
-                    <p className='text-sm font-semibold text-white'>{community.name}</p>
-                    <p className='text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>{community.role}</p>
+              {joinedCommunities.length === 0 ? (
+                <div className='text-sm text-white/60'>Nincs megjeleníthető közösség.</div>
+              ) : (
+                joinedCommunities.map((community) => (
+                  <div key={community.id} className='flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4'>
+                    <div>
+                      <p className='text-sm font-semibold text-white'>{community.name}</p>
+                      <p className='text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>{community.role}</p>
+                    </div>
+                    <Link to={`/communities/${community.id}`} className='rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10'>
+                      Megnézem
+                    </Link>
                   </div>
-                  <Link to='/all-communities' className='rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10'>
-                    Megnézem
-                  </Link>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

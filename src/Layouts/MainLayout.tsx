@@ -14,7 +14,7 @@ const MainLayout = ({ isLoggedIn }: MainLayoutProps) => {
   return (
     <>
 	    <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} isLoggedIn={isLoggedIn} />
-        <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} isLoggedIn={isLoggedIn} />
+      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} isLoggedIn={isLoggedIn} />
       <Outlet />
       <Footer isLoggedIn={isLoggedIn} />
     </>
