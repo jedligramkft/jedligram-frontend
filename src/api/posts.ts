@@ -31,7 +31,9 @@ export const VoteOnPost = async (
 };
 
 export const RemoveVoteFromPost = async (postId: number): Promise<ResponseData> => {
-	const response = await httpClient.delete(`/api/posts/${postId}/vote`);
+	const response = await httpClient.post(`/api/posts/${postId}/vote`, {
+		is_upvote: true,
+	});
 	return {
 		status: response.status,
 		data: response.data,

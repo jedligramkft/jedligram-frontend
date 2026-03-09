@@ -409,9 +409,14 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Szabályok</div>
                 <ul className="mt-2 space-y-1 text-sm text-white/75">
-                  <li>• Tisztelet mindenkivel</li>
-                  <li>• Spam tilos</li>
-                  <li>• Spoiler jelölés</li>
+                  {thread?.rules ? thread.rules.split("\n").map((rule, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70" />
+                          <span>{rule}</span>
+                        </li>
+                      ))
+                    : isLoading ? "Betöltés..." : "Nincsenek szabályok megadva."
+                  }   
                 </ul>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -527,11 +532,15 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               <div className="mt-4 grid gap-3">
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Posztok</div>
-                  <div className="mt-1 text-2xl font-bold text-white">128</div>
+                  <div className="mt-1 text-2xl font-bold text-white">
+                    {posts.length}
+                  </div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Aktivitás</div>
-                  <div className="mt-1 text-2xl font-bold text-white">Magas</div>
+                  <div className="mt-1 text-2xl font-bold text-white">
+                    Magas
+                  </div>
                 </div>
               </div>
             </div>
