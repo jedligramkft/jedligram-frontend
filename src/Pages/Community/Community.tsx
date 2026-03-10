@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../api/threads";
 import { CommentOnPost, GetCommentsForPost, GetReplyCommentsForComment, RemoveVoteFromPost, ReplyToComment, VoteOnPost} from "../../api/posts";
@@ -10,8 +10,14 @@ interface CommunityProps {
   isLoggedIn: boolean;
 }
 
+type RecentThreadItem = {
+  id: number;
+  name?: string;
+};
+
 const Community = ({ isLoggedIn }: CommunityProps) => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
@@ -41,9 +47,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
+  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
+
   const threadId = id ? Number(id) : NaN;
 
   const profileStorageKey = "jedligram_profile";
+  const recentThreadsStorageKey = "jedligram_recent_threads";
 
   const readProfile = (): any => {
     try {
@@ -73,6 +82,25 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     );
 
     window.dispatchEvent(new Event("joined-threads-changed"));
+  };
+
+  const saveRecentThread = (threadId: number, threadName?: string) => {
+    if (!Number.isFinite(threadId)) return;
+
+    try {
+      const raw = localStorage.getItem(recentThreadsStorageKey);
+      const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
+
+      const next: RecentThreadItem[] = [
+        { id: threadId, name: threadName?.trim() || undefined },
+        ...current.filter((t) => t.id !== threadId),
+      ].slice(0, 5);
+
+      localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
+      window.dispatchEvent(new Event("recent-threads-changed"));
+    } catch {
+      
+    }
   };
 
   const parsePostId = (value: unknown): number => {
@@ -272,6 +300,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
           setThread(threadData);
           const postsArray = Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : [];
           setPosts(postsArray);
+          saveRecentThread(threadId, threadData?.name);
         }
 
         try {
@@ -305,7 +334,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     return () => {
       isCancelled = true;
     };
-  }, [id, isLoggedIn, navigate, threadId]);
+  }, [id, isLoggedIn, location.key, navigate, threadId]);
 
   const reloadPosts = async () => {
     if (Number.isNaN(threadId)) return;
@@ -501,6 +530,21 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const handleLoadMoreUsernames = () => {
     setShowAllMembers(true);
   };
+
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const postTimesMs = posts
+    .map((post) => {
+      const raw = post.created_at;
+      const n = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : NaN;
+      const candidate = typeof raw === "string" ? raw.replace(" ", "T") : raw;
+      return Number.isFinite(n) ? n : Date.parse(candidate as any);
+    })
+    .filter((ms) => Number.isFinite(ms));
+
+  const isCommunityActive = postTimesMs.length
+    ? postTimesMs.some((ms) => ms >= sevenDaysAgo)
+    : posts.length > 0;
+  const activityLabel = isLoading ? "Betöltés..." : isCommunityActive ? "Aktív" : "Inaktív";
   
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -520,7 +564,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     {thread?.name ?? (isLoading ? "Betöltés..." : "Közösség")}
                   </h1>
                   <p className="mt-1 text-sm text-white/70">
-                    {thread?.category ? `${thread.category} • ` : ""}Aktív
+                    {thread?.category ? `${thread.category} • ` : ""}{activityLabel}
                   </p>
                 </div>
               </div>
@@ -798,7 +842,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Aktivitás</div>
                   <div className="mt-1 text-2xl font-bold text-white">
-                    Magas
+                    {activityLabel}
                   </div>
                 </div>
               </div>
