@@ -545,6 +545,19 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     ? postTimesMs.some((ms) => ms >= sevenDaysAgo)
     : posts.length > 0;
   const activityLabel = isLoading ? "Betöltés..." : isCommunityActive ? "Aktív" : "Inaktív";
+
+  const handleInvite = async () => {
+    if (Number.isNaN(threadId)) return;
+
+    try {
+      const inviteUrl = new URL(`/communities/${threadId}`, window.location.origin).toString();  
+      await (navigator as any).share({ url: inviteUrl });
+      return;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nem sikerült megosztani a meghívót.";
+      alert(message);
+    }
+  };
   
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -579,7 +592,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     {isJoining ? "Csatlakozás..." : "Csatlakozás"}
                   </button>
                 )}
-                <button className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10">Meghívás</button>
+                <button onClick={handleInvite} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                  Meghívás
+                </button>
                 <Link to="/all-communities" className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
                   Vissza
                 </Link>
