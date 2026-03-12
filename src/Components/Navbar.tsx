@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useThreads } from "../hooks/useThreads";
 
 interface NavbarProps {
   toggleSidebar?: () => void;
@@ -10,6 +11,20 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false);
+  const threads = useThreads();
+
+  const filteredThreads = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+    if (!normalizedQuery) return []
+
+    return threads.filter((thread) => {
+      const name = String((thread as any)?.name ?? '').toLowerCase()
+      const category = String((thread as any)?.category ?? '').toLowerCase()
+      return (
+        name.includes(normalizedQuery) || category.includes(normalizedQuery)
+      )
+    })
+  }, [query, threads])
 
   const handleClick = () => {
     const q = query.trim()
@@ -37,7 +52,25 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
         </div>
 
         <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
-          <input type="text" placeholder="Közösségek keresése..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyPress={handleEnterPress} className="w-72 lg:w-96 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"/>
+          <input type="text" placeholder="Közösségek keresése..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleEnterPress} className="w-72 lg:w-96 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"/>
+          {filteredThreads.length > 0 && (
+            <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 p-2 text-left shadow-xl">
+              <div className="max-h-72 overflow-y-auto">
+                {filteredThreads.slice(0, 3).map((thread) => (
+                  <Link key={thread.id} to={`/communities/${thread.id}`} className="block rounded-xl px-4 py-3 transition hover:bg-white">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800">{thread.name}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+                          {thread.category}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
@@ -57,7 +90,6 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
                 </svg>
               </Link>
             </div>
-
           )}
           {!isLoggedIn && (
             <Link to="/auth/login" className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md">Bejelentkezés</Link>
