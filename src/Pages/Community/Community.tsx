@@ -5,6 +5,8 @@ import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../
 import { CommentOnPost, GetCommentsForPost, GetReplyCommentsForComment, RemoveVoteFromPost, ReplyToComment, VoteOnPost} from "../../api/posts";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetUsers } from "../../api/users";
+import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
+import PostSkeleton from "../../Components/Utils/PostSkeleton";
 
 interface CommunityProps {
   isLoggedIn: boolean;
@@ -565,6 +567,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
       <div className='absolute inset-0 bg-black/30' />
       <div className="container mx-auto px-6 py-10">
+        <WelcomeBanner communityName={thread?.name} />
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/30 backdrop-blur">
           <div className="absolute inset-0 bg-linear-to-br from-blue-500/15 via-cyan-400/10 to-purple-500/15" />
           <div className="relative z-10 p-8 md:p-10">
@@ -578,8 +581,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                   </h1>
                   <p className="mt-1 text-sm text-white/70">
                     {thread?.category ? `${thread.category} • ` : ""}{activityLabel}
-                  </p>
-                </div>
+                  </p>                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -649,7 +651,11 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               </div>
               <div className="mt-5 space-y-4">
                 {isLoading && (
-                  <div className="text-sm text-white/70">Posztok betöltése...</div>
+                  <div className="space-y-4">
+                    <PostSkeleton />
+                    <PostSkeleton />
+                    <PostSkeleton />
+                  </div>
                 )}
 
                 {!isLoading && posts.length === 0 && (
@@ -848,6 +854,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
               <h2 className="text-xl font-semibold text-white">Statisztika</h2>
               <div className="mt-4 grid gap-3">
+                <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Tagok</div>
+                  <div className="mt-1 text-2xl font-bold text-white">
+                    {joinedUsernames.length}
+                  </div>
+                </div>
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Posztok</div>
                   <div className="mt-1 text-2xl font-bold text-white">
