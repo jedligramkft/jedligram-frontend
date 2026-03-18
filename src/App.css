@@ -3,8 +3,8 @@
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(to left, #424549, #2a2d31);
-  color: #ffffff;
+  background: linear-gradient(to left, var(--app-bg-from), var(--app-bg-to));
+  color: var(--app-fg);
 }
 
 .poppins-regular {

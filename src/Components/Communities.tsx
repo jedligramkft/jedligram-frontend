@@ -57,7 +57,7 @@ const Communities = () => {
 								<option value="strategy">Stratégia</option>
 							</select>
 						</div>
-						<button className="rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50">
+						<button className="rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white keep-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50">
 							Keresés
 						</button>
 					</div>

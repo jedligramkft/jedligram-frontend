@@ -168,7 +168,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
         {!isLoggedIn && (
           <div className="flex flex-col items-center justify-center mt-20 text-white text-center px-4">
             <p className="mb-4">Kérlek, jelentkezz be a közösségek megtekintéséhez.</p>
-            <Link to="/auth/login" className="rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition">
+            <Link to="/auth/login" className="keep-white text-white rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition">
               Jelentkezz be
             </Link>
           </div>

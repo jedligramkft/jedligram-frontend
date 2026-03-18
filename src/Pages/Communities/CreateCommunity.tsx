@@ -107,7 +107,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                                     Tipp: pár mondatban írd le, miről szól a közösség és kinek ajánlott.
                                 </p>
                             </div>
-                            <button type="submit" disabled={creating} className="group w-full rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/10 transition hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                            <button type="submit" disabled={creating} className="group w-full rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white keep-white shadow-lg shadow-blue-500/10 transition hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
                                 Létrehozás
                             </button>
                             <div className="pt-1 text-center text-xs text-white/50">
