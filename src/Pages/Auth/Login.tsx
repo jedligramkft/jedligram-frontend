@@ -56,7 +56,7 @@ const LoginPage = () => {
 				<button
 					type="button"
 					onClick={handleLogin}
-					className="mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700"
+					className="mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700"
 				>
 					Bejelentkezés
 				</button>

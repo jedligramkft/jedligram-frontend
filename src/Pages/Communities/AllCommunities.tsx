@@ -54,12 +54,12 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                     </div>
                 </div>
 				{isLoggedIn && (
-					<Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white z-10">
+                    <Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white keep-white z-10">
 						Közösség létrehozása
 					</Link>
 				)}
 				{!isLoggedIn && (
-					<Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white z-10">
+                    <Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white keep-white z-10">
 						Jelentkezz be közösség létrehozásához
 					</Link>
 				)}

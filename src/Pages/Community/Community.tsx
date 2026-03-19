@@ -362,13 +362,33 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     const willLike = !wasLiked;
 
     setLikeStatuses((prev) => ({ ...prev, [postId]: willLike }));
+    setPosts((prevPosts) =>
+      prevPosts.map((p) => {
+        if (parsePostId(p.id) === postId) {
+          const currentLikes = getServerLikeCount(p);
+          return { ...p, likes_count: willLike ? currentLikes + 1 : Math.max(0, currentLikes - 1) };
+        }
+        return p;
+      }),
+    );
 
     try {
-      if (willLike) await VoteOnPost(postId, true);
-      else await RemoveVoteFromPost(postId);
-      void reloadPosts();
+      if (willLike) {
+        await VoteOnPost(postId, true);
+      } else {
+        await RemoveVoteFromPost(postId);
+      }
     } catch (err) {
       setLikeStatuses((prev) => ({ ...prev, [postId]: wasLiked }));
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => {
+          if (parsePostId(p.id) === postId) {
+            const currentLikes = getServerLikeCount(p);
+            return { ...p, likes_count: wasLiked ? currentLikes -1 : currentLikes + 1 };
+          }
+          return p;
+        }),
+      );
 
       const message =
         axios.isAxiosError(err)

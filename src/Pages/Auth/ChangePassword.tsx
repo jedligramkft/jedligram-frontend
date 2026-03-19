@@ -18,7 +18,7 @@ const ChangePassword = () => {
             <input type='password' placeholder='Régi jelszó' value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
             <input type='password' placeholder='Új jelszó' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
             <input type='password' placeholder='Új jelszó újra' value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
-            <button type='button' onClick={handleChangePassword} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Jelszó módosítása</button>
+            <button type='button' onClick={handleChangePassword} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700'>Jelszó módosítása</button>
         </div>
             
     </section>

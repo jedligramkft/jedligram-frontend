@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useThreads } from "../hooks/useThreads";
+import { getActiveTheme, toggleTheme } from "../theme";
 
 interface NavbarProps {
   toggleSidebar?: () => void;
@@ -11,7 +12,14 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
   const threads = useThreads();
+
+  useEffect(() => {
+    const onThemeChanged = () => setActiveTheme(getActiveTheme());
+    window.addEventListener("theme-changed", onThemeChanged);
+    return () => window.removeEventListener("theme-changed", onThemeChanged);
+  }, []);
 
   const filteredThreads = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -74,6 +82,26 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
+          <button type="button" onClick={() => setActiveTheme(toggleTheme())} className="p-2 rounded-lg hover:bg-white/10 transition text-white" aria-label={activeTheme === "dark" ? "Világos téma" : "Sötét téma"} title={activeTheme === "dark" ? "Világos téma" : "Sötét téma"}>
+            {activeTheme === "dark" ? (
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5" />
+                <path d="M12 1v2" />
+                <path d="M12 21v2" />
+                <path d="M4.22 4.22l1.42 1.42" />
+                <path d="M18.36 18.36l1.42 1.42" />
+                <path d="M1 12h2" />
+                <path d="M21 12h2" />
+                <path d="M4.22 19.78l1.42-1.42" />
+                <path d="M18.36 5.64l1.42-1.42" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
+          </button>
+
           <div className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-4 py-2 rounded-lg text-white font-semibold transition" onClick={() => navigate('/create-community')}>
             <svg fill="currentColor" height="20" icon-name="add-square" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.7 2H5.3C3.481 2 2 3.48 2 5.3v9.4C2 16.519 3.48 18 5.3 18h9.4c1.819 0 3.3-1.48 3.3-3.3V5.3C18 3.481 16.52 2 14.7 2zm1.499 12.7a1.5 1.5 0 01-1.499 1.499H5.3A1.5 1.5 0 013.801 14.7V5.3A1.5 1.5 0 015.3 3.801h9.4A1.5 1.5 0 0116.199 5.3v9.4zM14 10.9h-3.1V14H9.1v-3.1H6V9.1h3.1V6h1.8v3.１H１４v１．８z"></path>
@@ -92,7 +120,7 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
             </div>
           )}
           {!isLoggedIn && (
-            <Link to="/auth/login" className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md">Bejelentkezés</Link>
+            <Link to="/auth/login" className="keep-white text-white bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md">Bejelentkezés</Link>
           )}
         </div>
 
@@ -105,13 +133,36 @@ const Navbar = ({ toggleSidebar, isLoggedIn }: NavbarProps) => {
 
       <div className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-500 ease-in-out ${isOpen ? "max-h-72 opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="px-6 pb-4 flex flex-col gap-3">
+          <button type="button" onClick={() => setActiveTheme(toggleTheme())} className="flex items-center gap-2 text-left text-gray-300 hover:text-white transition font-medium">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:bg-white/10">
+              {activeTheme === "dark" ? (
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <path d="M12 1v2" />
+                  <path d="M12 21v2" />
+                  <path d="M4.22 4.22l1.42 1.42" />
+                  <path d="M18.36 18.36l1.42 1.42" />
+                  <path d="M1 12h2" />
+                  <path d="M21 12h2" />
+                  <path d="M4.22 19.78l1.42-1.42" />
+                  <path d="M18.36 5.64l1.42-1.42" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </span>
+            {activeTheme === "dark" ? "Világos téma" : "Sötét téma"}
+          </button>
+
           <Link to="/create-community" className="text-left text-gray-300 hover:text-white transition font-medium">Közösség létrehozása</Link>
           <a href="#" className="text-left text-gray-300 hover:text-white transition font-medium">Játékok</a>
           {isLoggedIn && (
             <Link to="/profile" className="text-left text-gray-300 hover:text-white transition font-medium">Profil</Link>
           )}
           {!isLoggedIn && (
-            <Link to="/auth/login" className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-semibold transition shadow-md text-left">Bejelentkezés</Link>
+            <Link to="/auth/login" className="keep-white text-white bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded-lg font-semibold transition shadow-md text-left">Bejelentkezés</Link>
           )}         
         </div>
       </div>

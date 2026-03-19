@@ -89,7 +89,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
   return (
     <>
       <div onClick={closeSidebar} className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}/>
-      <div className={`fixed top-0 left-0 h-screen w-48 md:w-60 z-50 md:z-40 flex flex-col pt-20 pb-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-r border-gray-700 overflow-y-auto overflow-x-hidden sidebar-scroll ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
+      <div className={`fixed top-0 left-0 h-screen w-48 md:w-60 z-50 md:z-40 flex flex-col pt-20 pb-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-r border-gray-700 overflow-y-auto overflow-x-hidden sidebar-scroll ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
         <div className="my-4 w-full px-3">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">Népszerű Közösségek</p>
           <Link to="/all-communities" onClick={() => closeSidebar} className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/90 transition hover:bg-white/10`}>
@@ -168,7 +168,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
         {!isLoggedIn && (
           <div className="flex flex-col items-center justify-center mt-20 text-white text-center px-4">
             <p className="mb-4">Kérlek, jelentkezz be a közösségek megtekintéséhez.</p>
-            <Link to="/auth/login" className="rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition">
+            <Link to="/auth/login" className="keep-white text-white rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition">
               Jelentkezz be
             </Link>
           </div>
