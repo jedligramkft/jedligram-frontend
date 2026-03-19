@@ -14,7 +14,7 @@ const VerifyEmail = () => {
                 <input type='email' placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
                 <input type='text' placeholder='Verification code' value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} className='w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
             </div>
-            <button className="mt-4 w-full rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 focus:outline-none">
+            <button className="mt-4 w-full rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white keep-white hover:bg-blue-600 focus:outline-none">
                 Verify Email
             </button>
             <a href="#" className="mt-4 inline-block text-sm text-blue-500 hover:underline">Resend Verification Email</a>

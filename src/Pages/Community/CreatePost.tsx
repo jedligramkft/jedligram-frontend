@@ -76,7 +76,7 @@ const CreatePost = () => {
 
               <div className="flex items-center justify-between gap-4">
                 <p className="text-xs text-white/55">A poszt a közösség feedjében jelenik meg.</p>
-                <button type="submit" disabled={creating} className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
+                  <button type="submit" disabled={creating} className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
                   {creating ? "Létrehozás…" : "Poszt létrehozása"}
                 </button>
               </div>

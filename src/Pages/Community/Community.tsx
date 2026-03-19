@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../api/threads";
 import { CommentOnPost, GetCommentsForPost, GetReplyCommentsForComment, RemoveVoteFromPost, ReplyToComment, VoteOnPost} from "../../api/posts";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetUsers } from "../../api/users";
+import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
+import PostSkeleton from "../../Components/Utils/PostSkeleton";
 
 interface CommunityProps {
   isLoggedIn: boolean;
 }
 
+type RecentThreadItem = {
+  id: number;
+  name?: string;
+};
+
 const Community = ({ isLoggedIn }: CommunityProps) => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
@@ -41,9 +49,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
+  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
+
   const threadId = id ? Number(id) : NaN;
 
   const profileStorageKey = "jedligram_profile";
+  const recentThreadsStorageKey = "jedligram_recent_threads";
 
   const readProfile = (): any => {
     try {
@@ -73,6 +84,25 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     );
 
     window.dispatchEvent(new Event("joined-threads-changed"));
+  };
+
+  const saveRecentThread = (threadId: number, threadName?: string) => {
+    if (!Number.isFinite(threadId)) return;
+
+    try {
+      const raw = localStorage.getItem(recentThreadsStorageKey);
+      const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
+
+      const next: RecentThreadItem[] = [
+        { id: threadId, name: threadName?.trim() || undefined },
+        ...current.filter((t) => t.id !== threadId),
+      ].slice(0, 5);
+
+      localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
+      window.dispatchEvent(new Event("recent-threads-changed"));
+    } catch {
+      
+    }
   };
 
   const parsePostId = (value: unknown): number => {
@@ -272,6 +302,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
           setThread(threadData);
           const postsArray = Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : [];
           setPosts(postsArray);
+          saveRecentThread(threadId, threadData?.name);
         }
 
         try {
@@ -305,7 +336,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     return () => {
       isCancelled = true;
     };
-  }, [id, isLoggedIn, navigate, threadId]);
+  }, [id, isLoggedIn, location.key, navigate, threadId]);
 
   const reloadPosts = async () => {
     if (Number.isNaN(threadId)) return;
@@ -331,13 +362,33 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     const willLike = !wasLiked;
 
     setLikeStatuses((prev) => ({ ...prev, [postId]: willLike }));
+    setPosts((prevPosts) =>
+      prevPosts.map((p) => {
+        if (parsePostId(p.id) === postId) {
+          const currentLikes = getServerLikeCount(p);
+          return { ...p, likes_count: willLike ? currentLikes + 1 : Math.max(0, currentLikes - 1) };
+        }
+        return p;
+      }),
+    );
 
     try {
-      if (willLike) await VoteOnPost(postId, true);
-      else await RemoveVoteFromPost(postId);
-      void reloadPosts();
+      if (willLike) {
+        await VoteOnPost(postId, true);
+      } else {
+        await RemoveVoteFromPost(postId);
+      }
     } catch (err) {
       setLikeStatuses((prev) => ({ ...prev, [postId]: wasLiked }));
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => {
+          if (parsePostId(p.id) === postId) {
+            const currentLikes = getServerLikeCount(p);
+            return { ...p, likes_count: wasLiked ? currentLikes -1 : currentLikes + 1 };
+          }
+          return p;
+        }),
+      );
 
       const message =
         axios.isAxiosError(err)
@@ -501,6 +552,34 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const handleLoadMoreUsernames = () => {
     setShowAllMembers(true);
   };
+
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const postTimesMs = posts
+    .map((post) => {
+      const raw = post.created_at;
+      const n = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : NaN;
+      const candidate = typeof raw === "string" ? raw.replace(" ", "T") : raw;
+      return Number.isFinite(n) ? n : Date.parse(candidate as any);
+    })
+    .filter((ms) => Number.isFinite(ms));
+
+  const isCommunityActive = postTimesMs.length
+    ? postTimesMs.some((ms) => ms >= sevenDaysAgo)
+    : posts.length > 0;
+  const activityLabel = isLoading ? "Betöltés..." : isCommunityActive ? "Aktív" : "Inaktív";
+
+  const handleInvite = async () => {
+    if (Number.isNaN(threadId)) return;
+
+    try {
+      const inviteUrl = new URL(`/communities/${threadId}`, window.location.origin).toString();  
+      await (navigator as any).share({ url: inviteUrl });
+      return;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nem sikerült megosztani a meghívót.";
+      alert(message);
+    }
+  };
   
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -508,6 +587,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
       <div className='absolute inset-0 bg-black/30' />
       <div className="container mx-auto px-6 py-10">
+        <WelcomeBanner communityName={thread?.name} />
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/30 backdrop-blur">
           <div className="absolute inset-0 bg-linear-to-br from-blue-500/15 via-cyan-400/10 to-purple-500/15" />
           <div className="relative z-10 p-8 md:p-10">
@@ -520,9 +600,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     {thread?.name ?? (isLoading ? "Betöltés..." : "Közösség")}
                   </h1>
                   <p className="mt-1 text-sm text-white/70">
-                    {thread?.category ? `${thread.category} • ` : ""}Aktív
-                  </p>
-                </div>
+                    {thread?.category ? `${thread.category} • ` : ""}{activityLabel}
+                  </p>                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -535,7 +614,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     {isJoining ? "Csatlakozás..." : "Csatlakozás"}
                   </button>
                 )}
-                <button className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10">Meghívás</button>
+                <button onClick={handleInvite} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                  Meghívás
+                </button>
                 <Link to="/all-communities" className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
                   Vissza
                 </Link>
@@ -590,7 +671,11 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               </div>
               <div className="mt-5 space-y-4">
                 {isLoading && (
-                  <div className="text-sm text-white/70">Posztok betöltése...</div>
+                  <div className="space-y-4">
+                    <PostSkeleton />
+                    <PostSkeleton />
+                    <PostSkeleton />
+                  </div>
                 )}
 
                 {!isLoading && posts.length === 0 && (
@@ -790,6 +875,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               <h2 className="text-xl font-semibold text-white">Statisztika</h2>
               <div className="mt-4 grid gap-3">
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Tagok</div>
+                  <div className="mt-1 text-2xl font-bold text-white">
+                    {joinedUsernames.length}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Posztok</div>
                   <div className="mt-1 text-2xl font-bold text-white">
                     {posts.length}
@@ -798,7 +889,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Aktivitás</div>
                   <div className="mt-1 text-2xl font-bold text-white">
-                    Magas
+                    {activityLabel}
                   </div>
                 </div>
               </div>
