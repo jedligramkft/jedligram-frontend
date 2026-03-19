@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Logout } from "../../api/auth";
-import { ProfilePictureUpload } from "../../api/users";
+import { UploadProfilePicture } from "../../api/users";
 import useProfileData from "../../hooks/useProfileData";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera, faSave, faSignOutAlt, faKey, faSpinner, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
@@ -23,7 +23,22 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const backendUrl = (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "";
-  const avatarSrc = profilePictureUrl.startsWith("/") && backendUrl ? `${backendUrl}${profilePictureUrl}` : profilePictureUrl;
+  const resolveAvatarSrc = (raw: string): string => {
+    const url = (raw ?? "").trim();
+    if (!url) return "";
+    if (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("data:") ||
+      url.startsWith("blob:")
+    )
+      return url;
+
+    if (!backendUrl) return url.startsWith("/") ? url : `/${url}`;
+    return url.startsWith("/") ? `${backendUrl}${url}` : `${backendUrl}/${url}`;
+  };
+
+  const avatarSrc = resolveAvatarSrc(profilePictureUrl);
   const initials = username.trim().slice(0, 1).toUpperCase() || "?";
 
   const formatDateTime = (iso: string): string => {
@@ -53,14 +68,9 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
     setIsUploading(true);
     try {
-      const response = await ProfilePictureUpload(file);
-      const url = response?.data?.path || response?.data?.url;
-      if (url) {
-        updateProfilePicture(url);
-        alert("Profilkép sikeresen frissítve!");
-      } else {
-        throw new Error("A szerver nem küldött vissza érvényes URL-t.");
-      }
+      const url = await UploadProfilePicture(file);
+      updateProfilePicture(url);
+      alert("Profilkép sikeresen frissítve!");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Nem sikerült feltölteni a profilképet.";
       alert(`Hiba: ${message}`);

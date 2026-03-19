@@ -15,7 +15,8 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
 		const fetchThreads = async () => {
 			try{
 				const response = await GetThreads();
-				setThreads(response.data);
+                const data = (response.data?.threads ?? response.data) as unknown;
+                setThreads(Array.isArray(data) ? (data as ThreadData[]) : []);
 			}
 			catch(error){
 				{
@@ -29,7 +30,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
 			}
 		}
 		fetchThreads();
-	})
+    }, [])
 
 
   return (
@@ -68,7 +69,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {threads.map((thread) => {
 					return (
-                    <div key={thread.name} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur transition hover:-translate-y-1 hover:border-white/20">
+                    <div key={thread.id} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur transition hover:-translate-y-1 hover:border-white/20">
                         <div className={`absolute inset-0 bg-linear-to-br opacity-0 transition duration-500 group-hover:opacity-100`}/>
                         <div className="relative z-10 flex h-full flex-col gap-4">
                             <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
