@@ -7,16 +7,16 @@ import DynamicFAIcon from "../Utils/DynamicFaIcon";
 
 interface SearchbarProps {
 	formClass?: string;
-	SearchbarClass?: string;
-	SearchbarPlaceholder?: string;
+	searchbarClass?: string;
+	searchbarPlaceholder?: string;
 	hasButton: boolean;
 	buttonClass?: string;
 }
 
 export const Searchbar = ({
 	formClass,
-	SearchbarClass,
-	SearchbarPlaceholder,
+	searchbarClass,
+	searchbarPlaceholder,
 	hasButton,
 	buttonClass,
 }: SearchbarProps) => {
@@ -71,8 +71,8 @@ export const Searchbar = ({
 				<input
 					type="text"
 					placeholder={
-						SearchbarPlaceholder
-							? SearchbarPlaceholder
+						searchbarPlaceholder
+							? searchbarPlaceholder
 							: "Keress közösséget..."
 					}
 					value={query}
@@ -80,8 +80,8 @@ export const Searchbar = ({
 						setQuery(e.target.value);
 					}}
 					className={
-						SearchbarClass
-							? SearchbarClass
+						searchbarClass
+							? searchbarClass
 							: "w-full px-4 py-2 rounded-lg bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					}
 				/>

@@ -65,9 +65,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 		number | null
 	>(null);
 
-	const [openReplyComposerCommentId, setOpenReplyComposerCommentId] = useState<
-		number | null
-	>(null);
+	const [openReplyComposerCommentId, setOpenReplyComposerCommentId] =
+		useState<number | null>(null);
 	const [replyDraftByCommentId, setReplyDraftByCommentId] = useState<
 		Record<number, string>
 	>({});
@@ -77,7 +76,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadError, setLoadError] = useState<string | null>(null);
-	const [likeStatuses, setLikeStatuses] = useState<Record<number, boolean>>({});
+	const [likeStatuses, setLikeStatuses] = useState<Record<number, boolean>>(
+		{},
+	);
 	const [votingPostId, setVotingPostId] = useState<number | null>(null);
 
 	const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
@@ -163,7 +164,11 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 		const raw =
 			(post.likes_count as unknown) ?? (post.likesCount as unknown) ?? 0;
 		const n =
-			typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : 0;
+			typeof raw === "number"
+				? raw
+				: typeof raw === "string"
+					? Number(raw)
+					: 0;
 		return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
 	};
 
@@ -176,7 +181,10 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 			comment?.parent;
 
 		return (
-			parent !== null && parent !== undefined && parent !== 0 && parent !== "0"
+			parent !== null &&
+			parent !== undefined &&
+			parent !== 0 &&
+			parent !== "0"
 		);
 	};
 
@@ -200,7 +208,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 				if (Number.isNaN(postId)) continue;
 
 				const serverValue =
-					(post.likes_count as unknown) ?? (post.likesCount as unknown);
+					(post.likes_count as unknown) ??
+					(post.likesCount as unknown);
 				const serverNumber =
 					typeof serverValue === "number"
 						? serverValue
@@ -264,8 +273,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
 		if (Number.isNaN(threadId)) return;
 
-		console.log("Thread outside try:");
-		console.log(thread);
 		setIsJoining(true);
 		try {
 			await JoinThread(threadId);
@@ -287,8 +294,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 					return;
 				}
 				const message =
-					((err.response?.data as any)?.message as string | undefined) ??
-					err.message;
+					((err.response?.data as any)?.message as
+						| string
+						| undefined) ?? err.message;
 				const lower = message.toLowerCase();
 				const alreadyMember =
 					lower.includes("already") && lower.includes("member");
@@ -311,7 +319,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 			}
 
 			const message =
-				err instanceof Error ? err.message : "Nem sikerült csatlakozni.";
+				err instanceof Error
+					? err.message
+					: "Nem sikerült csatlakozni.";
 			alert(message);
 		} finally {
 			setIsJoining(false);
@@ -341,10 +351,15 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 			const currentUsernameRaw = (profile?.username ??
 				profile?.name) as unknown;
 			const currentUsername =
-				typeof currentUsernameRaw === "string" ? currentUsernameRaw.trim() : "";
+				typeof currentUsernameRaw === "string"
+					? currentUsernameRaw.trim()
+					: "";
 			if (currentUsername) {
 				setJoinedUsernames((prev) =>
-					prev.filter((u) => u.toLowerCase() !== currentUsername.toLowerCase()),
+					prev.filter(
+						(u) =>
+							u.toLowerCase() !== currentUsername.toLowerCase(),
+					),
 				);
 			}
 		} catch (err) {
@@ -392,7 +407,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
 				const threadData = (threadRes.data?.thread ??
 					threadRes.data) as ThreadData;
-				const postsData = (postsRes.data?.posts ?? postsRes.data) as unknown;
+				const postsData = (postsRes.data?.posts ??
+					postsRes.data) as unknown;
 
 				if (!isCancelled) {
 					setThread(threadData);
@@ -419,8 +435,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 				}
 
 				const message = axios.isAxiosError(err)
-					? (((err.response?.data as any)?.message as string | undefined) ??
-						err.message)
+					? (((err.response?.data as any)?.message as
+							| string
+							| undefined) ?? err.message)
 					: err instanceof Error
 						? err.message
 						: "Nem sikerült betölteni a közösséget.";
@@ -491,7 +508,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 						const currentLikes = getServerLikeCount(p);
 						return {
 							...p,
-							likes_count: wasLiked ? currentLikes - 1 : currentLikes + 1,
+							likes_count: wasLiked
+								? currentLikes - 1
+								: currentLikes + 1,
 						};
 					}
 					return p;
@@ -499,8 +518,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 			);
 
 			const message = axios.isAxiosError(err)
-				? (((err.response?.data as any)?.message as string | undefined) ??
-					err.message)
+				? (((err.response?.data as any)?.message as
+						| string
+						| undefined) ?? err.message)
 				: err instanceof Error
 					? err.message
 					: "Nem sikerült szavazni.";
@@ -608,7 +628,10 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 		);
 	};
 
-	const handleReplyToReply = (parentCommentId: number, replyAuthor: string) => {
+	const handleReplyToReply = (
+		parentCommentId: number,
+		replyAuthor: string,
+	) => {
 		if (Number.isNaN(parentCommentId)) return;
 
 		setOpenReplyComposerCommentId(parentCommentId);
@@ -663,7 +686,10 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 					) {
 						return prev;
 					}
-					return { ...prev, [commentId]: [...currentReplies, created] };
+					return {
+						...prev,
+						[commentId]: [...currentReplies, created],
+					};
 				});
 			}
 
@@ -691,7 +717,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 					: typeof raw === "string"
 						? Number(raw)
 						: NaN;
-			const candidate = typeof raw === "string" ? raw.replace(" ", "T") : raw;
+			const candidate =
+				typeof raw === "string" ? raw.replace(" ", "T") : raw;
 			return Number.isFinite(n) ? n : Date.parse(candidate as any);
 		})
 		.filter((ms) => Number.isFinite(ms));
@@ -742,10 +769,15 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 										Community {id ? `#${id}` : ""}
 									</div>
 									<h1 className="text-3xl font-bold text-white md:text-4xl">
-										{thread?.name ?? (isLoading ? "Betöltés..." : "Közösség")}
+										{thread?.name ??
+											(isLoading
+												? "Betöltés..."
+												: "Közösség")}
 									</h1>
 									<p className="mt-1 text-sm text-white/70">
-										{thread?.category ? `${thread.category} • ` : ""}
+										{thread?.category
+											? `${thread.category} • `
+											: ""}
 										{activityLabel}
 									</p>{" "}
 								</div>
@@ -766,7 +798,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 										disabled={isJoining}
 										className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
 									>
-										{isJoining ? "Csatlakozás..." : "Csatlakozás"}
+										{isJoining
+											? "Csatlakozás..."
+											: "Csatlakozás"}
 									</button>
 								)}
 								<button
@@ -802,12 +836,17 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 								</div>
 								<ul className="mt-2 space-y-1 text-sm text-white/75">
 									{thread?.rules
-										? thread.rules.split("\n").map((rule, idx) => (
-												<li key={idx} className="flex items-start gap-2">
-													<span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70" />
-													<span>{rule}</span>
-												</li>
-											))
+										? thread.rules
+												.split("\n")
+												.map((rule, idx) => (
+													<li
+														key={idx}
+														className="flex items-start gap-2"
+													>
+														<span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70" />
+														<span>{rule}</span>
+													</li>
+												))
 										: isLoading
 											? "Betöltés..."
 											: "Nincsenek szabályok megadva."}
@@ -829,11 +868,15 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 					<div className="lg:col-span-2">
 						<div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
 							<div className="flex items-center justify-between">
-								<h2 className="text-xl font-semibold text-white">Feed</h2>
+								<h2 className="text-xl font-semibold text-white">
+									Feed
+								</h2>
 								{isJoined && (
 									<Link
 										to={
-											id ? `/communities/${id}/posts/new` : "/all-communities"
+											id
+												? `/communities/${id}/posts/new`
+												: "/all-communities"
 										}
 										onClick={(e) => handleNewPost(e)}
 										className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
@@ -868,27 +911,36 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 								{posts.map((post, idx) => {
 									const postId = parsePostId(post.id);
 									const isLiked =
-										!Number.isNaN(postId) && likeStatuses[postId] === true;
+										!Number.isNaN(postId) &&
+										likeStatuses[postId] === true;
 									const isVoting =
-										!Number.isNaN(postId) && votingPostId === postId;
+										!Number.isNaN(postId) &&
+										votingPostId === postId;
 									const likeCount = getServerLikeCount(post);
 									const isCommentsOpen =
-										!Number.isNaN(postId) && openCommentsPostId === postId;
-									const postCommentsAll = !Number.isNaN(postId)
+										!Number.isNaN(postId) &&
+										openCommentsPostId === postId;
+									const postCommentsAll = !Number.isNaN(
+										postId,
+									)
 										? commentsByPostId[postId] || []
 										: [];
 									const postComments = postCommentsAll.filter(
 										(c: any) => !isReplyComment(c),
 									);
 									const isCommentsLoading =
-										!Number.isNaN(postId) && loadingCommentsPostId === postId;
+										!Number.isNaN(postId) &&
+										loadingCommentsPostId === postId;
 									const isSubmittingComment =
-										!Number.isNaN(postId) && submittingCommentPostId === postId;
+										!Number.isNaN(postId) &&
+										submittingCommentPostId === postId;
 
 									const keyValue = Number.isNaN(postId)
 										? `fallback-${idx}`
 										: String(postId);
-									const title = (post.title as string | undefined) ?? "Poszt";
+									const title =
+										(post.title as string | undefined) ??
+										"Poszt";
 									const content =
 										(post.content as string | undefined) ??
 										(post.body as string | undefined) ??
@@ -900,9 +952,13 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 											className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20"
 										>
 											<div className="flex items-center justify-between text-xs text-white/55">
-												{post.author ? `@${post.author}` : "Ismeretlen szerző"}
+												{post.author
+													? `@${post.author}`
+													: "Ismeretlen szerző"}
 												<span>
-													{new Date(post.created_at as string).toLocaleString()}
+													{new Date(
+														post.created_at as string,
+													).toLocaleString()}
 												</span>
 											</div>
 											<h3 className="mt-3 text-lg font-semibold text-white">
@@ -914,17 +970,30 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 											<div className="mt-4 flex flex-wrap gap-3">
 												<button
 													type="button"
-													onClick={() => handleToggleComments(postId)}
-													disabled={Number.isNaN(postId)}
+													onClick={() =>
+														handleToggleComments(
+															postId,
+														)
+													}
+													disabled={Number.isNaN(
+														postId,
+													)}
 													className="cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
 												>
-													{isCommentsOpen ? "Kommentek bezárása" : "Kommentek"}
+													{isCommentsOpen
+														? "Kommentek bezárása"
+														: "Kommentek"}
 												</button>
 												{/* <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button> */}
 												<button
 													type="button"
-													onClick={() => handleToggleLike(postId)}
-													disabled={Number.isNaN(postId) || isVoting}
+													onClick={() =>
+														handleToggleLike(postId)
+													}
+													disabled={
+														Number.isNaN(postId) ||
+														isVoting
+													}
 													className={
 														`cursor-pointer rounded-xl border px-4 py-2 text-xs font-semibold transition ` +
 														(isLiked
@@ -939,258 +1008,368 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 												</button>
 											</div>
 
-											{isCommentsOpen && !Number.isNaN(postId) && (
-												<div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-4">
-													<div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-														Kommentek
-													</div>
-
-													{isCommentsLoading && (
-														<div className="mt-2 text-sm text-white/70">
-															Kommentek betöltése...
+											{isCommentsOpen &&
+												!Number.isNaN(postId) && (
+													<div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-4">
+														<div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
+															Kommentek
 														</div>
-													)}
 
-													{!isCommentsLoading && postComments.length === 0 && (
-														<div className="mt-2 text-sm text-white/70">
-															Nincs még komment.
-														</div>
-													)}
+														{isCommentsLoading && (
+															<div className="mt-2 text-sm text-white/70">
+																Kommentek
+																betöltése...
+															</div>
+														)}
 
-													<div className="mt-4">
-														<textarea
-															value={commentDraftByPostId[postId] ?? ""}
-															onChange={(e) =>
-																setCommentDraftByPostId((prev) => ({
-																	...prev,
-																	[postId]: e.target.value,
-																}))
-															}
-															placeholder="Írj egy kommentet..."
-															rows={3}
-															className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"
-														/>
-														<div className="mt-3 flex justify-end">
-															<button
-																type="button"
-																onClick={() => handleSubmitComment(postId)}
-																disabled={
-																	isSubmittingComment ||
-																	!(commentDraftByPostId[postId] ?? "").trim()
+														{!isCommentsLoading &&
+															postComments.length ===
+																0 && (
+																<div className="mt-2 text-sm text-white/70">
+																	Nincs még
+																	komment.
+																</div>
+															)}
+
+														<div className="mt-4">
+															<textarea
+																value={
+																	commentDraftByPostId[
+																		postId
+																	] ?? ""
 																}
-																className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
-															>
-																{isSubmittingComment ? "Küldés..." : "Küldés"}
-															</button>
+																onChange={(e) =>
+																	setCommentDraftByPostId(
+																		(
+																			prev,
+																		) => ({
+																			...prev,
+																			[postId]:
+																				e
+																					.target
+																					.value,
+																		}),
+																	)
+																}
+																placeholder="Írj egy kommentet..."
+																rows={3}
+																className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"
+															/>
+															<div className="mt-3 flex justify-end">
+																<button
+																	type="button"
+																	onClick={() =>
+																		handleSubmitComment(
+																			postId,
+																		)
+																	}
+																	disabled={
+																		isSubmittingComment ||
+																		!(
+																			commentDraftByPostId[
+																				postId
+																			] ??
+																			""
+																		).trim()
+																	}
+																	className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+																>
+																	{isSubmittingComment
+																		? "Küldés..."
+																		: "Küldés"}
+																</button>
+															</div>
 														</div>
-													</div>
 
-													{!isCommentsLoading && postComments.length > 0 && (
-														<div className="mt-3 space-y-3">
-															{postComments.map((c: any, cIdx: number) => {
-																const cId = c?.id ?? cIdx;
-																const commentIdNumber = Number(c?.id);
-																const canLoadReplies =
-																	Number.isFinite(commentIdNumber);
-																const isRepliesOpen =
-																	canLoadReplies &&
-																	openRepliesCommentId === commentIdNumber;
-																const isRepliesLoading =
-																	canLoadReplies &&
-																	loadingRepliesCommentId === commentIdNumber;
-																const replies = canLoadReplies
-																	? replyCommentsByCommentId[commentIdNumber] ||
-																		[]
-																	: [];
-																const isReplyComposerOpen =
-																	canLoadReplies &&
-																	openReplyComposerCommentId ===
-																		commentIdNumber;
-																const isSubmittingReply =
-																	canLoadReplies &&
-																	submittingReplyCommentId === commentIdNumber;
-																const cAuthor =
-																	c?.author ||
-																	c?.user?.username ||
-																	c?.user?.name ||
-																	"Ismeretlen";
-																const cContent = c?.content || c?.body || "";
-																const createdAt = c?.created_at || c?.createdAt;
+														{!isCommentsLoading &&
+															postComments.length >
+																0 && (
+																<div className="mt-3 space-y-3">
+																	{postComments.map(
+																		(
+																			c: any,
+																			cIdx: number,
+																		) => {
+																			const cId =
+																				c?.id ??
+																				cIdx;
+																			const commentIdNumber =
+																				Number(
+																					c?.id,
+																				);
+																			const canLoadReplies =
+																				Number.isFinite(
+																					commentIdNumber,
+																				);
+																			const isRepliesOpen =
+																				canLoadReplies &&
+																				openRepliesCommentId ===
+																					commentIdNumber;
+																			const isRepliesLoading =
+																				canLoadReplies &&
+																				loadingRepliesCommentId ===
+																					commentIdNumber;
+																			const replies =
+																				canLoadReplies
+																					? replyCommentsByCommentId[
+																							commentIdNumber
+																						] ||
+																						[]
+																					: [];
+																			const isReplyComposerOpen =
+																				canLoadReplies &&
+																				openReplyComposerCommentId ===
+																					commentIdNumber;
+																			const isSubmittingReply =
+																				canLoadReplies &&
+																				submittingReplyCommentId ===
+																					commentIdNumber;
+																			const cAuthor =
+																				c?.author ||
+																				c
+																					?.user
+																					?.username ||
+																				c
+																					?.user
+																					?.name ||
+																				"Ismeretlen";
+																			const cContent =
+																				c?.content ||
+																				c?.body ||
+																				"";
+																			const createdAt =
+																				c?.created_at ||
+																				c?.createdAt;
 
-																return (
-																	<div
-																		key={String(cId)}
-																		className="rounded-xl border border-white/10 bg-black/10 p-3"
-																	>
-																		<div className="flex items-center justify-between text-xs text-white/55">
-																			<span>@{cAuthor}</span>
-																			{createdAt ? (
-																				<span>
-																					{new Date(createdAt).toLocaleString()}
-																				</span>
-																			) : (
-																				<span />
-																			)}
-																		</div>
-																		<div className="mt-2 whitespace-pre-wrap text-sm text-white/80">
-																			{cContent}
-																		</div>
-
-																		<div className="mt-3 flex flex-wrap gap-2">
-																			<button
-																				type="button"
-																				onClick={() =>
-																					canLoadReplies
-																						? handleToggleReplyComments(
-																								commentIdNumber,
-																							)
-																						: null
-																				}
-																				disabled={!canLoadReplies}
-																				className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-																			>
-																				{isRepliesOpen
-																					? "Válaszok bezárása"
-																					: "Válaszok"}
-																			</button>
-																			<button
-																				type="button"
-																				onClick={() =>
-																					canLoadReplies
-																						? handleToggleReplyComposer(
-																								commentIdNumber,
-																							)
-																						: null
-																				}
-																				disabled={!canLoadReplies}
-																				className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-																			>
-																				{isReplyComposerOpen
-																					? "Válasz bezárása"
-																					: "Válasz"}
-																			</button>
-																		</div>
-
-																		{isRepliesLoading && (
-																			<div className="mt-2 text-sm text-white/70">
-																				Válaszok betöltése...
-																			</div>
-																		)}
-
-																		{isRepliesOpen && !isRepliesLoading && (
-																			<div className="mt-3 space-y-2">
-																				{replies.length === 0 && (
-																					<div className="text-sm text-white/70">
-																						Nincs még válasz.
+																			return (
+																				<div
+																					key={String(
+																						cId,
+																					)}
+																					className="rounded-xl border border-white/10 bg-black/10 p-3"
+																				>
+																					<div className="flex items-center justify-between text-xs text-white/55">
+																						<span>
+																							@
+																							{
+																								cAuthor
+																							}
+																						</span>
+																						{createdAt ? (
+																							<span>
+																								{new Date(
+																									createdAt,
+																								).toLocaleString()}
+																							</span>
+																						) : (
+																							<span />
+																						)}
 																					</div>
-																				)}
-																				{replies.map((r: any, rIdx: number) => {
-																					const rId = r?.id ?? rIdx;
-																					const rAuthor =
-																						r?.author ||
-																						r?.user?.username ||
-																						r?.user?.name ||
-																						"Ismeretlen";
-																					const rContent =
-																						r?.content || r?.body || "";
-																					const rCreatedAt =
-																						r?.created_at || r?.createdAt;
+																					<div className="mt-2 whitespace-pre-wrap text-sm text-white/80">
+																						{
+																							cContent
+																						}
+																					</div>
 
-																					return (
-																						<div
-																							key={String(rId)}
-																							className="ml-4 rounded-xl border border-white/10 bg-black/10 p-3"
+																					<div className="mt-3 flex flex-wrap gap-2">
+																						<button
+																							type="button"
+																							onClick={() =>
+																								canLoadReplies
+																									? handleToggleReplyComments(
+																											commentIdNumber,
+																										)
+																									: null
+																							}
+																							disabled={
+																								!canLoadReplies
+																							}
+																							className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
 																						>
-																							<div className="flex items-center justify-between text-xs text-white/55">
-																								<span>@{rAuthor}</span>
-																								{rCreatedAt ? (
-																									<span>
-																										{new Date(
-																											rCreatedAt,
-																										).toLocaleString()}
-																									</span>
-																								) : (
-																									<span />
+																							{isRepliesOpen
+																								? "Válaszok bezárása"
+																								: "Válaszok"}
+																						</button>
+																						<button
+																							type="button"
+																							onClick={() =>
+																								canLoadReplies
+																									? handleToggleReplyComposer(
+																											commentIdNumber,
+																										)
+																									: null
+																							}
+																							disabled={
+																								!canLoadReplies
+																							}
+																							className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+																						>
+																							{isReplyComposerOpen
+																								? "Válasz bezárása"
+																								: "Válasz"}
+																						</button>
+																					</div>
+
+																					{isRepliesLoading && (
+																						<div className="mt-2 text-sm text-white/70">
+																							Válaszok
+																							betöltése...
+																						</div>
+																					)}
+
+																					{isRepliesOpen &&
+																						!isRepliesLoading && (
+																							<div className="mt-3 space-y-2">
+																								{replies.length ===
+																									0 && (
+																									<div className="text-sm text-white/70">
+																										Nincs
+																										még
+																										válasz.
+																									</div>
+																								)}
+																								{replies.map(
+																									(
+																										r: any,
+																										rIdx: number,
+																									) => {
+																										const rId =
+																											r?.id ??
+																											rIdx;
+																										const rAuthor =
+																											r?.author ||
+																											r
+																												?.user
+																												?.username ||
+																											r
+																												?.user
+																												?.name ||
+																											"Ismeretlen";
+																										const rContent =
+																											r?.content ||
+																											r?.body ||
+																											"";
+																										const rCreatedAt =
+																											r?.created_at ||
+																											r?.createdAt;
+
+																										return (
+																											<div
+																												key={String(
+																													rId,
+																												)}
+																												className="ml-4 rounded-xl border border-white/10 bg-black/10 p-3"
+																											>
+																												<div className="flex items-center justify-between text-xs text-white/55">
+																													<span>
+																														@
+																														{
+																															rAuthor
+																														}
+																													</span>
+																													{rCreatedAt ? (
+																														<span>
+																															{new Date(
+																																rCreatedAt,
+																															).toLocaleString()}
+																														</span>
+																													) : (
+																														<span />
+																													)}
+																												</div>
+																												<div className="mt-2 whitespace-pre-wrap text-sm text-white/80">
+																													{
+																														rContent
+																													}
+																												</div>
+
+																												<div className="mt-3 flex flex-wrap gap-2">
+																													<button
+																														type="button"
+																														onClick={() =>
+																															handleReplyToReply(
+																																commentIdNumber,
+																																rAuthor,
+																															)
+																														}
+																														className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10"
+																													>
+																														Válasz
+																													</button>
+																												</div>
+																											</div>
+																										);
+																									},
 																								)}
 																							</div>
-																							<div className="mt-2 whitespace-pre-wrap text-sm text-white/80">
-																								{rContent}
-																							</div>
+																						)}
 
-																							<div className="mt-3 flex flex-wrap gap-2">
-																								<button
-																									type="button"
-																									onClick={() =>
-																										handleReplyToReply(
-																											commentIdNumber,
-																											rAuthor,
+																					{isReplyComposerOpen &&
+																						canLoadReplies && (
+																							<div className="mt-3 rounded-xl border border-white/10 bg-black/10 p-3">
+																								<textarea
+																									value={
+																										replyDraftByCommentId[
+																											commentIdNumber
+																										] ??
+																										""
+																									}
+																									onChange={(
+																										e,
+																									) =>
+																										setReplyDraftByCommentId(
+																											(
+																												prev,
+																											) => ({
+																												...prev,
+																												[commentIdNumber]:
+																													e
+																														.target
+																														.value,
+																											}),
 																										)
 																									}
-																									className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10"
-																								>
-																									Válasz
-																								</button>
+																									placeholder="Írj egy választ..."
+																									rows={
+																										2
+																									}
+																									className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"
+																								/>
+																								<div className="mt-3 flex justify-end">
+																									<button
+																										type="button"
+																										onClick={() =>
+																											handleSubmitReply(
+																												postId,
+																												commentIdNumber,
+																											)
+																										}
+																										disabled={
+																											isSubmittingReply ||
+																											!(
+																												replyDraftByCommentId[
+																													commentIdNumber
+																												] ??
+																												""
+																											).trim()
+																										}
+																										className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+																									>
+																										{isSubmittingReply
+																											? "Küldés..."
+																											: "Küldés"}
+																									</button>
+																								</div>
 																							</div>
-																						</div>
-																					);
-																				})}
-																			</div>
-																		)}
-
-																		{isReplyComposerOpen && canLoadReplies && (
-																			<div className="mt-3 rounded-xl border border-white/10 bg-black/10 p-3">
-																				<textarea
-																					value={
-																						replyDraftByCommentId[
-																							commentIdNumber
-																						] ?? ""
-																					}
-																					onChange={(e) =>
-																						setReplyDraftByCommentId(
-																							(prev) => ({
-																								...prev,
-																								[commentIdNumber]:
-																									e.target.value,
-																							}),
-																						)
-																					}
-																					placeholder="Írj egy választ..."
-																					rows={2}
-																					className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"
-																				/>
-																				<div className="mt-3 flex justify-end">
-																					<button
-																						type="button"
-																						onClick={() =>
-																							handleSubmitReply(
-																								postId,
-																								commentIdNumber,
-																							)
-																						}
-																						disabled={
-																							isSubmittingReply ||
-																							!(
-																								replyDraftByCommentId[
-																									commentIdNumber
-																								] ?? ""
-																							).trim()
-																						}
-																						className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
-																					>
-																						{isSubmittingReply
-																							? "Küldés..."
-																							: "Küldés"}
-																					</button>
+																						)}
 																				</div>
-																			</div>
-																		)}
-																	</div>
-																);
-															})}
-														</div>
-													)}
-												</div>
-											)}
+																			);
+																		},
+																	)}
+																</div>
+															)}
+													</div>
+												)}
 										</article>
 									);
 								})}
@@ -1200,7 +1379,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
 					<aside className="space-y-6">
 						<div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
-							<h2 className="text-xl font-semibold text-white">Tagok</h2>
+							<h2 className="text-xl font-semibold text-white">
+								Tagok
+							</h2>
 							<div className="mt-4 space-y-3">
 								{joinedUsernames.length === 0 ? (
 									<div className="text-sm text-white/70">
@@ -1211,9 +1392,14 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 										? joinedUsernames
 										: joinedUsernames.slice(0, 5)
 									).map((username, idx) => (
-										<div key={idx} className="flex items-center gap-3">
+										<div
+											key={idx}
+											className="flex items-center gap-3"
+										>
 											<div className="h-8 w-8 rounded-full bg-white/10 ring-1 ring-white/15" />
-											<span className="text-sm text-white/80">@{username}</span>
+											<span className="text-sm text-white/80">
+												@{username}
+											</span>
 											<Link
 												to={`/users/${username}`}
 												className="ml-auto rounded-xl border border-white/20 px-3 py-1 text-xs font-semibold text-white/90 transition hover:bg-white/10"
@@ -1223,19 +1409,23 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 										</div>
 									))
 								)}
-								{joinedUsernames.length > 5 && !showAllMembers && (
-									<button
-										className="w-full rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold text-white/90 transition hover:bg-white/10"
-										onClick={handleLoadMoreUsernames}
-									>
-										További {joinedUsernames.length - 5} tag megtekintése
-									</button>
-								)}
+								{joinedUsernames.length > 5 &&
+									!showAllMembers && (
+										<button
+											className="w-full rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold text-white/90 transition hover:bg-white/10"
+											onClick={handleLoadMoreUsernames}
+										>
+											További {joinedUsernames.length - 5}{" "}
+											tag megtekintése
+										</button>
+									)}
 							</div>
 						</div>
 
 						<div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
-							<h2 className="text-xl font-semibold text-white">Statisztika</h2>
+							<h2 className="text-xl font-semibold text-white">
+								Statisztika
+							</h2>
 							<div className="mt-4 grid gap-3">
 								<div className="rounded-2xl border border-white/10 bg-black/10 p-4">
 									<div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">

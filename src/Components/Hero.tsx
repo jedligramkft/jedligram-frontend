@@ -30,8 +30,8 @@ const Hero = () => {
 					</p>
 					<Searchbar
 						hasButton={true}
-						SearchbarPlaceholder="Keress közösségeket..."
-						SearchbarClass="flex-1 px-6 py-3 bg-white text-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+						searchbarPlaceholder="Keress közösségeket..."
+						searchbarClass="flex-1 px-6 py-3 bg-white text-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						buttonClass="cursor-pointer bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-r-lg text-white keep-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md"
 						formClass="flex items-center justify-center relative w-full max-w-2xl mx-auto"
 					/>
