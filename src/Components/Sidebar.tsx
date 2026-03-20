@@ -1,5 +1,3 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
@@ -128,7 +126,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 						.filter((x) => x && typeof x === "object")
 						.map((x) => ({
 							id: Number(x.id),
-							name: typeof x.name === "string" ? x.name : undefined,
+							name:
+								typeof x.name === "string" ? x.name : undefined,
 						}))
 				: [];
 			setRecentThreads(cleaned.slice(0, 5));
@@ -155,16 +154,12 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 	return (
 		<>
 			<div
-				onClick={closeSidebar}
-				className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
-			/>
-			<div
-				className={`fixed top-0 left-0 h-screen w-48 md:w-60 z-50 md:z-40 flex flex-col pt-20 pb-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-r border-gray-700 overflow-y-auto overflow-x-hidden sidebar-scroll ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+				className={`fixed top-0 left-0 h-screen w-48 md:w-60 z-40 flex flex-col pt-20 pb-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-r border-gray-700 overflow-y-auto overflow-x-hidden sidebar-scroll ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
 			>
 				<div className="my-4 w-full px-3 space-y-2">
-					{/* <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
+					<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 						Főmenü
-					</p> */}
+					</p>
 					<SidebarCard
 						title="Felfedezés"
 						subtitle="Népszerű közösségek"
@@ -175,15 +170,36 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 						}}
 					/>
 					{isLoggedIn && (
-						<SidebarCard
-							title="Közösség létrehozása"
-							subtitle="Új közösség indítása"
-							icon={<DynamicFAIcon exportName="faPlus" size="lg" />}
-							to="/create-community"
-							onClick={() => {
-								closeSidebar();
-							}}
-						/>
+						<>
+							<SidebarCard
+								title="Közösség létrehozása"
+								subtitle="Új közösség indítása"
+								icon={
+									<DynamicFAIcon
+										exportName="faPlus"
+										size="lg"
+									/>
+								}
+								to="/create-community"
+								onClick={() => {
+									closeSidebar();
+								}}
+							/>
+							<SidebarCard
+								title="Profil"
+								subtitle="Profilom kezelése"
+								icon={
+									<DynamicFAIcon
+										exportName="faUser"
+										size="lg"
+									/>
+								}
+								to="/profile"
+								onClick={() => {
+									closeSidebar();
+								}}
+							/>
+						</>
 					)}
 				</div>
 
