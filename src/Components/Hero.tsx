@@ -1,22 +1,16 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useFilteredThreads } from "./Searchbar/SearchEngine";
+import { useState, useEffect } from "react";
+import { getActiveTheme } from "../theme";
+import { Searchbar } from "./Searchbar/Searchbar";
 
 const Hero = () => {
-	const navigate = useNavigate();
-	const [query, setQuery] = useState("");
-	const filteredThreads = useFilteredThreads(query);
+	const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
 
-	const handleClick = () => {
-		const q = query.trim();
-		if (q === "") return;
-		navigate(`/search?q=${encodeURIComponent(q)}`);
-	};
-
-	const hasQuery = query.trim().length > 0;
-	const showDropdown = hasQuery;
+	useEffect(() => {
+		const onThemeChanged = () => setActiveTheme(getActiveTheme());
+		window.addEventListener("theme-changed", onThemeChanged);
+		return () =>
+			window.removeEventListener("theme-changed", onThemeChanged);
+	}, []);
 
 	return (
 		<div>
@@ -34,67 +28,13 @@ const Hero = () => {
 					<p className="text-2xl text-gray-100 mt-4 font-medium drop-shadow-md mb-8">
 						Játék, közösség, és szórakozás egy helyen.
 					</p>
-					<div className="relative mx-auto mt-8 w-full max-w-2xl">
-						<div className="flex justify-center">
-							<form
-								className="flex w-full max-w-xl"
-								onSubmit={(e) => {
-									e.preventDefault();
-									handleClick();
-								}}
-							>
-								<input
-									type="text"
-									placeholder="Keress csoportot..."
-									value={query}
-									onChange={(e) => setQuery(e.target.value)}
-									className="flex-1 px-6 py-3 bg-white text-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-								/>
-								<button
-									type="button"
-									onClick={handleClick}
-									className="cursor-pointer bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-r-lg text-white keep-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md"
-								>
-									<FontAwesomeIcon icon={faMagnifyingGlass} />
-								</button>
-							</form>
-						</div>
-
-						{showDropdown && (
-							<div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 p-2 text-left shadow-xl">
-								{filteredThreads.length > 0 ? (
-									<div className="max-h-72 overflow-y-auto">
-										{filteredThreads
-											.slice(0, 3)
-											.map((thread) => (
-												<Link
-													key={thread.id}
-													to={`/communities/${thread.id}`}
-													className="block rounded-xl px-4 py-3 transition hover:bg-white"
-												>
-													<div className="flex items-center justify-between gap-4">
-														<div>
-															<p className="text-sm font-semibold text-gray-800">
-																{thread.name}
-															</p>
-															<p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-																{
-																	thread.category
-																}
-															</p>
-														</div>
-													</div>
-												</Link>
-											))}
-									</div>
-								) : (
-									<p className="px-4 py-3 text-sm text-gray-600">
-										Nincs találat.
-									</p>
-								)}
-							</div>
-						)}
-					</div>
+					<Searchbar
+						hasButton={true}
+						SearchbarPlaceholder="Keress közösségeket..."
+						SearchbarClass="flex-1 px-6 py-3 bg-white text-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+						buttonClass="cursor-pointer bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-r-lg text-white keep-white font-semibold hover:from-blue-600 hover:to-blue-700 transition shadow-md"
+						formClass="flex items-center justify-center relative w-full max-w-2xl mx-auto"
+					/>
 				</div>
 			</div>
 		</div>
