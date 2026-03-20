@@ -48,6 +48,7 @@ const LoginPage = () => {
 		e.preventDefault();
 		const button = e.currentTarget;
 		button.disabled = true;
+		setError(null);
 
 		const userData: UserData = {
 			id: -1,
@@ -100,7 +101,7 @@ const LoginPage = () => {
 				</div>
 			)}
 
-			<div
+			<form
 				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
 			>
 				<InputComponent
@@ -143,7 +144,7 @@ const LoginPage = () => {
 				/>
 
 				<button
-					type="button"
+					type="submit"
 					onClick={(e) => {
 						handleLogin(e);
 					}}
@@ -153,7 +154,7 @@ const LoginPage = () => {
 				>
 					Bejelentkezés
 				</button>
-			</div>
+			</form>
 		</section>
 	);
 };
