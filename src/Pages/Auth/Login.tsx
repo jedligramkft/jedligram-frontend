@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Login } from "../../api/auth";
 import type { UserData } from "../../Interfaces/UserData";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 
 export const InputComponent = (props: {
 	label: string;
@@ -11,8 +10,9 @@ export const InputComponent = (props: {
 	value: string;
 	placeholder?: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	absoluteChildren?: ReactNode;
 }) => {
-	const { label, type, value, placeholder, onChange } = props;
+	const { label, type, value, placeholder, onChange, absoluteChildren } = props;
 
 	return (
 		<div>
@@ -22,14 +22,17 @@ export const InputComponent = (props: {
 			>
 				{label}
 			</label>
-			<input
-				name={label}
-				type={type}
-				placeholder={placeholder}
-				value={value}
-				onChange={onChange}
-				className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20"
-			/>
+			<div className={`${absoluteChildren ? "relative" : "block"}`}>
+				<input
+					name={label}
+					type={type}
+					placeholder={placeholder}
+					value={value}
+					onChange={onChange}
+					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20`}
+				/>
+				{absoluteChildren}
+			</div>
 		</div>
 	);
 };
@@ -38,6 +41,7 @@ const LoginPage = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
+	const [isPassVisible, setPassVisible] = useState(false);
 	const navigate = useNavigate();
 
 	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -88,7 +92,10 @@ const LoginPage = () => {
 
 			{error && (
 				<div className="w-full rounded-xl flex items-center p-4 border border-red-500 bg-red-500/10 text-red-500 bg-linear-60 from-red-500/10 to-red-500/20">
-					<FontAwesomeIcon icon={faExclamationCircle} className="text-2xl" />
+					<DynamicFAIcon
+						exportName="faExclamationCircle"
+						className="text-2xl"
+					/>
 					<p className="text-sm text-white ml-3">{error}</p>
 				</div>
 			)}
@@ -103,15 +110,38 @@ const LoginPage = () => {
 					placeholder="Vezetéknév.Keresztnév"
 					onChange={(e) => setUsername(e.target.value)}
 				/>
-				<div>
-					<InputComponent
-						label="Jelszó"
-						type="password"
-						value={password}
-						placeholder="Jelszó"
-						onChange={(e) => setPassword(e.target.value)}
-					/>
-				</div>
+
+				<InputComponent
+					label="Jelszó"
+					type={isPassVisible ? "text" : "password"}
+					value={password}
+					placeholder="Jelszó"
+					onChange={(e) => setPassword(e.target.value)}
+					absoluteChildren={
+						<>
+							<div
+								className="h-full w-12 absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer"
+								onClick={() => {
+									setPassVisible(!isPassVisible);
+								}}
+							>
+								<div className={`${isPassVisible ? "block" : "hidden"}`}>
+									<DynamicFAIcon
+										exportName="faEye"
+										className="text-md scale-x-110"
+									/>
+								</div>
+								<div className={`${isPassVisible ? "hidden" : "block"}`}>
+									<DynamicFAIcon
+										exportName="faEyeSlash"
+										className="text-md scale-x-110"
+									/>
+								</div>
+							</div>
+						</>
+					}
+				/>
+
 				<button
 					type="button"
 					onClick={(e) => {
