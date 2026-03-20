@@ -124,21 +124,15 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
               <p className='mt-2 text-lg text-gray-400'>{email}</p>
               <p className='mt-4 text-sm text-gray-300 max-w-md'>{bio || "Nincs bemutatkozás."}</p>
             </div>
+            <div className="md:ml-auto ml-0 flex items-center">
+                <Link to="/all-communities" className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
+                  Vissza
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6 text-center">
-            <div>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Közösség</p>
-              <p className='mt-1 text-lg font-bold text-white'>{joinedThreadIds.length}</p>
-            </div>
-            <div>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Posztok</p>
-              <p className='mt-1 text-lg font-bold text-white'>42</p>
-            </div>
-            <div>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Hozzászólások</p>
-              <p className='mt-1 text-lg font-bold text-white'>128</p>
-            </div>
+          <div className="gap-4 p-6 text-center">
+            <p className='text-xl font-bold'>Csatlakozott threadok száma: {joinedThreadIds.length}</p>
           </div>
           <div className='p-8 border-t border-gray-700/50'>
             <h2 className="text-2xl font-bold mb-6">Fiók beállítások</h2>
@@ -158,10 +152,6 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
               </div>
             </div>
             <div className='mt-8 flex flex-col md:flex-row items-center justify-between gap-4'>
-              <Link to="/auth/change-password" className='flex items-center gap-2 text-sm font-semibold text-gray-400 transition hover:text-blue-400'>
-                <FontAwesomeIcon icon={faKey} />
-                Jelszó módosítása
-              </Link>
               <button onClick={handleSave} disabled={isSaving} className='w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait'>
                 {isSaving ? (
                   <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
@@ -177,12 +167,10 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
             </div>
           </div>
 
-          {/* Logout */}
+          {/* Logout with modal confirmation popup */}
           <div className='p-6 border-t border-gray-700/50 text-center'>
-            <button onClick={handleLogout} className='flex items-center justify-center w-full md:w-auto md:mx-auto gap-2 text-sm font-semibold text-red-500 transition hover:text-red-400'>
-              <FontAwesomeIcon icon={faSignOutAlt} />
-              Kijelentkezés
-            </button>
+
+           
           </div>
         </div>
       </div>

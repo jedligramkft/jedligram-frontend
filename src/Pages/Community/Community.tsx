@@ -517,7 +517,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     if (Number.isNaN(commentId)) return;
 
     const raw = replyDraftByCommentId[commentId] ?? "";
-    const content = raw.trim();
+    const content = raw.trim();ű
     if (!content) return;
 
     if (submittingReplyCommentId === commentId) return;
