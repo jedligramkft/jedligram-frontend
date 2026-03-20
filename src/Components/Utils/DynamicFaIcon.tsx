@@ -10,9 +10,9 @@ export default function DynamicFAIcon({
 }: {
 	exportName: string;
 	size?:
-		| "lg"
 		| "xs"
 		| "sm"
+		| "lg"
 		| "1x"
 		| "2x"
 		| "3x"
