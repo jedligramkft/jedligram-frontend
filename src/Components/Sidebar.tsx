@@ -130,7 +130,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
                           #{t.id}
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate text-sm">{t.name || `Közösség #${t.id}`}</p>
+                          <p className="truncate text-sm">{t.name}</p>
                         </div>
                       </Link>
                     ))}

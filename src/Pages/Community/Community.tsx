@@ -714,7 +714,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                         <button type="button" onClick={() => handleToggleComments(postId)} disabled={Number.isNaN(postId)} className="cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
                           {isCommentsOpen ? "Kommentek bezárása" : "Kommentek"}
                         </button>
-                        <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button>
+                        {/* <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button> */}
                         <button 
                           type="button"
                           onClick={() => handleToggleLike(postId)}

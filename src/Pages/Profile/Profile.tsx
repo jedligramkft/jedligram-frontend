@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom"
+import { useRef, useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Logout } from "../../api/auth";
-import { ProfilePictureUpload } from "../../api/users";
+import { UploadProfilePicture } from "../../api/users";
+import useProfileData from "../../hooks/useProfileData";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera, faSave, faSignOutAlt, faKey, faSpinner, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
@@ -9,156 +12,83 @@ interface ProfileProps {
 
 const Profile = ({ isLoggedIn }: ProfileProps) => {
 	const navigate = useNavigate();
-	const profileStorageKey = "jedligram_profile";
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [bio, setBio] = useState<string>("");
-  const [joinedThreadIds, setJoinedThreadIds] = useState<number[]>([]);
-  const [profilePictureUrl, setProfilePictureUrl] = useState<string>("");
-  const [isUploadingProfilePicture, setIsUploadingProfilePicture] = useState(false);
-  const [lastSavedAt, setLastSavedAt] = useState<string>("");
+  const {
+    username, email, bio, joinedThreadIds, profilePictureUrl, lastSavedAt,
+    setUsername, setEmail, setBio, saveData, updateProfilePicture
+  } = useProfileData(); 
+  
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const loadFromStorage = () => {
-    const raw = localStorage.getItem(profileStorageKey);
-    if (!raw) {
-      setUsername("");
-      setEmail("");
-      setBio("");
-      setJoinedThreadIds([]);
-      setProfilePictureUrl("");
-      setLastSavedAt("");
-      return;
-    }
+  const backendUrl = (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "";
+  const resolveAvatarSrc = (raw: string): string => {
+    const url = (raw ?? "").trim();
+    if (!url) return "";
+    if (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("data:") ||
+      url.startsWith("blob:")
+    )
+      return url;
 
-    try {
-      const parsed = JSON.parse(raw) as Partial<{
-        username: string;
-        email: string;
-        bio: string;
-        joinedThreadIds: number[];
-        profilePictureUrl: string;
-        lastSavedAt: string;
-      }>;
-
-      if (typeof parsed.username === "string") setUsername(parsed.username);
-      if (typeof parsed.email === "string") setEmail(parsed.email);
-      if (typeof parsed.bio === "string") setBio(parsed.bio);
-
-      if (Array.isArray(parsed.joinedThreadIds)) setJoinedThreadIds(parsed.joinedThreadIds);
-
-      if (typeof parsed.profilePictureUrl === "string") setProfilePictureUrl(parsed.profilePictureUrl);
-      if (typeof parsed.lastSavedAt === "string") setLastSavedAt(parsed.lastSavedAt);
-    } catch (err) {
-      console.error("Failed to parse profile data from localStorage:", err);
-    }
+    if (!backendUrl) return url.startsWith("/") ? url : `/${url}`;
+    return url.startsWith("/") ? `${backendUrl}${url}` : `${backendUrl}/${url}`;
   };
 
-  useEffect(() => {
-    loadFromStorage();
-
-    const onThreadsChanged = () => loadFromStorage();
-    window.addEventListener("joined-threads-changed", onThreadsChanged);
-    return () => window.removeEventListener("joined-threads-changed", onThreadsChanged);
-  }, []);
-
-  const backendUrl = (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "";
-  const avatarSrc = profilePictureUrl.startsWith("/") && backendUrl ? `${backendUrl}${profilePictureUrl}` : profilePictureUrl;
+  const avatarSrc = resolveAvatarSrc(profilePictureUrl);
   const initials = username.trim().slice(0, 1).toUpperCase() || "?";
 
   const formatDateTime = (iso: string): string => {
+    if (!iso) return "Soha";
     const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleString("hu-HU");
+    return d.toLocaleString("hu-HU", { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
-  const isValidEmail = (value: string): boolean => {
-    const v = value.trim();
-    if (v.length === 0) return false;
-    return v.includes("@");
-  };
-
-  const handleSave = () => {
-    const errors: string[] = [];
-    if (username.trim() === "") errors.push("A felhasználónév nem lehet üres!");
-    if (email.trim() === "") errors.push("Az email cím nem lehet üres!");
-    else if (!isValidEmail(email)) errors.push("Az email formátuma nem megfelelő.");
-    if (errors.length > 0) {
-      alert(errors.join("\n"));
-      return;
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveStatus(null);
+    const success = saveData({ username, email, bio });
+    if (success) {
+      setSaveStatus("success");
+    } else {
+      setSaveStatus("error");
     }
-
-    let existing: any = {};
-    try {
-      const raw = localStorage.getItem(profileStorageKey);
-      existing = raw ? JSON.parse(raw) : {};
-    } catch {
-      existing = {};
-    }
-
-    const nowIso = new Date().toISOString();
-
-    localStorage.setItem(
-      profileStorageKey,
-      JSON.stringify({
-        ...existing,
-        username,
-        email,
-        bio,
-        joinedThreadIds,
-        profilePictureUrl,
-        lastSavedAt: nowIso,
-      }),
-    );
-    setLastSavedAt(nowIso);
+    setTimeout(() => {
+      setIsSaving(false);
+      setSaveStatus(null);
+    }, 2000);
   }
 
   const onProfilePictureSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploadingProfilePicture(true);
-
+    setIsUploading(true);
     try {
-      const response = await ProfilePictureUpload(file);
-
-      const data = response?.data as any;
-      const urlCandidate =
-        typeof data?.url === "string" ? data.url :
-        typeof data?.path === "string" ? data.path :
-        null;
-
-      if (urlCandidate) {
-        setProfilePictureUrl(urlCandidate);
-        try {
-          const raw = localStorage.getItem(profileStorageKey);
-          const existing = raw ? JSON.parse(raw) : {};
-          localStorage.setItem(profileStorageKey, JSON.stringify({ ...existing, profilePictureUrl: urlCandidate }));
-        } catch (err) {
-          console.error("Failed to update profile picture URL in localStorage:", err);
-        }
-      }
-
-      alert("Profilkép feltöltve!");
+      const url = await UploadProfilePicture(file);
+      updateProfilePicture(url);
+      alert("Profilkép sikeresen frissítve!");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Nem sikerült feltölteni a profilképet.";
-      alert(message);
+      alert(`Hiba: ${message}`);
     } finally {
-      setIsUploadingProfilePicture(false);
-      e.target.value = "";
+      setIsUploading(false);
+      if(fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
 	if (!isLoggedIn) {
-		return <Navigate to="/auth/login" replace />
+		return <Navigate to="/auth/login" replace />;
 	}
 
   const handleLogout = async () => {
     try {
       await Logout();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "An unknown error occurred";
-      alert(message);
+      console.error("Logout failed:", err);
     } finally {
       localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token");
       localStorage.removeItem("jedligram_profile");
@@ -168,106 +98,91 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   }
 
   return (
-    <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular'>
+    <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] text-white poppins-regular'>
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]' />
       <div className='absolute inset-0 bg-black/30' />
 
-      <div className='relative z-10 mx-auto flex max-w-xl flex-col px-4 pt-12 pb-12'>
+      <div className='relative z-10 mx-auto max-w-4xl px-4 py-16'>
         <div className='rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur'>
-          <div className='flex items-start justify-between gap-4'>
-            <div>
-              <h1 className='text-3xl font-black text-white'>Profil</h1>
-              <p className='mt-2 text-sm text-white/70'>Kezeld a fiókadataidat és személyes beállításaidat</p>
-            </div>
-
-            <div className='text-right'>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Csatlakozott közösségek</p>
-              <p className='mt-1 text-sm font-semibold text-white/85'>{joinedThreadIds.length}</p>
-              <p className='mt-2 text-xs font-semibold uppercase tracking-wider text-white/60'>Utoljára mentve</p>
-              <p className='mt-1 text-xs text-white/70'>{lastSavedAt ? formatDateTime(lastSavedAt) : "—"}</p>
-            </div>
-          </div>
-
-          <div className='mt-8 flex flex-col items-center gap-4'>
+          <div className="p-8 border-b border-gray-700/50 flex flex-col md:flex-row items-center gap-8">
             <div className='relative'>
-              <div className='h-28 w-28 overflow-hidden rounded-full border border-white/20 bg-linear-to-br from-blue-500/30 to-indigo-500/30 shadow-lg'>
+              <div className='h-32 w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-5xl font-black shadow-lg'>
                 {profilePictureUrl ? (
-                  <img src={avatarSrc} alt='Profilkép' className='h-full w-full object-cover' />
+                  <img src={avatarSrc} alt='Profilkép' className='h-full w-full object-cover rounded-full' />
                 ) : (
-                  <div className='flex h-full w-full items-center justify-center text-2xl font-black text-white/85'>
-                    {initials}
-                  </div>
+                  <span>{initials}</span>
                 )}
               </div>
-
-              {isUploadingProfilePicture ? (
-                <div className='absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-xs font-semibold text-white/80'>
-                  Feltöltés…
-                </div>
-              ) : null}
+              <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={onProfilePictureSelected}/>
+              <button className='absolute -bottom-2 -right-2 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-700 transition-transform duration-200 hover:scale-110 disabled:bg-gray-500 disabled:cursor-not-allowed' onClick={() => fileInputRef.current?.click()} disabled={isUploading} aria-label="Profilkép módosítása">
+                {isUploading ? <FontAwesomeIcon icon={faSpinner} className="animate-spin" /> : <FontAwesomeIcon icon={faCamera} />}
+              </button>
             </div>
-            <input
-              ref={fileInputRef}
-              type='file'
-              accept='image/*'
-              className='hidden'
-              onChange={onProfilePictureSelected}
-            />
-            <button
-              className='text-sm font-semibold text-blue-400 transition hover:text-blue-300 disabled:cursor-not-allowed disabled:text-white/40'
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploadingProfilePicture}
-            >
-              Profilkép módosítása
+            <div className="text-center md:text-left">
+              <h1 className='text-4xl font-bold'>{username || "Felhasználó"}</h1>
+              <p className='mt-2 text-lg text-gray-400'>{email}</p>
+              <p className='mt-4 text-sm text-gray-300 max-w-md'>{bio || "Nincs bemutatkozás."}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6 text-center">
+            <div>
+              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Közösség</p>
+              <p className='mt-1 text-lg font-bold text-white'>{joinedThreadIds.length}</p>
+            </div>
+            <div>
+              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Posztok</p>
+              <p className='mt-1 text-lg font-bold text-white'>42</p>
+            </div>
+            <div>
+              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Hozzászólások</p>
+              <p className='mt-1 text-lg font-bold text-white'>128</p>
+            </div>
+          </div>
+          <div className='p-8 border-t border-gray-700/50'>
+            <h2 className="text-2xl font-bold mb-6">Fiók beállítások</h2>
+            <div className='grid md:grid-cols-2 gap-6'>
+              <div>
+                <label className='text-sm font-semibold text-gray-400'>Felhasználónév</label>
+                <input type='text' placeholder='jedlik_user' value={username} onChange={(e) => setUsername(e.target.value)} className='mt-2 w-full rounded-lg border-2 border-gray-600 bg-gray-700 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-0 outline-none transition'/>
+              </div>
+              <div>
+                <label className='text-sm font-semibold text-gray-400'>Email</label>
+                <input type='email' placeholder='email@pelda.hu' value={email} onChange={(e) => setEmail(e.target.value)} className='mt-2 w-full rounded-lg border-2 border-gray-600 bg-gray-700 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-0 outline-none transition'/>
+              </div>
+              <div className="md:col-span-2">
+                <label className='text-sm font-semibold text-gray-400'>Bemutatkozás</label>
+                <textarea placeholder='Pár szó magadról...' value={bio} onChange={(e) => setBio(e.target.value)} rows={3} className='mt-2 w-full resize-none rounded-lg border-2 border-gray-600 bg-gray-700 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-0 outline-none transition'/>
+                <p className="text-xs text-gray-500 mt-1">Utoljára mentve: {formatDateTime(lastSavedAt)}</p>
+              </div>
+            </div>
+            <div className='mt-8 flex flex-col md:flex-row items-center justify-between gap-4'>
+              <Link to="/auth/change-password" className='flex items-center gap-2 text-sm font-semibold text-gray-400 transition hover:text-blue-400'>
+                <FontAwesomeIcon icon={faKey} />
+                Jelszó módosítása
+              </Link>
+              <button onClick={handleSave} disabled={isSaving} className='w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait'>
+                {isSaving ? (
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                ) : saveStatus === "success" ? (
+                  <FontAwesomeIcon icon={faCheckCircle} />
+                ) : saveStatus === "error" ? (
+                  <FontAwesomeIcon icon={faExclamationCircle} />
+                ) : (
+                  <FontAwesomeIcon icon={faSave} />
+                )}
+                <span>{isSaving ? "Mentés..." : saveStatus === "success" ? "Sikeresen mentve!" : saveStatus === "error" ? "Hiba!" : "Változtatások mentése"}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Logout */}
+          <div className='p-6 border-t border-gray-700/50 text-center'>
+            <button onClick={handleLogout} className='flex items-center justify-center w-full md:w-auto md:mx-auto gap-2 text-sm font-semibold text-red-500 transition hover:text-red-400'>
+              <FontAwesomeIcon icon={faSignOutAlt} />
+              Kijelentkezés
             </button>
-          </div>
-
-          <div className='mt-10 grid gap-5'>
-            <div>
-              <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Felhasználónév</label>
-              <input type='text' placeholder='jedlik_user' value={username} onChange={(e) => setUsername(e.target.value)} className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
-            </div>
-
-            <div>
-              <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Email</label>
-              <input type='email' placeholder='email@pelda.hu' value={email} onChange={(e) => setEmail(e.target.value)} className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
-            </div>
-
-            <div>
-              <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Bemutatkozás</label>
-              <textarea placeholder='Pár szó magadról...' value={bio} onChange={(e) => setBio(e.target.value)} className='mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20'/>
-            </div>
-
-            <div>
-              <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Csatlakozott közösségek</label>
-              <div className='mt-2 grid gap-2'>
-                {joinedThreadIds.length === 0 ? (
-                  <p className='text-sm text-white/50'>Nem csatlakoztál még egy közösséghez sem.</p>
-                ) : (
-                  joinedThreadIds.map((threadId) => (
-                  <div key={threadId} className='flex items-center justify-between rounded-2xl border border-white/10 bg-black/10 p-4'>
-                    <div>
-                      <p className='text-sm font-semibold text-white'>Közösség #{threadId}</p>
-                      <p className='text-xs font-semibold uppercase tracking-[0.2em] text-white/50'>Tag</p>
-                    </div>
-                    <Link to={`/communities/${threadId}`} className='cursor-pointer rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10'>
-                      Megnézem
-                    </Link>
-                  </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className='mt-8 flex items-center justify-between'>
-            <Link to="/auth/change-password" className='text-sm font-semibold text-white/60 transition hover:text-blue-400'>Jelszó módosítása</Link>
-            <button onClick={handleSave} className='mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700 cursor-pointer'>Mentés</button>
-          </div>
-
-          <div className='mt-6 border-t border-white/10 pt-4'>
-            <button onClick={handleLogout} className='text-sm font-semibold text-red-500 transition hover:text-red-400'>Kijelentkezés</button>
           </div>
         </div>
       </div>
