@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useThreads } from "../hooks/useThreads";
 import { getActiveTheme, toggleTheme } from "../theme";
+import { useFilteredThreads } from "./Searchbar/SearchEngine";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
 
 interface NavbarProps {
@@ -13,7 +13,7 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 	const navigate = useNavigate();
 	const [query, setQuery] = useState("");
 	const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
-	const threads = useThreads();
+	const filteredThreads = useFilteredThreads(query);
 
 	useEffect(() => {
 		const onThemeChanged = () => setActiveTheme(getActiveTheme());
@@ -21,22 +21,6 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 		return () =>
 			window.removeEventListener("theme-changed", onThemeChanged);
 	}, []);
-
-	const filteredThreads = useMemo(() => {
-		const normalizedQuery = query.trim().toLowerCase();
-		if (!normalizedQuery) return [];
-
-		return threads.filter((thread) => {
-			const name = String((thread as any)?.name ?? "").toLowerCase();
-			const category = String(
-				(thread as any)?.category ?? "",
-			).toLowerCase();
-			return (
-				name.includes(normalizedQuery) ||
-				category.includes(normalizedQuery)
-			);
-		});
-	}, [query, threads]);
 
 	const handleClick = () => {
 		const q = query.trim();
