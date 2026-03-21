@@ -1,20 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../api/threads";
-import { CommentOnPost, GetCommentsForPost, GetReplyCommentsForComment, RemoveVoteFromPost, ReplyToComment, VoteOnPost} from "../../api/posts";
+import {
+	GetPostsInThread,
+	GetThreadById,
+	JoinThread,
+	LeaveThread,
+} from "../../api/threads";
+import {
+	CommentOnPost,
+	GetCommentsForPost,
+	GetReplyCommentsForComment,
+	RemoveVoteFromPost,
+	ReplyToComment,
+	VoteOnPost,
+} from "../../api/posts";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetUsers } from "../../api/users";
 import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
 import PostSkeleton from "../../Components/Utils/PostSkeleton";
 
 interface CommunityProps {
-  isLoggedIn: boolean;
+	isLoggedIn: boolean;
 }
 
 type RecentThreadItem = {
-  id: number;
-  name?: string;
+	id: number;
+	name?: string;
 };
 
 type JoinedThreadItem = {

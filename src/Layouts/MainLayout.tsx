@@ -10,17 +10,24 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ isLoggedIn }: MainLayoutProps) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  return (
-    <>
-	    <Navbar toggleSidebar={() => setIsSidebarOpen(prev => !prev)} isLoggedIn={isLoggedIn} />
-      <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} isLoggedIn={isLoggedIn} />
-      <Outlet />
-      <Footer isLoggedIn={isLoggedIn} />
-      <ScrollToTopButton />
-    </>
-  );
+	return (
+		<>
+			<Navbar
+				onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+				isSidebarOpen={isSidebarOpen}
+			/>
+			<Sidebar
+				isSidebarOpen={isSidebarOpen}
+				closeSidebar={() => setIsSidebarOpen(false)}
+				isLoggedIn={isLoggedIn}
+			/>
+			<Outlet />
+			<Footer isLoggedIn={isLoggedIn} />
+			<ScrollToTopButton />
+		</>
+	);
 };
 
 export default MainLayout;
