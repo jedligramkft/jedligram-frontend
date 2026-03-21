@@ -14,6 +14,7 @@ import CreatePost from "./Pages/Community/CreatePost";
 import LoginPage from "./Pages/Auth/Login";
 import SearchResults from "./Pages/Search/SearchResults";
 import { GetUserThreads } from "./api/users";
+import DeletedCommunity from "./Pages/Community/DeletedCommunity";
 
 function App() {
 	const authTokenName =
@@ -125,6 +126,10 @@ function App() {
 					<Route
 						path="communities/:id"
 						element={<Community isLoggedIn={isLoggedIn} />}
+					/>
+					<Route
+						path="communities/:id/deleted"
+						element={<DeletedCommunity />}
 					/>
 					<Route path="communities/:id/posts/new" element={<CreatePost />} />
 					<Route path="profile" element={<Profile isLoggedIn={isLoggedIn} />} />

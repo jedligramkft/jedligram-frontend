@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
 import { PopularIcon } from "./CustomIcons/PopularIcon";
 
@@ -52,6 +52,7 @@ const SidebarCard = ({
 };
 
 const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
+	const navigate = useNavigate();
 	// const [activeCommunity, setActiveCommunity] = useState<number | null>(null);
 	const [joinedThreadIds, setJoinedThreadIds] = useState<JoinedThreadItem[]>(
 		[],
@@ -204,8 +205,14 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 											title={t.name ? t.name : `#${t.id}`}
 											icon={`#${t.id}`}
 											to={`/communities/${t.id}`}
-											onClick={() => {
+											onClick={ async () => {
 												closeSidebar();
+												try{
+													const res = await fetch(`/api/threads/${t.id}`);
+        											if (!res.ok) throw new Error("Nem létezik");
+												} catch {
+													navigate(`/deleted-community`);
+												}
 											}}
 										/>
 									))}
