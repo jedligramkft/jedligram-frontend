@@ -53,6 +53,28 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
     setIsSaving(true);
     setSaveStatus(null);
 
+    const usernameRegex = /^[a-zA-Z0-9_]{3,15}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const bioRegex = /^.{0,200}$/;
+
+    if (!usernameRegex.test(username)) {
+      alert("A felhasználónév csak betűket és számokat tartalmazhat, 3-15 karakter hosszúságban.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      alert("Érvénytelen email formátum.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (!bioRegex.test(bio)) {
+      alert("A biográfia maximum 200 karakter hosszú lehet.");
+      setIsSaving(false);
+      return;
+    }
+
     const success = saveData({ username, email, bio });
     if (success) {
       setSaveStatus("success");
