@@ -13,6 +13,7 @@ import VerifyEmail from "./Pages/Auth/VerifyEmail";
 import CreatePost from "./Pages/Community/CreatePost";
 import LoginPage from "./Pages/Auth/Login";
 import SearchResults from "./Pages/Search/SearchResults";
+import { GetUserThreads } from "./api/users";
 
 function App() {
 	const authTokenName =
@@ -20,6 +21,72 @@ function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(() =>
 		Boolean(localStorage.getItem(authTokenName)),
 	);
+
+	useEffect(() => {
+		const profileKey = "jedligram_profile";
+
+		const readProfile = (): any => {
+			try {
+				const raw = localStorage.getItem(profileKey);
+				return raw ? JSON.parse(raw) : {};
+			} catch {
+				return {};
+			}
+		};
+
+		const writeProfile = (next: any) => {
+			localStorage.setItem(profileKey, JSON.stringify(next));
+			window.dispatchEvent(new Event("joined-threads-changed"));
+		};
+
+		const syncJoinedThreads = async () => {
+			if (!isLoggedIn) return;
+			const profile = readProfile();
+			const rawId = profile?.userId;
+			const userId =
+				typeof rawId === "number"
+					? rawId
+					: typeof rawId === "string"
+						? Number(rawId)
+						: NaN;
+
+			const resolvedUserId = Number.isFinite(userId) ? userId : undefined;
+			if (!resolvedUserId) return;
+
+			try {
+				const response = await GetUserThreads(resolvedUserId);
+				const raw = response.data;
+				const list =
+					Array.isArray(raw)
+						? raw
+						: Array.isArray((raw as any)?.threads)
+							? (raw as any).threads
+							: Array.isArray((raw as any)?.data)
+								? (raw as any).data
+								: [];
+
+				const joinedThreads = list
+					.filter((t: any) => t && (typeof t.id === "number" || typeof t.id === "string"))
+					.map((t: any) => ({
+						id: Number(t.id),
+						name: typeof t.name === "string" ? t.name : undefined,
+					}))
+					.filter((t: any) => Number.isFinite(t.id));
+
+				const joinedThreadIds = joinedThreads.map((t: any) => t.id);
+				writeProfile({
+					...profile,
+					userId: profile?.userId ?? resolvedUserId,
+					joinedThreads,
+					joinedThreadIds,
+				});
+			} catch {
+				console.warn("Failed to sync joined threads for user", resolvedUserId);
+			}
+		};
+
+		syncJoinedThreads();
+	}, [isLoggedIn]);
 
 	useEffect(() => {
 		const syncAuth = () => {
