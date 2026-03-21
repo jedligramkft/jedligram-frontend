@@ -9,6 +9,14 @@ const seedProfileFromLoginResponse = (data: any) => {
 	const user = (data as any)?.user ?? (data as any)?.data?.user ?? null;
 	if (!user || typeof user !== "object") return;
 
+	const rawId = (user as any).id ?? (user as any).user_id ?? (user as any).userId;
+	const userId =
+		typeof rawId === "number"
+			? rawId
+			: typeof rawId === "string"
+				? Number(rawId)
+				: NaN;
+
 	const username =
 		typeof (user as any).name === "string" ? (user as any).name : "";
 	const email =
@@ -17,9 +25,11 @@ const seedProfileFromLoginResponse = (data: any) => {
 	localStorage.setItem(
 		"jedligram_profile",
 		JSON.stringify({
+			userId: Number.isFinite(userId) ? userId : undefined,
 			username,
 			email,
 			bio: "",
+			joinedThreads: [],
 			joinedThreadIds: [],
 			profilePictureUrl: "",
 			lastSavedAt: "",
