@@ -20,6 +20,8 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const backendUrl = (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "";
@@ -50,6 +52,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const handleSave = async () => {
     setIsSaving(true);
     setSaveStatus(null);
+
     const success = saveData({ username, email, bio });
     if (success) {
       setSaveStatus("success");
@@ -84,18 +87,18 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 		return <Navigate to="/auth/login" replace />;
 	}
 
-  const handleLogout = async () => {
+  const confirmLogout = async () => {
     try {
       await Logout();
     } catch (err) {
-      console.error("Logout failed:", err);
+      console.error(err);
     } finally {
       localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token");
       localStorage.removeItem("jedligram_profile");
       window.dispatchEvent(new Event("auth-changed"));
       navigate("/auth/login", { replace: true });
     }
-  }
+  };
 
   return (
     <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] text-white poppins-regular'>
@@ -152,25 +155,53 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
               </div>
             </div>
             <div className='mt-8 flex flex-col md:flex-row items-center justify-between gap-4'>
-              <button onClick={handleSave} disabled={isSaving} className='w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait'>
-                {isSaving ? (
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
-                ) : saveStatus === "success" ? (
-                  <FontAwesomeIcon icon={faCheckCircle} />
-                ) : saveStatus === "error" ? (
-                  <FontAwesomeIcon icon={faExclamationCircle} />
-                ) : (
-                  <FontAwesomeIcon icon={faSave} />
+              <div className='mt-8 flex flex-col md:flex-row items-center justify-between gap-4'>
+                <button onClick={() => setShowSaveModal(true)} disabled={isSaving} className='w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait'>
+                  {isSaving ? (
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                  ) : saveStatus === "success" ? (
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                  ) : saveStatus === "error" ? (
+                    <FontAwesomeIcon icon={faExclamationCircle} />
+                  ) : (
+                    <FontAwesomeIcon icon={faSave} />
+                  )}
+                  <span>{isSaving ? "Mentés..." : saveStatus === "success" ? "Sikeresen mentve!" : saveStatus === "error" ? "Hiba!" : "Változtatások mentése"}</span>
+                </button>
+                {showSaveModal && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20 rounded-3xl">
+                    <div className="bg-[#2b2f34] rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-xl">
+                      <h3 className="text-xl font-bold mb-4">Mentés megerősítése</h3>
+                      <p className="text-gray-300 mb-6">Biztosan el szeretnéd menteni a változtatásokat?</p>
+                      <div className="flex justify-end gap-3">
+                        <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700">Mégse</button>
+                        <button onClick={async () => {setShowSaveModal(false); await handleSave();}} className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700">
+                          Mentés
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
-                <span>{isSaving ? "Mentés..." : saveStatus === "success" ? "Sikeresen mentve!" : saveStatus === "error" ? "Hiba!" : "Változtatások mentése"}</span>
-              </button>
+              </div>
+              <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <button onClick={() => setShowLogoutModal(true)} className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-red-700">
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                  Kijelentkezés
+                </button>
+                {showLogoutModal && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20 rounded-3xl">
+                    <div className="bg-[#2b2f34] rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-xl">
+                      <h3 className="text-xl font-bold mb-4 text-red-400">Kijelentkezés</h3>
+                      <p className="text-gray-300 mb-6">Biztosan ki szeretnél jelentkezni?</p>
+                      <div className="flex justify-end gap-3">
+                        <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700">Mégse</button>
+                        <button onClick={confirmLogout} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700">Kijelentkezés</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Logout with modal confirmation popup */}
-          <div className='p-6 border-t border-gray-700/50 text-center'>
-
-           
           </div>
         </div>
       </div>
