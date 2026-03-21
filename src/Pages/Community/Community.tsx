@@ -17,6 +17,11 @@ type RecentThreadItem = {
   name?: string;
 };
 
+type JoinedThreadItem = {
+  id: number;
+  name?: string;
+};
+
 const Community = ({ isLoggedIn }: CommunityProps) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
@@ -49,8 +54,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
-  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
-
   const threadId = id ? Number(id) : NaN;
 
   const profileStorageKey = "jedligram_profile";
@@ -67,20 +70,44 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
   const updateJoinedThreadsLocal = (threadIdValue: number, threadLabel: string, shouldBeJoined: boolean) => {
     const profile = readProfile();
-    const joinedThreads: string[] = Array.isArray(profile.joinedThreads) ? profile.joinedThreads : [];
-    const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds) ? profile.joinedThreadIds : [];
+
+    const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds)
+      ? profile.joinedThreadIds.map((x: any) => Number(x)).filter((n: number) => Number.isFinite(n))
+      : [];
+
+    const joinedThreadsRaw = profile.joinedThreads;
+    let joinedThreads: JoinedThreadItem[] = [];
+    if (Array.isArray(joinedThreadsRaw) && joinedThreadsRaw.some((x: any) => x && typeof x === "object" && "id" in x)) {
+      joinedThreads = joinedThreadsRaw
+        .filter((t: any) => t && typeof t === "object" && "id" in t)
+        .map((t: any) => ({
+          id: Number((t as any).id),
+          name: typeof (t as any).name === "string" ? (t as any).name : undefined,
+        }))
+        .filter((t: any) => Number.isFinite(t.id));
+    } else if (Array.isArray(joinedThreadsRaw) && joinedThreadsRaw.every((x: any) => typeof x === "string")) {
+      const names: string[] = joinedThreadsRaw;
+      joinedThreads = joinedThreadIds
+        .map((id, idx) => ({ id, name: names[idx] }))
+        .filter((t) => Number.isFinite(t.id));
+    }
 
     const nextIds = shouldBeJoined
       ? Array.from(new Set([...joinedThreadIds, threadIdValue]))
       : joinedThreadIds.filter((t) => t !== threadIdValue);
 
-    const nextLabels = shouldBeJoined
-      ? Array.from(new Set([...joinedThreads, threadLabel]))
-      : joinedThreads.filter((t) => t !== threadLabel);
+    const nextThreads = shouldBeJoined
+      ? (() => {
+          const exists = joinedThreads.some((t) => t.id === threadIdValue);
+          return exists
+            ? joinedThreads.map((t) => (t.id === threadIdValue ? { ...t, name: t.name ?? threadLabel } : t))
+            : [...joinedThreads, { id: threadIdValue, name: threadLabel }];
+        })()
+      : joinedThreads.filter((t) => t.id !== threadIdValue);
 
     localStorage.setItem(
       profileStorageKey,
-      JSON.stringify({ ...profile, joinedThreads: nextLabels, joinedThreadIds: nextIds }),
+      JSON.stringify({ ...profile, joinedThreads: nextThreads, joinedThreadIds: nextIds }),
     );
 
     window.dispatchEvent(new Event("joined-threads-changed"));
@@ -129,44 +156,19 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
   useEffect(() => {
     if (Number.isNaN(threadId)) return;
-    const profile = readProfile();
-    const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds) ? profile.joinedThreadIds : [];
-    setIsJoined(joinedThreadIds.includes(threadId));
+
+    const sync = () => {
+      const profile = readProfile();
+      const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds)
+        ? profile.joinedThreadIds.map((x: any) => Number(x)).filter((n: number) => Number.isFinite(n))
+        : [];
+      setIsJoined(joinedThreadIds.includes(threadId));
+    };
+
+    sync();
+    window.addEventListener("joined-threads-changed", sync);
+    return () => window.removeEventListener("joined-threads-changed", sync);
   }, [threadId]);
-
-  const syncLikeCountsFromPosts = (postsArray: Array<Record<string, unknown>>) => {
-    setLikeCounts((prev) => {
-      const next = { ...prev };
-
-      for (const post of postsArray) {
-        const postId = parsePostId(post.id);
-        if (Number.isNaN(postId)) continue;
-
-        const serverValue = (post.likes_count as unknown) ?? (post.likesCount as unknown);
-        const serverNumber =
-          typeof serverValue === "number"
-            ? serverValue
-            : typeof serverValue === "string"
-              ? Number(serverValue)
-              : NaN;
-
-        if (Number.isFinite(serverNumber)) {
-          next[postId] = Math.max(0, Math.trunc(serverNumber));
-        } else if (next[postId] === undefined) {
-          next[postId] = 0;
-        }
-      }
-
-      return next;
-    });
-  };
-
-  const getLikeCount = (postId: number, post: Record<string, unknown>): number => {
-    const serverValue = (post.likes_count as unknown) ?? (post.likesCount as unknown);
-    const value = serverValue ?? likeCounts[postId] ?? 0;
-    const n = typeof value === "number" ? value : typeof value === "string" ? Number(value) : 0;
-    return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
-  };
 
   const fetchJoinedUsernames = async (threadIdValue: number): Promise<string[]> => {
     if (Number.isNaN(threadIdValue)) return [];
@@ -337,15 +339,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       isCancelled = true;
     };
   }, [id, isLoggedIn, location.key, navigate, threadId]);
-
-  const reloadPosts = async () => {
-    if (Number.isNaN(threadId)) return;
-
-    const postsRes = await GetPostsInThread(threadId);
-    const postsData = (postsRes.data?.posts ?? postsRes.data) as unknown;
-    const postsArray = Array.isArray(postsData) ? (postsData as Array<Record<string, unknown>>) : [];
-    setPosts(postsArray);
-  };
 
   const handleToggleLike = async (postId: number) => {
     if (!isLoggedIn) {
