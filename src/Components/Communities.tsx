@@ -103,7 +103,7 @@ const Communities = () => {
 									<h3 className="text-2xl font-semibold text-white">{thread.name}</h3>
 									<p className="text-sm text-white/70">{thread.description || "Csatlakozz, és kezdj el beszélgetni!"}</p>
 									<div className="mt-auto flex items-center justify-between">
-										<span className="text-sm font-semibold text-white/80">10 tag</span>
+										<span className="text-sm font-semibold text-white/80">{thread.users_count} tag</span>
 										<Link to={`/communities/${thread.id}`} className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">Megnézem</Link>
 									</div>
 								</div>

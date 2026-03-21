@@ -28,7 +28,7 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 					onClick={() => {
 						onToggleSidebar?.();
 					}}
-					className="h-12 w-12 text-white flex items-center justify-center"
+					className="h-12 w-12 text-white flex items-center justify-center cursor-pointer"
 				>
 					{isSidebarOpen ? (
 						<DynamicFAIcon exportName="faTimes" size="lg" />
