@@ -3,8 +3,7 @@ import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
 	isUploading?: boolean;
-	accept?: string;
-	acceptedMimeTypes?: string[];
+	accept?: string[];
 	maxFileSizeBytes?: number;
 	title?: string;
 	description?: string;
@@ -14,50 +13,54 @@ interface DragnDropProps {
 	onValidationError?: (message: string | null) => void;
 }
 
-const defaultAcceptedMimeTypes = [
-	"image/jpeg",
-	"image/png",
-	"image/jpg",
-	"image/gif",
-];
-
-const defaultAccept = ".jpeg,.jpg,.png,.gif";
+const defaultAccept = [".jpeg", ".jpg", ".png", ".gif"];
 const defaultMaxFileSizeBytes = 2 * 1024 * 1024;
 
 export const DragnDrop = ({
 	onFileSelected,
+	onValidationError,
 	isUploading = false,
 	accept = defaultAccept,
-	acceptedMimeTypes = defaultAcceptedMimeTypes,
 	maxFileSizeBytes = defaultMaxFileSizeBytes,
-	title = "Huzd ide a fajlt",
-	description = "Elfogadott formatumok: JPEG, JPG, PNG, GIF • Maximum meret: 2MB",
-	selectButtonLabel = "Fajl kivalasztasa",
-	uploadingLabel = "Feltoltes...",
+	title = "Húzd ide a fájlt",
+	description = "Vagy kattints a gombra a fájl kiválasztásához.",
+	selectButtonLabel = "Fájl kiválasztása",
+	uploadingLabel = "Feltöltés...",
 	className = "",
-	onValidationError,
 }: DragnDropProps) => {
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+	const acceptedMimeTypes = accept.map((ext) => {
+		return ext.replace(".", "image/");
+	});
+
+	// Keep local and parent validation states in sync.
 	const setValidationError = (message: string | null) => {
 		setErrorMessage(message);
 		onValidationError?.(message);
 	};
 
+	// Validate file MIME type and size before calling upload logic.
+	// - If `acceptedMimeTypes` contains "*" then any MIME type is accepted.
+	// - If `maxFileSizeBytes` is -1 then there is no size limit.
 	const validateFile = (file: File): string | null => {
-		if (!acceptedMimeTypes.includes(file.type)) {
-			return "Csak JPEG, JPG, PNG vagy GIF fajl toltheto fel.";
+		if (
+			!acceptedMimeTypes.includes("*") &&
+			!acceptedMimeTypes.includes(file.type)
+		) {
+			return `Csak ${acceptedMimeTypes.join(", ")} fájl tölthető fel.`;
 		}
 
-		if (file.size > maxFileSizeBytes) {
-			return "A fajl merete nem lehet nagyobb 2MB-nal.";
+		if (maxFileSizeBytes !== -1 && file.size > maxFileSizeBytes) {
+			return `A fájl mérete nem lehet nagyobb ${maxFileSizeBytes / (1024 * 1024)} MB-nál.`;
 		}
 
 		return null;
 	};
 
+	// Shared file processing path for both input selection and drag-drop.
 	const processFile = async (file: File) => {
 		const validationError = validateFile(file);
 		if (validationError) {
@@ -69,6 +72,7 @@ export const DragnDrop = ({
 		await onFileSelected(file);
 	};
 
+	// Handle native file input and clear it so selecting the same file works again.
 	const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
@@ -78,6 +82,7 @@ export const DragnDrop = ({
 		});
 	};
 
+	// Prevent browser default behavior and process dropped file.
 	const handleDrop = (e: DragEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		setIsDragOver(false);
@@ -88,11 +93,13 @@ export const DragnDrop = ({
 		void processFile(file);
 	};
 
+	// Mark drop zone as active while file is dragged over it.
 	const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		setIsDragOver(true);
 	};
 
+	// Reset drop zone visual state when drag leaves the area.
 	const handleDragLeave = () => {
 		setIsDragOver(false);
 	};
@@ -102,7 +109,7 @@ export const DragnDrop = ({
 			<input
 				ref={fileInputRef}
 				type="file"
-				accept={accept}
+				accept={accept.includes("*") ? undefined : accept.join(",")}
 				className="hidden"
 				onChange={handleFileInputChange}
 			/>
@@ -112,8 +119,12 @@ export const DragnDrop = ({
 				onDragOver={handleDragOver}
 				onDragLeave={handleDragLeave}
 			>
-				<p className="text-sm font-semibold text-white">{title}</p>
-				<p className="mt-2 text-xs text-gray-400">{description}</p>
+				{title && (
+					<p className="text-sm font-semibold text-white">{title}</p>
+				)}
+				{description && (
+					<p className="mt-2 text-xs text-gray-400">{description}</p>
+				)}
 				<button
 					type="button"
 					onClick={() => fileInputRef.current?.click()}
@@ -122,6 +133,20 @@ export const DragnDrop = ({
 				>
 					{isUploading ? uploadingLabel : selectButtonLabel}
 				</button>
+				<div className="*:text-xs *:text-gray-500 mt-4">
+					<p>
+						Elfogadott formátumok:{" "}
+						{accept.includes("*")
+							? "Minden formátum"
+							: accept.join(", ")}
+					</p>
+					<p>
+						Maximum fájl méret:{" "}
+						{maxFileSizeBytes === -1
+							? "Nincs korlátozás"
+							: `${maxFileSizeBytes / (1024 * 1024)} MB`}
+					</p>
+				</div>
 			</div>
 			{errorMessage ? (
 				<p className="mt-2 text-sm text-red-400">{errorMessage}</p>
