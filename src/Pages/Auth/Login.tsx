@@ -1,41 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Login } from "../../api/auth";
 import type { UserData } from "../../Interfaces/UserData";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
-
-export const InputComponent = (props: {
-	label: string;
-	type: string;
-	value: string;
-	placeholder?: string;
-	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-	absoluteChildren?: ReactNode;
-}) => {
-	const { label, type, value, placeholder, onChange, absoluteChildren } = props;
-
-	return (
-		<div>
-			<label
-				htmlFor={label}
-				className="text-sm font-semibold text-white/70 ml-3"
-			>
-				{label}
-			</label>
-			<div className={`${absoluteChildren ? "relative" : "block"}`}>
-				<input
-					name={label}
-					type={type}
-					placeholder={placeholder}
-					value={value}
-					onChange={onChange}
-					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20`}
-				/>
-				{absoluteChildren}
-			</div>
-		</div>
-	);
-};
+import { InputComponent } from "../../Components/InputFields/InputComponent";
 
 const LoginPage = () => {
 	const [username, setUsername] = useState("");
@@ -71,7 +39,9 @@ const LoginPage = () => {
 			}
 		} catch (error) {
 			if (!(error instanceof Error)) {
-				setError("Hiba történt a bejelentkezés során. Kérlek próbáld újra.");
+				setError(
+					"Hiba történt a bejelentkezés során. Kérlek próbáld újra.",
+				);
 				return;
 			}
 
@@ -80,7 +50,9 @@ const LoginPage = () => {
 				return;
 			}
 
-			setError("Hiba történt a bejelentkezés során. Kérlek próbáld újra.");
+			setError(
+				"Hiba történt a bejelentkezés során. Kérlek próbáld újra.",
+			);
 		} finally {
 			button.disabled = false;
 		}
@@ -126,13 +98,17 @@ const LoginPage = () => {
 									setPassVisible(!isPassVisible);
 								}}
 							>
-								<div className={`${isPassVisible ? "block" : "hidden"}`}>
+								<div
+									className={`${isPassVisible ? "block" : "hidden"}`}
+								>
 									<DynamicFAIcon
 										exportName="faEye"
 										className="text-md scale-x-110"
 									/>
 								</div>
-								<div className={`${isPassVisible ? "hidden" : "block"}`}>
+								<div
+									className={`${isPassVisible ? "hidden" : "block"}`}
+								>
 									<DynamicFAIcon
 										exportName="faEyeSlash"
 										className="text-md scale-x-110"

@@ -13,6 +13,8 @@ import {
 	faCheckCircle,
 	faExclamationCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import { InputComponent } from "../../Components/InputFields/InputComponent";
+import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
@@ -306,41 +308,32 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 						</h2>
 						<div className="grid md:grid-cols-2 gap-6">
 							<div>
-								<label className="text-sm font-semibold text-gray-400">
-									Felhasználónév
-								</label>
-								<input
-									type="text"
+								<InputComponent
+									label="Felhasználónév"
 									placeholder="jedlik_user"
 									value={username}
 									onChange={(e) =>
 										setUsername(e.target.value)
 									}
-									className="mt-2 w-full rounded-lg border-2 border-gray-600 bg-gray-700 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-0 outline-none transition"
 								/>
 							</div>
 							<div>
-								<label className="text-sm font-semibold text-gray-400">
-									Email
-								</label>
-								<input
-									type="email"
+								<InputComponent
+									label="Email"
 									placeholder="email@pelda.hu"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="mt-2 w-full rounded-lg border-2 border-gray-600 bg-gray-700 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-0 outline-none transition"
+									type={"email"}
 								/>
 							</div>
 							<div className="md:col-span-2">
-								<label className="text-sm font-semibold text-gray-400">
-									Bemutatkozás
-								</label>
-								<textarea
+								<TextAreaComponent
+									label="Bemutatkozás"
 									placeholder="Pár szó magadról..."
 									value={bio}
 									onChange={(e) => setBio(e.target.value)}
 									rows={3}
-									className="mt-2 w-full resize-none rounded-lg border-2 border-gray-600 bg-gray-700 px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-0 outline-none transition"
+									textAreaClassName="resize-none"
 								/>
 								<p className="text-xs text-gray-500 mt-1">
 									Utoljára mentve:{" "}
