@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Logout } from "../../api/auth";
 import { UploadProfilePicture } from "../../api/users";
@@ -15,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
+import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 
 interface ProfileProps {
 	isLoggedIn: boolean;
@@ -41,17 +42,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 	const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(
 		null,
 	);
-	const [isDragOver, setIsDragOver] = useState(false);
-	const [uploadError, setUploadError] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-	const acceptedMimeTypes = [
-		"image/jpeg",
-		"image/png",
-		"image/jpg",
-		"image/gif",
-	];
-	const maxUploadSizeBytes = 2 * 1024 * 1024;
 
 	const backendUrl =
 		(import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "";
@@ -102,28 +93,8 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 		}, 2000);
 	};
 
-	const validateImageFile = (file: File): string | null => {
-		if (!acceptedMimeTypes.includes(file.type)) {
-			return "Csak JPEG, JPG, PNG vagy GIF fájl tölthető fel.";
-		}
-
-		if (file.size > maxUploadSizeBytes) {
-			return "A fájl mérete nem lehet nagyobb 2MB-nál.";
-		}
-
-		return null;
-	};
-
 	const onProfilePictureSelected = async (file: File) => {
 		if (!file) return;
-
-		const validationError = validateImageFile(file);
-		if (validationError) {
-			setUploadError(validationError);
-			return;
-		}
-
-		setUploadError(null);
 
 		setIsUploading(true);
 		try {
@@ -147,25 +118,6 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 		if (!file) return;
 
 		void onProfilePictureSelected(file);
-	};
-
-	const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		setIsDragOver(false);
-
-		const file = e.dataTransfer.files?.[0];
-		if (!file) return;
-
-		void onProfilePictureSelected(file);
-	};
-
-	const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		setIsDragOver(true);
-	};
-
-	const handleDragLeave = () => {
-		setIsDragOver(false);
 	};
 
 	if (!isLoggedIn) {
@@ -244,37 +196,16 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 						</div>
 					</div>
 
-					<div className="px-8 pt-2 pb-6 border-b border-gray-700/50">
-						<div
-							className={`rounded-xl border-2 border-dashed p-6 text-center transition ${isDragOver ? "border-blue-400 bg-blue-500/10" : "border-gray-500/70 bg-white/5"}`}
-							onDrop={handleDrop}
-							onDragOver={handleDragOver}
-							onDragLeave={handleDragLeave}
-						>
-							<p className="text-sm font-semibold text-white">
-								Húzd ide az új profilképet
-							</p>
-							<p className="mt-2 text-xs text-gray-400">
-								Elfogadott formátumok: JPEG, JPG, PNG, GIF •
-								Maximum méret: 2MB
-							</p>
-							<button
-								type="button"
-								onClick={() => fileInputRef.current?.click()}
-								disabled={isUploading}
-								className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
-							>
-								{isUploading
-									? "Feltöltés..."
-									: "Fájl kiválasztása"}
-							</button>
-						</div>
-						{uploadError ? (
-							<p className="mt-2 text-sm text-red-400">
-								{uploadError}
-							</p>
-						) : null}
-					</div>
+					{/* <div className="*:w-96 flex justify-center px-8 py-8 border-b border-gray-700/50">
+						<DragnDrop
+							onFileSelected={onProfilePictureSelected}
+							isUploading={isUploading}
+							title="Húzd ide az új profilképet"
+							description="Elfogadott formátumok: JPEG, JPG, PNG, GIF • Maximum méret: 2MB"
+							selectButtonLabel="Fájl kiválasztása"
+							uploadingLabel="Feltöltés..."
+						/>
+					</div> */}
 
 					<div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6 text-center">
 						<div>
