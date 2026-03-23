@@ -4,7 +4,7 @@ import { Logout } from "../../api/auth";
 import { UploadProfilePicture } from "../../api/users";
 import useProfileData from "../../hooks/useProfileData";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCamera, faSave, faSignOutAlt, faKey, faSpinner, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCamera, faSave, faSignOutAlt, faSpinner, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 
 interface ProfileProps {
 	isLoggedIn: boolean;

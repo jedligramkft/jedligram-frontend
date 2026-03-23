@@ -132,7 +132,7 @@ function App() {
 						element={<DeletedCommunity />}
 					/>
 					<Route path="communities/:id/posts/new" element={<CreatePost />} />
-					<Route path="profile" element={<Profile isLoggedIn={isLoggedIn} />} />
+					{/* <Route path="profile" element={<Profile isLoggedIn={isLoggedIn} />} /> */}
 					<Route path="users/:id" element={<UserProfile />} />
 				</Route>
 
