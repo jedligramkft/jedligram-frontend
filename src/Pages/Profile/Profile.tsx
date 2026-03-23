@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Logout } from "../../api/auth";
 import { UploadProfilePicture } from "../../api/users";
@@ -16,10 +16,12 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
     username, email, bio, joinedThreadIds, profilePictureUrl, lastSavedAt,
     setUsername, setEmail, setBio, saveData, updateProfilePicture
   } = useProfileData(); 
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const backendUrl = (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "";
@@ -50,6 +52,29 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
   const handleSave = async () => {
     setIsSaving(true);
     setSaveStatus(null);
+
+    const usernameRegex = /^[a-zA-Z0-9_]{3,15}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const bioRegex = /^.{0,200}$/;
+
+    if (!usernameRegex.test(username)) {
+      alert("A felhasználónév csak betűket és számokat tartalmazhat, 3-15 karakter hosszúságban.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      alert("Érvénytelen email formátum.");
+      setIsSaving(false);
+      return;
+    }
+
+    if (!bioRegex.test(bio)) {
+      alert("A biográfia maximum 200 karakter hosszú lehet.");
+      setIsSaving(false);
+      return;
+    }
+
     const success = saveData({ username, email, bio });
     if (success) {
       setSaveStatus("success");
@@ -84,18 +109,18 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 		return <Navigate to="/auth/login" replace />;
 	}
 
-  const handleLogout = async () => {
+  const confirmLogout = async () => {
     try {
       await Logout();
     } catch (err) {
-      console.error("Logout failed:", err);
+      console.error(err);
     } finally {
       localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token");
       localStorage.removeItem("jedligram_profile");
       window.dispatchEvent(new Event("auth-changed"));
       navigate("/auth/login", { replace: true });
     }
-  }
+  };
 
   return (
     <section className='relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] text-white poppins-regular'>
@@ -124,21 +149,15 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
               <p className='mt-2 text-lg text-gray-400'>{email}</p>
               <p className='mt-4 text-sm text-gray-300 max-w-md'>{bio || "Nincs bemutatkozás."}</p>
             </div>
+            <div className="md:ml-auto ml-0 flex items-center">
+                <Link to="/all-communities" className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
+                  Vissza
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6 text-center">
-            <div>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Közösség</p>
-              <p className='mt-1 text-lg font-bold text-white'>{joinedThreadIds.length}</p>
-            </div>
-            <div>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Posztok</p>
-              <p className='mt-1 text-lg font-bold text-white'>42</p>
-            </div>
-            <div>
-              <p className='text-xs font-semibold uppercase tracking-wider text-white/60'>Hozzászólások</p>
-              <p className='mt-1 text-lg font-bold text-white'>128</p>
-            </div>
+          <div className="gap-4 p-6 text-center">
+            <p className='text-xl font-bold'>Csatlakozott threadok száma: {joinedThreadIds.length}</p>
           </div>
           <div className='p-8 border-t border-gray-700/50'>
             <h2 className="text-2xl font-bold mb-6">Fiók beállítások</h2>
@@ -158,31 +177,53 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
               </div>
             </div>
             <div className='mt-8 flex flex-col md:flex-row items-center justify-between gap-4'>
-              <Link to="/auth/change-password" className='flex items-center gap-2 text-sm font-semibold text-gray-400 transition hover:text-blue-400'>
-                <FontAwesomeIcon icon={faKey} />
-                Jelszó módosítása
-              </Link>
-              <button onClick={handleSave} disabled={isSaving} className='w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait'>
-                {isSaving ? (
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
-                ) : saveStatus === "success" ? (
-                  <FontAwesomeIcon icon={faCheckCircle} />
-                ) : saveStatus === "error" ? (
-                  <FontAwesomeIcon icon={faExclamationCircle} />
-                ) : (
-                  <FontAwesomeIcon icon={faSave} />
+              <div className='mt-8 flex flex-col md:flex-row items-center justify-between gap-4'>
+                <button onClick={() => setShowSaveModal(true)} disabled={isSaving} className='w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait'>
+                  {isSaving ? (
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                  ) : saveStatus === "success" ? (
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                  ) : saveStatus === "error" ? (
+                    <FontAwesomeIcon icon={faExclamationCircle} />
+                  ) : (
+                    <FontAwesomeIcon icon={faSave} />
+                  )}
+                  <span>{isSaving ? "Mentés..." : saveStatus === "success" ? "Sikeresen mentve!" : saveStatus === "error" ? "Hiba!" : "Változtatások mentése"}</span>
+                </button>
+                {showSaveModal && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20 rounded-3xl">
+                    <div className="bg-[#2b2f34] rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-xl">
+                      <h3 className="text-xl font-bold mb-4">Mentés megerősítése</h3>
+                      <p className="text-gray-300 mb-6">Biztosan el szeretnéd menteni a változtatásokat?</p>
+                      <div className="flex justify-end gap-3">
+                        <button onClick={() => setShowSaveModal(false)} className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700">Mégse</button>
+                        <button onClick={async () => {setShowSaveModal(false); await handleSave();}} className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700">
+                          Mentés
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 )}
-                <span>{isSaving ? "Mentés..." : saveStatus === "success" ? "Sikeresen mentve!" : saveStatus === "error" ? "Hiba!" : "Változtatások mentése"}</span>
-              </button>
+              </div>
+              <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <button onClick={() => setShowLogoutModal(true)} className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-red-700">
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                  Kijelentkezés
+                </button>
+                {showLogoutModal && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20 rounded-3xl">
+                    <div className="bg-[#2b2f34] rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-xl">
+                      <h3 className="text-xl font-bold mb-4 text-red-400">Kijelentkezés</h3>
+                      <p className="text-gray-300 mb-6">Biztosan ki szeretnél jelentkezni?</p>
+                      <div className="flex justify-end gap-3">
+                        <button onClick={() => setShowLogoutModal(false)} className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700">Mégse</button>
+                        <button onClick={confirmLogout} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700">Kijelentkezés</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Logout */}
-          <div className='p-6 border-t border-gray-700/50 text-center'>
-            <button onClick={handleLogout} className='flex items-center justify-center w-full md:w-auto md:mx-auto gap-2 text-sm font-semibold text-red-500 transition hover:text-red-400'>
-              <FontAwesomeIcon icon={faSignOutAlt} />
-              Kijelentkezés
-            </button>
           </div>
         </div>
       </div>
