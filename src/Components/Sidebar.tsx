@@ -59,6 +59,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 	);
 	const [recentThreads, setRecentThreads] = useState<RecentThreadItem[]>([]);
 
+	
+
 	const loadFromStorage = () => {
 		if (!isLoggedIn) {
 			setRecentThreads([]);
@@ -122,8 +124,12 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 		}
 	};
 
+	const [userId, setUserId] = useState<any>(null);
+
 	useEffect(() => {
 		loadFromStorage();
+
+		setUserId(JSON.parse(localStorage.getItem("jedligram_profile")|| "null").id);
 
 		const onJoined = () => loadFromStorage();
 		const onRecent = () => loadFromStorage();
@@ -180,7 +186,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 										size="lg"
 									/>
 								}
-								to="/profile"
+								to={`/users/${userId}`}
 								onClick={() => {
 									closeSidebar();
 								}}
