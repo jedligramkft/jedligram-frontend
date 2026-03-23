@@ -1,7 +1,9 @@
 export interface UserData {
 	id: number;
-	username: string;
 	email: string;
+	username: string;
 	password: string;
+	name?: string;
 	image_url?: string;
+	bio?: string;
 }
