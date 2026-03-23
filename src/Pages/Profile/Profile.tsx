@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Logout } from "../../api/auth";
 import { UploadProfilePicture } from "../../api/users";
@@ -16,7 +16,7 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
     username, email, bio, joinedThreadIds, profilePictureUrl, lastSavedAt,
     setUsername, setEmail, setBio, saveData, updateProfilePicture
   } = useProfileData(); 
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"success" | "error" | null>(null);

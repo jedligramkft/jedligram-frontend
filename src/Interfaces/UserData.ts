@@ -3,5 +3,5 @@ export interface UserData {
 	username: string;
 	email: string;
 	password: string;
-	password_confirmation?: string;
+	image_url?: string;
 }
