@@ -122,8 +122,15 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 		}
 	};
 
+	const [userId, setUserId] = useState<number>(-1);
+
 	useEffect(() => {
 		loadFromStorage();
+
+		setUserId(
+			JSON.parse(localStorage.getItem("jedligram_profile") || "null")
+				?.id ?? -1,
+		);
 
 		const onJoined = () => loadFromStorage();
 		const onRecent = () => loadFromStorage();
@@ -180,7 +187,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 										size="lg"
 									/>
 								}
-								to="/profile"
+								to={`/users/${userId}`}
 								onClick={() => {
 									closeSidebar();
 								}}
@@ -205,13 +212,20 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 											title={t.name ? t.name : `#${t.id}`}
 											icon={`#${t.id}`}
 											to={`/communities/${t.id}`}
-											onClick={ async () => {
+											onClick={async () => {
 												closeSidebar();
-												try{
-													const res = await fetch(`/api/threads/${t.id}`);
-        											if (!res.ok) throw new Error("Nem létezik");
+												try {
+													const res = await fetch(
+														`/api/threads/${t.id}`,
+													);
+													if (!res.ok)
+														throw new Error(
+															"Nem létezik",
+														);
 												} catch {
-													navigate(`/deleted-community`);
+													navigate(
+														`/deleted-community`,
+													);
 												}
 											}}
 										/>
