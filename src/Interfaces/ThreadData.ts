@@ -6,4 +6,5 @@ export interface ThreadData {
 	rules: string;
 	created_at?: Date;
 	updated_at?: Date;
+	users_count?: number;
 }

@@ -17,6 +17,7 @@ const seedProfileFromLoginResponse = (user: UserData) => {
 			email: user.email,
 			image_url: user.image_url,
 			bio: "",
+			joinedThreads: [],
 			joinedThreadIds: [],
 			lastSavedAt: "",
 		}),
