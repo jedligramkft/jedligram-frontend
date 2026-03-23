@@ -94,7 +94,7 @@ const UserProfile = () => {
               <div>
                 <label className='text-xs font-semibold uppercase tracking-wider text-white/60'>Bemutatkozás</label>
                 <div className='mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white/85'>
-                  Pár szó magáról…
+                  {targetUser?.bio || "Nincs bemutatkozás megadva."}
                 </div>
               </div>
             </div>
