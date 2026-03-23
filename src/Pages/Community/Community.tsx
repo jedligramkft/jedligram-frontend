@@ -1,20 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import {
-	GetPostsInThread,
-	GetThreadById,
-	JoinThread,
-	LeaveThread,
-} from "../../api/threads";
-import {
-	CommentOnPost,
-	GetCommentsForPost,
-	GetReplyCommentsForComment,
-	RemoveVoteFromPost,
-	ReplyToComment,
-	VoteOnPost,
-} from "../../api/posts";
+import { GetPostsInThread, GetThreadById, JoinThread, LeaveThread } from "../../api/threads";
+import { CommentOnPost, GetCommentsForPost, GetReplyCommentsForComment, ReplyToComment, VoteOnPost } from "../../api/posts";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetUsers } from "../../api/users";
 import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
@@ -29,25 +17,18 @@ type RecentThreadItem = {
 	name?: string;
 };
 
-type JoinedThreadItem = {
-  id: number;
-  name?: string;
-};
 
 const Community = ({ isLoggedIn }: CommunityProps) => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isJoining, setIsJoining] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
   const [thread, setThread] = useState<ThreadData | null>(null);
   const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
 
   const [openCommentsPostId, setOpenCommentsPostId] = useState<number | null>(null);
   const [commentsByPostId, setCommentsByPostId] = useState<Record<number, any[]>>({});
   const [commentDraftByPostId, setCommentDraftByPostId] = useState<Record<number, string>>({});
-  const [loadingCommentsPostId, setLoadingCommentsPostId] = useState<number | null>(null);
   const [submittingCommentPostId, setSubmittingCommentPostId] = useState<number | null>(null);
 
   const [replyCommentsByCommentId, setReplyCommentsByCommentId] = useState<Record<number, any[]>>({});
@@ -60,7 +41,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [likeStatuses, setLikeStatuses] = useState<Record<number, boolean>>({});
   const [votingPostId, setVotingPostId] = useState<number | null>(null);
 
   const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
@@ -80,51 +60,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     }
   };
 
-  const updateJoinedThreadsLocal = (threadIdValue: number, threadLabel: string, shouldBeJoined: boolean) => {
-    const profile = readProfile();
-
-    const joinedThreadIds: number[] = Array.isArray(profile.joinedThreadIds)
-      ? profile.joinedThreadIds.map((x: any) => Number(x)).filter((n: number) => Number.isFinite(n))
-      : [];
-
-    const joinedThreadsRaw = profile.joinedThreads;
-    let joinedThreads: JoinedThreadItem[] = [];
-    if (Array.isArray(joinedThreadsRaw) && joinedThreadsRaw.some((x: any) => x && typeof x === "object" && "id" in x)) {
-      joinedThreads = joinedThreadsRaw
-        .filter((t: any) => t && typeof t === "object" && "id" in t)
-        .map((t: any) => ({
-          id: Number((t as any).id),
-          name: typeof (t as any).name === "string" ? (t as any).name : undefined,
-        }))
-        .filter((t: any) => Number.isFinite(t.id));
-    } else if (Array.isArray(joinedThreadsRaw) && joinedThreadsRaw.every((x: any) => typeof x === "string")) {
-      const names: string[] = joinedThreadsRaw;
-      joinedThreads = joinedThreadIds
-        .map((id, idx) => ({ id, name: names[idx] }))
-        .filter((t) => Number.isFinite(t.id));
-    }
-
-    const nextIds = shouldBeJoined
-      ? Array.from(new Set([...joinedThreadIds, threadIdValue]))
-      : joinedThreadIds.filter((t) => t !== threadIdValue);
-
-    const nextThreads = shouldBeJoined
-      ? (() => {
-          const exists = joinedThreads.some((t) => t.id === threadIdValue);
-          return exists
-            ? joinedThreads.map((t) => (t.id === threadIdValue ? { ...t, name: t.name ?? threadLabel } : t))
-            : [...joinedThreads, { id: threadIdValue, name: threadLabel }];
-        })()
-      : joinedThreads.filter((t) => t.id !== threadIdValue);
-
-    localStorage.setItem(
-      profileStorageKey,
-      JSON.stringify({ ...profile, joinedThreads: nextThreads, joinedThreadIds: nextIds }),
-    );
-
-    window.dispatchEvent(new Event("joined-threads-changed"));
-  };
-
+  // KELL!!!
   const saveRecentThread = (threadId: number, threadName?: string) => {
     if (!Number.isFinite(threadId)) return;
 
@@ -144,27 +80,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     }
   };
 
-  const parsePostId = (value: unknown): number => {
-    const n = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
-    return Number.isFinite(n) ? n : NaN;
-  };
 
-  const getServerLikeCount = (post: Record<string, unknown>): number => {
-    const raw = (post.likes_count as unknown) ?? (post.likesCount as unknown) ?? 0;
-    const n = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : 0;
-    return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
-  };
-
-  const isReplyComment = (comment: any): boolean => {
-    const parent =
-      comment?.parent_id ??
-      comment?.parentId ??
-      comment?.parent_comment_id ??
-      comment?.parentCommentId ??
-      comment?.parent;
-
-    return parent !== null && parent !== undefined && parent !== 0 && parent !== "0";
-  };
 
   useEffect(() => {
     if (Number.isNaN(threadId)) return;
@@ -207,11 +123,9 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
     if (Number.isNaN(threadId)) return;
 
-    setIsJoining(true);
     try {
       await JoinThread(threadId);
       setIsJoined(true);
-      updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, true);
       const usernames = await fetchJoinedUsernames(threadId);
       setJoinedUsernames(usernames);
       setShowAllMembers(false);
@@ -221,13 +135,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
           navigate("/auth/login", { replace: true });
           return;
         }
-        const message = ((err.response?.data as any)?.message as string | undefined) ?? err.message;
+        const message = (err.response?.data as any).message
         const lower = message.toLowerCase();
         const alreadyMember = lower.includes("already") && lower.includes("member");
 
         if (alreadyMember) {
           setIsJoined(true);
-          updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, true);
           const usernames = await fetchJoinedUsernames(threadId);
           setJoinedUsernames(usernames);
           setShowAllMembers(false);
@@ -240,8 +153,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
       const message = err instanceof Error ? err.message : "Nem sikerült csatlakozni.";
       alert(message);
-    } finally {
-      setIsJoining(false);
     }
   };
 
@@ -253,16 +164,13 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
     if (Number.isNaN(threadId)) return;
 
-    setIsLeaving(true);
     try {
       await LeaveThread(threadId);
       setIsJoined(false);
-      updateJoinedThreadsLocal(threadId, thread?.name ?? `Közösség #${threadId}`, false);
       setShowAllMembers(false);
 
       const profile = readProfile();
-      const currentUsernameRaw = (profile?.username ?? profile?.name) as unknown;
-      const currentUsername = typeof currentUsernameRaw === "string" ? currentUsernameRaw.trim() : "";
+      const currentUsername = profile.username
       if (currentUsername) {
         setJoinedUsernames((prev) => prev.filter((u) => u.toLowerCase() !== currentUsername.toLowerCase()));
       }
@@ -276,24 +184,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
         alert(message ?? "Nem sikerült elhagyni a közösséget.");
         return;
       }
-    } finally {
-      setIsLeaving(false);
     }
   };
 
   useEffect(() => {
     if (!id) {
       setLoadError("Hibás közösség azonosító.");
-      return;
-    }
-
-    if (Number.isNaN(threadId)) {
-      setLoadError("Hibás közösség azonosító.");
-      return;
-    }
-
-    if (!isLoggedIn) {
-      setLoadError("Jelentkezz be a közösség megtekintéséhez.");
       return;
     }
 
@@ -352,49 +248,21 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     };
   }, [id, isLoggedIn, location.key, navigate, threadId]);
 
-  const handleToggleLike = async (postId: number) => {
+  const handleVote = async (postId: number, isUpvote: boolean) => {
     if (!isLoggedIn) {
       navigate("/auth/login", { replace: true });
       return;
     }
 
-    if (Number.isNaN(postId)) return;
-
     if (votingPostId === postId) return;
     setVotingPostId(postId);
 
-    const wasLiked = likeStatuses[postId] === true;
-    const willLike = !wasLiked;
-
-    setLikeStatuses((prev) => ({ ...prev, [postId]: willLike }));
-    setPosts((prevPosts) =>
-      prevPosts.map((p) => {
-        if (parsePostId(p.id) === postId) {
-          const currentLikes = getServerLikeCount(p);
-          return { ...p, likes_count: willLike ? currentLikes + 1 : Math.max(0, currentLikes - 1) };
-        }
-        return p;
-      }),
-    );
-
     try {
-      if (willLike) {
-        await VoteOnPost(postId, true);
-      } else {
-        await RemoveVoteFromPost(postId);
-      }
+      await VoteOnPost(postId, isUpvote);
+      const refreshed = await GetPostsInThread(threadId);
+      const refreshedPosts = (refreshed.data?.posts ?? refreshed.data) as unknown;
+      setPosts(Array.isArray(refreshedPosts) ? (refreshedPosts as Array<Record<string, unknown>>) : []);
     } catch (err) {
-      setLikeStatuses((prev) => ({ ...prev, [postId]: wasLiked }));
-      setPosts((prevPosts) =>
-        prevPosts.map((p) => {
-          if (parsePostId(p.id) === postId) {
-            const currentLikes = getServerLikeCount(p);
-            return { ...p, likes_count: wasLiked ? currentLikes -1 : currentLikes + 1 };
-          }
-          return p;
-        }),
-      );
-
       const message =
         axios.isAxiosError(err)
           ? ((err.response?.data as any)?.message as string | undefined) ?? err.message
@@ -409,14 +277,11 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
   const loadCommentsForPost = async (postId: number) => {
     if (Number.isNaN(postId)) return;
-    setLoadingCommentsPostId(postId);
     try {
       const res = await GetCommentsForPost(postId);
       setCommentsByPostId((prev) => ({ ...prev, [postId]: Array.isArray(res.data) ? res.data : [] }));
     } catch (err) {
       console.error("Nem sikerült betölteni a kommenteket", err);
-    } finally {
-      setLoadingCommentsPostId((current) => (current === postId ? null : current));
     }
   };
 
@@ -443,8 +308,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
     if (Number.isNaN(postId)) return;
 
-    const raw = commentDraftByPostId[postId] ?? "";
-    const content = raw.trim();
+    const content = commentDraftByPostId[postId] ?? "";
     if (!content) return;
 
     if (submittingCommentPostId === postId) return;
@@ -487,11 +351,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     });
   };
 
-  const handleToggleReplyComposer = (commentId: number) => {
-    if (Number.isNaN(commentId)) return;
-    setOpenReplyComposerCommentId((current) => (current === commentId ? null : commentId));
-  };
-
   const handleReplyToReply = (parentCommentId: number, replyAuthor: string) => {
     if (Number.isNaN(parentCommentId)) return;
 
@@ -521,8 +380,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     if (Number.isNaN(postId)) return;
     if (Number.isNaN(commentId)) return;
 
-    const raw = replyDraftByCommentId[commentId] ?? "";
-    const content = raw.trim();
+    const content = replyDraftByCommentId[commentId] ?? "";
     if (!content) return;
 
     if (submittingReplyCommentId === commentId) return;
@@ -558,21 +416,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     setShowAllMembers(true);
   };
 
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const postTimesMs = posts
-    .map((post) => {
-      const raw = post.created_at;
-      const n = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : NaN;
-      const candidate = typeof raw === "string" ? raw.replace(" ", "T") : raw;
-      return Number.isFinite(n) ? n : Date.parse(candidate as any);
-    })
-    .filter((ms) => Number.isFinite(ms));
-
-  const isCommunityActive = postTimesMs.length
-    ? postTimesMs.some((ms) => ms >= sevenDaysAgo)
-    : posts.length > 0;
-  const activityLabel = isLoading ? "Betöltés..." : isCommunityActive ? "Aktív" : "Inaktív";
-
   const handleInvite = async () => {
     if (Number.isNaN(threadId)) return;
 
@@ -605,18 +448,19 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     {thread?.name ?? (isLoading ? "Betöltés..." : "Közösség")}
                   </h1>
                   <p className="mt-1 text-sm text-white/70">
-                    {thread?.category ? `${thread.category} • ` : ""}{activityLabel}
-                  </p>                </div>
+                    {thread?.category ? `${thread.category} • ` : ""}
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 {isJoined ? (
-                  <button onClick={handleLeave} disabled={isLeaving} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-                    {isLeaving ? "Elhagyás..." : "Elhagyás"}
+                  <button onClick={handleLeave} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                    Közösség elhagyása
                   </button>
                 ) : (
-                  <button onClick={handleJoin}  disabled={isJoining} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-                    {isJoining ? "Csatlakozás..." : "Csatlakozás"}
+                  <button onClick={handleJoin} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                    Csatlakozás a közösséghez
                   </button>
                 )}
                 <button onClick={handleInvite} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/90 transition hover:border-white/35 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
@@ -688,15 +532,13 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 )}
 
                 {posts.map((post, idx) => {
-                  const postId = parsePostId(post.id);
-                  const isLiked = !Number.isNaN(postId) && likeStatuses[postId] === true;
-                  const isVoting = !Number.isNaN(postId) && votingPostId === postId;
-                  const likeCount = getServerLikeCount(post);
-                  const isCommentsOpen = !Number.isNaN(postId) && openCommentsPostId === postId;
-                  const postCommentsAll = !Number.isNaN(postId) ? (commentsByPostId[postId] || []) : [];
-                  const postComments = postCommentsAll.filter((c: any) => !isReplyComment(c));
-                  const isCommentsLoading = !Number.isNaN(postId) && loadingCommentsPostId === postId;
-                  const isSubmittingComment = !Number.isNaN(postId) && submittingCommentPostId === postId;
+                  const postId = post.id as number;
+                  const isVoting = votingPostId === postId;
+                  const score = (post.score as number) ?? 0;
+                  const isCommentsOpen = openCommentsPostId === postId;
+                  const postCommentsAll = (commentsByPostId[postId] || []);
+                  const postComments = postCommentsAll.filter((c: any) => !c.parent_id || c.parent_id === 0);
+                  const isSubmittingComment = submittingCommentPostId === postId;
 
                   const keyValue = Number.isNaN(postId) ? `fallback-${idx}` : String(postId);
                   const title = (post.title as string | undefined) ?? "Poszt"; 
@@ -704,8 +546,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     (post.content as string | undefined) ??
                     (post.body as string | undefined) ??
                     "";
-
-                  
 
                   return (
                     <article key={keyValue} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
@@ -715,36 +555,30 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                       </div>
                       <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-white/75">{content}</p>
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button type="button" onClick={() => handleToggleComments(postId)} disabled={Number.isNaN(postId)} className="cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                      <div className="mt-4 flex flex-wrap items-center gap-3">
+                        <button type="button" onClick={() => handleToggleComments(postId)} className="cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
                           {isCommentsOpen ? "Kommentek bezárása" : "Kommentek"}
                         </button>
-                        {/* <button className="rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Megosztás</button> */}
-                        <button 
-                          type="button"
-                          onClick={() => handleToggleLike(postId)}
-                          disabled={Number.isNaN(postId) || isVoting}
-                          className={
-                            `cursor-pointer rounded-xl border px-4 py-2 text-xs font-semibold transition ` +
-                            (isLiked
-                              ? "border-white/35 bg-white/10 text-white"
-                              : "border-white/15 text-white/80 hover:bg-white/10") +
-                            " disabled:cursor-not-allowed disabled:opacity-70"
-                          }
-                        >
-                          {isLiked ? `Tetszik ✓ (${likeCount})` : `Tetszik (${likeCount})`}
-                        </button>
+                        <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/10 px-3 py-2">
+                          <button type="button" onClick={() => handleVote(postId, true)} disabled={isVoting} className="cursor-pointer rounded-lg border border-white/15 px-2 py-1 text-xs font-bold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70" aria-label="Upvote" title="Upvote">
+                            ▲
+                          </button>
+
+                          <span className="min-w-6 text-center text-xs font-semibold text-white/90 tabular-nums">
+                            {score}
+                          </span>
+
+                          <button type="button" onClick={() => handleVote(postId, false)} disabled={isVoting} className="cursor-pointer rounded-lg border border-white/15 px-2 py-1 text-xs font-bold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70" aria-label="Downvote" title="Downvote">
+                            ▼
+                          </button>
+                        </div>
                       </div>
 
-                      {isCommentsOpen && !Number.isNaN(postId) && (
+                      {isCommentsOpen && (
                         <div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-4">
                           <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Kommentek</div>
 
-                          {isCommentsLoading && (
-                            <div className="mt-2 text-sm text-white/70">Kommentek betöltése...</div>
-                          )}
-
-                          {!isCommentsLoading && postComments.length === 0 && (
+                          {postComments.length === 0 && (
                             <div className="mt-2 text-sm text-white/70">Nincs még komment.</div>
                           )}
 
@@ -759,7 +593,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                             </div>
                           </div>
 
-                          {!isCommentsLoading && postComments.length > 0 && (
+                          {postComments.length > 0 && (
                             <div className="mt-3 space-y-3">
                               {postComments.map((c: any, cIdx: number) => {
                                 const cId = c?.id ?? cIdx;
@@ -785,9 +619,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                       <button type="button" onClick={() => (canLoadReplies ? handleToggleReplyComments(commentIdNumber) : null)} disabled={!canLoadReplies} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60">
                                         {isRepliesOpen ? "Válaszok bezárása" : "Válaszok"}
-                                      </button>
-                                      <button type="button" onClick={() => (canLoadReplies ? handleToggleReplyComposer(commentIdNumber) : null)} disabled={!canLoadReplies} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60">
-                                        {isReplyComposerOpen ? "Válasz bezárása" : "Válasz"}
                                       </button>
                                     </div>
 
@@ -889,12 +720,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Posztok</div>
                   <div className="mt-1 text-2xl font-bold text-white">
                     {posts.length}
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Aktivitás</div>
-                  <div className="mt-1 text-2xl font-bold text-white">
-                    {activityLabel}
                   </div>
                 </div>
               </div>

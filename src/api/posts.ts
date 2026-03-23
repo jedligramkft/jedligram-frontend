@@ -30,16 +30,6 @@ export const VoteOnPost = async (
 	};
 };
 
-export const RemoveVoteFromPost = async (postId: number): Promise<ResponseData> => {
-	const response = await httpClient.post(`/api/posts/${postId}/vote`, {
-		is_upvote: true,
-	});
-	return {
-		status: response.status,
-		data: response.data,
-	};
-};
-
 export const CommentOnPost = async (postId: number, content: string): Promise<ResponseData> => {
 	const response = await httpClient.post(`/api/posts/${postId}/comments`, {
 		content: content,
