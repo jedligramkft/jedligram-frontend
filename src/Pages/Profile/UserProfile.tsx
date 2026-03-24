@@ -6,6 +6,7 @@ import { GetUserProfile, GetUserThreads } from "../../api/users";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { Logout } from "../../api/auth";
 import { EditProfile } from "./EditProfile";
+import type { ThreadData } from "../../Interfaces/ThreadData";
 
 const profileStorageKey =
 	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
@@ -17,7 +18,7 @@ const UserProfile = () => {
 
 	const [isMyProfile, setIsMyProfile] = useState(false);
 	const [targetUser, setTargetUser] = useState<UserData | null>(null);
-	const [joinedThreadsNum, setJoinedThreadsNum] = useState(0);
+	const [joinedThreads, setJoinedThreads] = useState<ThreadData[]>([]);
 
 	// Check if the profile being viewed belongs to the logged-in user.
 	const checkIsMyProfile = async (targetId: number) => {
@@ -54,7 +55,7 @@ const UserProfile = () => {
 	};
 
 	// Fetch the number of threads the user has joined.
-	const getJoinedThreadsNum = async (userId: number) => {
+	const getJoinedThreads = async (userId: number) => {
 		try {
 			const response = await GetUserThreads(userId);
 			if (response.status !== 200) {
@@ -62,16 +63,17 @@ const UserProfile = () => {
 					"Nem sikerült betölteni a felhasználó közösségeit.",
 					response,
 				);
-				setJoinedThreadsNum(0);
+				setJoinedThreads({});
 				return;
 			}
-			setJoinedThreadsNum(response.data.length);
+			console.log(response.data);
+			setJoinedThreads(response.data);
 		} catch (err) {
 			console.error(
 				"Hiba történt a felhasználó közösségeinek lekérése közben:",
 				err,
 			);
-			setJoinedThreadsNum(0);
+			setJoinedThreads({});
 		}
 	};
 
@@ -105,7 +107,7 @@ const UserProfile = () => {
 			await checkIsMyProfile(targetId);
 
 			await getCurrentlyViewedUserProfile(targetId);
-			await getJoinedThreadsNum(targetId);
+			await getJoinedThreads(targetId);
 		};
 
 		asyncInit();
@@ -124,7 +126,7 @@ const UserProfile = () => {
 
 				<div className="relative z-10 mx-auto max-w-4xl px-4 py-16">
 					<div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur">
-						<div className="p-8 border-b border-gray-700/50 flex flex-col md:flex-row items-center gap-8">
+						<div className="p-8 flex flex-col md:flex-row items-center gap-8">
 							<div className="relative">
 								<div className="h-32 w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-5xl font-black shadow-lg">
 									{targetUser?.image_url ? (
@@ -157,24 +159,12 @@ const UserProfile = () => {
 								</p>
 							</div>
 						</div>
-
-						<div className="flex flex-col items-center justify-center py-4">
-							<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-								Közösségek
-							</p>
-							<p className="mt-1 text-lg font-bold text-white">
-								{joinedThreadsNum}
-							</p>
-						</div>
+						<hr className="text-gray-700/50" />
 
 						{isMyProfile && targetUser && (
 							<>
-								<EditProfile
-									targetUser={targetUser}
-									saveCallback={setTargetUser}
-								/>
 								{/* Logout */}
-								<div className="p-6 border-t border-gray-700/50 text-center">
+								<div className="p-6 text-center">
 									<button
 										onClick={handleLogout}
 										className="flex items-center justify-center w-full md:w-auto md:mx-auto gap-2 text-sm font-semibold text-red-500 transition hover:text-red-400"
@@ -183,8 +173,48 @@ const UserProfile = () => {
 										Kijelentkezés
 									</button>
 								</div>
+								<EditProfile
+									targetUser={targetUser}
+									saveCallback={setTargetUser}
+								/>
 							</>
 						)}
+
+						<hr className="text-gray-700/50" />
+						<div className="flex flex-col items-center justify-center py-4">
+							<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+								Közösségek
+							</p>
+							<p className="mt-1 text-lg font-bold text-white">
+								{joinedThreads.length || 0}
+							</p>
+						</div>
+						<div className="flex gap-2.5 flex-wrap justify-center">
+							{joinedThreads.length === 0 && (
+								<p className="text-sm text-gray-500 col-span-full text-center">
+									Nem csatlakozott közösségekhez.
+								</p>
+							)}
+							{joinedThreads.map((thread) => (
+								<div
+									key={thread.id}
+									onClick={() => {
+										navigate("/communities/" + thread.id);
+									}}
+									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer transition hover:bg-white/10"
+								>
+									<h3 className="text-lg font-semibold text-white">
+										{thread.name}
+									</h3>
+									<p className="text-sm text-gray-400">
+										{thread.description}
+									</p>
+									<p className="mt-2 text-xs text-gray-500">
+										{thread.users_count} tag
+									</p>
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
 			</section>
