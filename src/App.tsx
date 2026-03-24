@@ -1,5 +1,5 @@
 import CapacitorNavigator from "./Components/Utils/NavigationManager";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import NavbarLayout from "./Layouts/MainLayout";
@@ -16,11 +16,17 @@ import { GetUserThreads } from "./api/users";
 import DeletedCommunity from "./Pages/Community/DeletedCommunity";
 
 function App() {
+	const location = useLocation();
 	const authTokenName =
 		import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
 	const [isLoggedIn, setIsLoggedIn] = useState(() =>
 		Boolean(localStorage.getItem(authTokenName)),
 	);
+
+	useEffect(() => {
+		if (location.hash) return;
+		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+	}, [location.pathname, location.search, location.hash]);
 
 	useEffect(() => {
 		const profileKey = "jedligram_profile";
