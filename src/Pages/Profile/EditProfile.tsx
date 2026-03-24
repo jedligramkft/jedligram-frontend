@@ -5,6 +5,7 @@ import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
+import ConfirmationModal from "../../Components/Utils/ConfirmationModal";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -14,6 +15,7 @@ export const EditProfile = (props: {
 		props.targetUser,
 	);
 	const [isSavingChanges, setIsSavingChanges] = useState(false);
+	const [isSaveConfirmationOpen, setIsSaveConfirmationOpen] = useState(false);
 	const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
 	async function handleSave(): Promise<void> {
@@ -146,7 +148,7 @@ export const EditProfile = (props: {
 				</div>
 				<div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<button
-						onClick={handleSave}
+						onClick={() => setIsSaveConfirmationOpen(true)}
 						disabled={isSavingChanges}
 						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait"
 					>
@@ -166,6 +168,23 @@ export const EditProfile = (props: {
 					</button>
 				</div>
 			</div>
+
+			<ConfirmationModal
+				isOpen={isSaveConfirmationOpen}
+				title="Profil mentése"
+				description="Biztosan elmented a profil módosításait?"
+				cancelText="Mégse"
+				confirmText="Mentés"
+				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
+				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
+				onCancel={() => setIsSaveConfirmationOpen(false)}
+				onClose={() => setIsSaveConfirmationOpen(false)}
+				onConfirm={async () => {
+					setIsSaveConfirmationOpen(false);
+					await handleSave();
+				}}
+				isConfirmLoading={isSavingChanges}
+			/>
 		</>
 	);
 };

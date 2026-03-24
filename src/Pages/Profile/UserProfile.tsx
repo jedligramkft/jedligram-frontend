@@ -7,6 +7,7 @@ import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { Logout } from "../../api/auth";
 import { EditProfile } from "./EditProfile";
 import type { ThreadData } from "../../Interfaces/ThreadData";
+import ConfirmationModal from "../../Components/Utils/ConfirmationModal";
 
 const profileStorageKey =
 	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
@@ -19,6 +20,8 @@ const UserProfile = () => {
 	const [isMyProfile, setIsMyProfile] = useState(false);
 	const [targetUser, setTargetUser] = useState<UserData | null>(null);
 	const [joinedThreads, setJoinedThreads] = useState<ThreadData[]>([]);
+	const [isLogoutConfirmationOpen, setIsLogoutConfirmationOpen] =
+		useState(false);
 
 	// Check if the profile being viewed belongs to the logged-in user.
 	const checkIsMyProfile = async (targetId: number) => {
@@ -63,17 +66,16 @@ const UserProfile = () => {
 					"Nem sikerült betölteni a felhasználó közösségeit.",
 					response,
 				);
-				setJoinedThreads({});
+				setJoinedThreads([]);
 				return;
 			}
-			console.log(response.data);
 			setJoinedThreads(response.data);
 		} catch (err) {
 			console.error(
 				"Hiba történt a felhasználó közösségeinek lekérése közben:",
 				err,
 			);
-			setJoinedThreads({});
+			setJoinedThreads([]);
 		}
 	};
 
@@ -171,7 +173,9 @@ const UserProfile = () => {
 								{/* Logout */}
 								<div className="p-6 text-center">
 									<button
-										onClick={handleLogout}
+										onClick={() =>
+											setIsLogoutConfirmationOpen(true)
+										}
 										className="flex items-center justify-center w-full md:w-auto md:mx-auto gap-2 text-sm font-semibold text-red-500 transition hover:text-red-400"
 									>
 										<DynamicFAIcon exportName="faSignOutAlt" />
@@ -223,6 +227,22 @@ const UserProfile = () => {
 					</div>
 				</div>
 			</section>
+
+			<ConfirmationModal
+				isOpen={isLogoutConfirmationOpen}
+				title="Kijelentkezés"
+				description="Biztosan kijelentkezel a fiókból?"
+				cancelText="Még maradok"
+				confirmText="Kijelentkezés"
+				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
+				confirmButtonClassName="bg-red-600 hover:bg-red-500 disabled:opacity-75"
+				onCancel={() => setIsLogoutConfirmationOpen(false)}
+				onClose={() => setIsLogoutConfirmationOpen(false)}
+				onConfirm={async () => {
+					setIsLogoutConfirmationOpen(false);
+					await handleLogout();
+				}}
+			/>
 		</>
 	);
 };
