@@ -6,7 +6,6 @@ import { CommentOnPost, GetCommentsForPost, GetReplyCommentsForComment, ReplyToC
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetUsers } from "../../api/users";
 import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
-import PostSkeleton from "../../Components/Utils/PostSkeleton";
 
 interface CommunityProps {
 	isLoggedIn: boolean;
@@ -33,14 +32,11 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
   const [replyCommentsByCommentId, setReplyCommentsByCommentId] = useState<Record<number, any[]>>({});
   const [openRepliesCommentId, setOpenRepliesCommentId] = useState<number | null>(null);
-  const [loadingRepliesCommentId, setLoadingRepliesCommentId] = useState<number | null>(null);
 
   const [openReplyComposerCommentId, setOpenReplyComposerCommentId] = useState<number | null>(null);
   const [replyDraftByCommentId, setReplyDraftByCommentId] = useState<Record<number, string>>({});
   const [submittingReplyCommentId, setSubmittingReplyCommentId] = useState<number | null>(null);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [votingPostId, setVotingPostId] = useState<number | null>(null);
 
   const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
@@ -188,15 +184,10 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
   };
 
   useEffect(() => {
-    if (!id) {
-      setLoadError("Hibás közösség azonosító.");
-      return;
-    }
+    if(!id) return;
 
     let isCancelled = false;
     const load = async () => {
-      setIsLoading(true);
-      setLoadError(null);
       setJoinedUsernames([]);
       setShowAllMembers(false);
       try {
@@ -229,16 +220,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
           navigate("/auth/login", { replace: true });
           return;
         }
-
-        const message =
-          axios.isAxiosError(err)
-            ? ((err.response?.data as any)?.message as string | undefined) ?? err.message
-            : err instanceof Error
-              ? err.message
-              : "Nem sikerült betölteni a közösséget.";
-        setLoadError(message);
-      } finally {
-        if (!isCancelled) setIsLoading(false);
       }
     };
 
@@ -291,9 +272,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
     setOpenCommentsPostId((current) => {
       const willOpen = current !== postId;
       if (willOpen) {
-        if (commentsByPostId[postId] === undefined) {
-          void loadCommentsForPost(postId);
-        }
+        void loadCommentsForPost(postId);
         return postId;
       }
       return null;
@@ -328,7 +307,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 
   const loadRepliesForComment = async (commentId: number) => {
     if (Number.isNaN(commentId)) return;
-    setLoadingRepliesCommentId(commentId);
 
     try {
       const res = await GetReplyCommentsForComment(commentId);
@@ -336,8 +314,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
       setReplyCommentsByCommentId((prev) => ({ ...prev, [commentId]: Array.isArray(replyData) ? replyData : [] }));
     } catch (err) {
       console.error("Nem sikerült betölteni a válaszkommenteket", err);
-    } finally {
-      setLoadingRepliesCommentId((current) => (current === commentId ? null : current));
     }
   };
 
@@ -444,9 +420,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 <div className="h-16 w-16 rounded-2xl bg-white/10 ring-1 ring-white/15" />
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Community {id ? `#${id}` : ""}</div>
-                  <h1 className="text-3xl font-bold text-white md:text-4xl">
-                    {thread?.name ?? (isLoading ? "Betöltés..." : "Közösség")}
-                  </h1>
                   <p className="mt-1 text-sm text-white/70">
                     {thread?.category ? `${thread.category} • ` : ""}
                   </p>
@@ -476,9 +449,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Leírás</div>
                 <div className="mt-2 text-sm text-white/75">
-                    {loadError
-                      ? loadError
-                      : thread?.description ?? (isLoading ? "Betöltés..." : "—")}
+                    {thread?.description ? (thread.description) : "Nincs leírás megadva."}
                 </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -490,7 +461,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                           <span>{rule}</span>
                         </li>
                       ))
-                    : isLoading ? "Betöltés..." : "Nincsenek szabályok megadva."
+                    : "Nincsenek szabályok megadva."
                   }   
                 </ul>
               </div>
@@ -519,15 +490,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                 )}
               </div>
               <div className="mt-5 space-y-4">
-                {isLoading && (
-                  <div className="space-y-4">
-                    <PostSkeleton />
-                    <PostSkeleton />
-                    <PostSkeleton />
-                  </div>
-                )}
-
-                {!isLoading && posts.length === 0 && (
+                {posts.length === 0 && (
                   <div className="text-sm text-white/70">Nincs még poszt ebben a közösségben.</div>
                 )}
 
@@ -538,14 +501,10 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                   const isCommentsOpen = openCommentsPostId === postId;
                   const postCommentsAll = (commentsByPostId[postId] || []);
                   const postComments = postCommentsAll.filter((c: any) => !c.parent_id || c.parent_id === 0);
-                  const isSubmittingComment = submittingCommentPostId === postId;
 
-                  const keyValue = Number.isNaN(postId) ? `fallback-${idx}` : String(postId);
+                  const keyValue = postId || idx;
                   const title = (post.title as string | undefined) ?? "Poszt"; 
-                  const content =
-                    (post.content as string | undefined) ??
-                    (post.body as string | undefined) ??
-                    "";
+                  const content = (post.content as string | undefined) ?? "";
 
                   return (
                     <article key={keyValue} className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
@@ -587,8 +546,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                               className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"
                             />
                             <div className="mt-3 flex justify-end">
-                              <button type="button" onClick={() => handleSubmitComment(postId)} disabled={isSubmittingComment || !(commentDraftByPostId[postId] ?? "").trim()} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-                                {isSubmittingComment ? "Küldés..." : "Küldés"}
+                              <button type="button" onClick={() => handleSubmitComment(postId)} disabled={!(commentDraftByPostId[postId] ?? "").trim()} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                                {"Küldés"}
                               </button>
                             </div>
                           </div>
@@ -598,15 +557,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                               {postComments.map((c: any, cIdx: number) => {
                                 const cId = c?.id ?? cIdx;
                                 const commentIdNumber = Number(c?.id);
-                                const canLoadReplies = Number.isFinite(commentIdNumber);
-                                const isRepliesOpen = canLoadReplies && openRepliesCommentId === commentIdNumber;
-                                const isRepliesLoading = canLoadReplies && loadingRepliesCommentId === commentIdNumber;
-                                const replies = canLoadReplies ? (replyCommentsByCommentId[commentIdNumber] || []) : [];
-                                const isReplyComposerOpen = canLoadReplies && openReplyComposerCommentId === commentIdNumber;
-                                const isSubmittingReply = canLoadReplies && submittingReplyCommentId === commentIdNumber;
-                                const cAuthor = c?.author || c?.user?.username || c?.user?.name || "Ismeretlen";
-                                const cContent = c?.content || c?.body || "";
-                                const createdAt = c?.created_at || c?.createdAt;
+                                const isRepliesOpen = openRepliesCommentId === commentIdNumber;
+                                const replies = replyCommentsByCommentId[commentIdNumber] || []
+                                const isReplyComposerOpen = openReplyComposerCommentId === commentIdNumber;
+                                const cAuthor = c?.author;
+                                const cContent = c?.content;
+                                const createdAt = c?.created_at;
 
                                 return (
                                   <div key={String(cId)} className="rounded-xl border border-white/10 bg-black/10 p-3">
@@ -617,25 +573,21 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                                     <div className="mt-2 whitespace-pre-wrap text-sm text-white/80">{cContent}</div>
 
                                     <div className="mt-3 flex flex-wrap gap-2">
-                                      <button type="button" onClick={() => (canLoadReplies ? handleToggleReplyComments(commentIdNumber) : null)} disabled={!canLoadReplies} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60">
+                                      <button type="button" onClick={() => handleToggleReplyComments(commentIdNumber)} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60">
                                         {isRepliesOpen ? "Válaszok bezárása" : "Válaszok"}
                                       </button>
                                     </div>
 
-                                    {isRepliesLoading && (
-                                      <div className="mt-2 text-sm text-white/70">Válaszok betöltése...</div>
-                                    )}
-
-                                    {isRepliesOpen && !isRepliesLoading && (
+                                    {isRepliesOpen && (
                                       <div className="mt-3 space-y-2">
                                         {replies.length === 0 && (
                                           <div className="text-sm text-white/70">Nincs még válasz.</div>
                                         )}
                                         {replies.map((r: any, rIdx: number) => {
                                           const rId = r?.id ?? rIdx;
-                                          const rAuthor = r?.author || r?.user?.username || r?.user?.name || "Ismeretlen";
-                                          const rContent = r?.content || r?.body || "";
-                                          const rCreatedAt = r?.created_at || r?.createdAt;
+                                          const rAuthor = r?.author;
+                                          const rContent = r?.content;
+                                          const rCreatedAt = r?.created_at;
 
                                           return (
                                             <div key={String(rId)} className="ml-4 rounded-xl border border-white/10 bg-black/10 p-3">
@@ -656,12 +608,12 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                                       </div>
                                     )}
 
-                                    {isReplyComposerOpen && canLoadReplies && (
+                                    {isReplyComposerOpen && (
                                       <div className="mt-3 rounded-xl border border-white/10 bg-black/10 p-3">
                                         <textarea value={replyDraftByCommentId[commentIdNumber] ?? ""} onChange={(e) =>setReplyDraftByCommentId((prev) => ({ ...prev, [commentIdNumber]: e.target.value }))} placeholder="Írj egy választ..." rows={2} className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"/>
                                         <div className="mt-3 flex justify-end">
-                                          <button type="button" onClick={() => handleSubmitReply(postId, commentIdNumber)} disabled={isSubmittingReply || !(replyDraftByCommentId[commentIdNumber] ?? "").trim()} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-                                            {isSubmittingReply ? "Küldés..." : "Küldés"}
+                                          <button type="button" onClick={() => handleSubmitReply(postId, commentIdNumber)} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
+                                            {"Küldés"}
                                           </button>
                                         </div>
                                       </div>
@@ -702,8 +654,6 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
                     További {joinedUsernames.length - 5} tag megtekintése
                   </button>
                 )}
-                
-                
               </div>
             </div>
 
