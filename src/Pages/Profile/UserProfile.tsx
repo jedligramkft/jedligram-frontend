@@ -115,10 +115,6 @@ const UserProfile = () => {
 
 	return (
 		<>
-			<div
-				className="absolute max-w-full w-dvw h-1 z-50"
-				style={{ backgroundColor: isMyProfile ? "green" : "red" }}
-			/>
 			<section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] text-white poppins-regular">
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]" />
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]" />
