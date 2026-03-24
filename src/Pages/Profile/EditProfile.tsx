@@ -54,7 +54,10 @@ export const EditProfile = (props: {
 		}
 
 		await props.saveCallback(editedUser);
-		await localStorage.setItem("lastSavedAt", new Date().toISOString());
+		await localStorage.setItem(
+			"lastSavedAt",
+			new Date().toISOString().split(".")[0].replace("T", " "),
+		);
 		setIsSavingChanges(false);
 	}
 
@@ -139,10 +142,7 @@ export const EditProfile = (props: {
 						)}
 						<p className="text-xs text-gray-500 mt-1">
 							Utoljára mentve:{" "}
-							{localStorage
-								.getItem("lastSavedAt")
-								?.split(".")[0]
-								.replace("T", " ") || "N/A"}
+							{localStorage.getItem("lastSavedAt") || "N/A"}
 						</p>
 					</div>
 				</div>
