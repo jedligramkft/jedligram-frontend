@@ -1,7 +1,6 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Logout } from "../../api/auth";
-import { UploadProfilePicture } from "../../api/users";
 import useProfileData from "../../hooks/useProfileData";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -98,8 +97,8 @@ const Profile = ({ isLoggedIn }: ProfileProps) => {
 
 		setIsUploading(true);
 		try {
-			const url = await UploadProfilePicture(file);
-			updateProfilePicture(url);
+			// const url = await UploadProfilePicture(file);
+			// updateProfilePicture(url);
 			alert("Profilkép sikeresen frissítve!");
 		} catch (err) {
 			const message =

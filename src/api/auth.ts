@@ -13,9 +13,6 @@ const seedProfileFromLoginResponse = (user: UserData) => {
 		profileStorageKey,
 		JSON.stringify({
 			id: user.id,
-			username: user.username,
-			email: user.email,
-			image_url: user.image_url,
 			joinedThreads: [],
 			joinedThreadIds: [],
 			lastSavedAt: "",

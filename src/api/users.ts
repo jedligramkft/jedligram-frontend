@@ -1,4 +1,5 @@
 import type { ResponseData } from "../Interfaces/ResponseData";
+import type { UserData } from "../Interfaces/UserData";
 import httpClient from "./httpClient";
 
 export const GetUsers = async (searchQuery?: string): Promise<ResponseData> => {
@@ -31,13 +32,12 @@ export const GetUserThreads = async (userId: number): Promise<ResponseData> => {
 };
 
 export const UpdateUserProfile = async (
-	userId: number,
-	name?: string,
-	email?: string,
+	toUpdateUser: UserData,
 ): Promise<ResponseData> => {
-	const response = await httpClient.put(`/api/users/${userId}`, {
-		name,
-		email,
+	const response = await httpClient.put(`/api/users/${toUpdateUser.id}`, {
+		name: toUpdateUser.name,
+		email: toUpdateUser.email,
+		bio: toUpdateUser.bio,
 	});
 
 	return {
