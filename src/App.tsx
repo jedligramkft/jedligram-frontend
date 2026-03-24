@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import NavbarLayout from "./Layouts/MainLayout";
 import Home from "./Pages/Home/Home";
-import Profile from "./Pages/Profile/Profile";
 import UserProfile from "./Pages/Profile/UserProfile";
 import AllCommunities from "./Pages/Communities/AllCommunities";
 import Community from "./Pages/Community/Community";
@@ -57,17 +56,21 @@ function App() {
 			try {
 				const response = await GetUserThreads(resolvedUserId);
 				const raw = response.data;
-				const list =
-					Array.isArray(raw)
-						? raw
-						: Array.isArray((raw as any)?.threads)
-							? (raw as any).threads
-							: Array.isArray((raw as any)?.data)
-								? (raw as any).data
-								: [];
+				const list = Array.isArray(raw)
+					? raw
+					: Array.isArray((raw as any)?.threads)
+						? (raw as any).threads
+						: Array.isArray((raw as any)?.data)
+							? (raw as any).data
+							: [];
 
 				const joinedThreads = list
-					.filter((t: any) => t && (typeof t.id === "number" || typeof t.id === "string"))
+					.filter(
+						(t: any) =>
+							t &&
+							(typeof t.id === "number" ||
+								typeof t.id === "string"),
+					)
 					.map((t: any) => ({
 						id: Number(t.id),
 						name: typeof t.name === "string" ? t.name : undefined,
@@ -82,7 +85,10 @@ function App() {
 					joinedThreadIds,
 				});
 			} catch {
-				console.warn("Failed to sync joined threads for user", resolvedUserId);
+				console.warn(
+					"Failed to sync joined threads for user",
+					resolvedUserId,
+				);
 			}
 		};
 
@@ -131,7 +137,10 @@ function App() {
 						path="communities/:id/deleted"
 						element={<DeletedCommunity />}
 					/>
-					<Route path="communities/:id/posts/new" element={<CreatePost />} />
+					<Route
+						path="communities/:id/posts/new"
+						element={<CreatePost />}
+					/>
 					{/* <Route path="profile" element={<Profile isLoggedIn={isLoggedIn} />} /> */}
 					<Route path="users/:id" element={<UserProfile />} />
 				</Route>

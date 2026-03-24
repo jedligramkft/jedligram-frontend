@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { UserData } from "../../Interfaces/UserData";
-import { GetUserProfile } from "../../api/users";
+import { GetUserProfile, GetUserThreads } from "../../api/users";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { Logout } from "../../api/auth";
 import { EditProfile } from "./EditProfile";
@@ -10,71 +10,72 @@ import { EditProfile } from "./EditProfile";
 const profileStorageKey =
 	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
 const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8080";
 
 const UserProfile = () => {
 	const params = useParams();
 	const navigate = useNavigate();
-	// const [joinedCommunities, setJoinedCommunities] = useState<{ id: number; name: string; role: string }[]>([]);
 
-	// useEffect(() => {
-	//   const fetchUserThreads = async () => {
-	//     if (!id) return;
-
-	//     try {
-	//       const response = await GetUserThreads(Number(id));
-	//       setJoinedCommunities(response.data);
-	//     } catch (err) {
-	//       console.warn("Nem sikerült betölteni a közösségeket.", err);
-	//       setJoinedCommunities([]);
-	//     }
-	//   };
-
-	//   fetchUserThreads();
-	// }, [id]);
 	const [isMyProfile, setIsMyProfile] = useState(false);
 	const [targetUser, setTargetUser] = useState<UserData | null>(null);
+	const [joinedThreadsNum, setJoinedThreadsNum] = useState(0);
 
-	const checkIsMyProfile = async () => {
+	// Check if the profile being viewed belongs to the logged-in user.
+	const checkIsMyProfile = async (targetId: number) => {
 		const requesterId = JSON.parse(
 			localStorage.getItem(profileStorageKey) || "{}",
 		)?.id;
-		const targetId = Number(params.id);
 
 		setIsMyProfile(requesterId === targetId);
+		return requesterId === targetId;
 	};
 
-	useEffect(() => {
-		const getViewedUserProfile = async (userId: number) => {
-			if (isNaN(userId)) {
-				console.warn("Érvénytelen user ID:", params.id);
+	// Fetch the profile data of the user being viewed.
+	const getCurrentlyViewedUserProfile = async (userId: number) => {
+		try {
+			const response = await GetUserProfile(userId);
+			if (response.status !== 200) {
+				console.warn(
+					"Nem sikerült betölteni a felhasználói adatokat.",
+					response,
+				);
 				setTargetUser(null);
 				return;
 			}
-			try {
-				const response = await GetUserProfile(userId);
-				if (response.status !== 200) {
-					console.warn(
-						"Nem sikerült betölteni a felhasználói adatokat.",
-					);
-					setTargetUser(null);
-					return;
-				}
-				//Successfully got user data
-				setTargetUser(response.data);
-			} catch (err) {
-				console.error(
-					"Hiba történt a felhasználói adatok lekérése közben:",
-					err,
+
+			//Successfully got user data
+			setTargetUser(response.data);
+		} catch (err) {
+			console.error(
+				"Hiba történt a felhasználói adatok lekérése közben:",
+				err,
+			);
+			setTargetUser(null);
+		}
+	};
+
+	// Fetch the number of threads the user has joined.
+	const getJoinedThreadsNum = async (userId: number) => {
+		try {
+			const response = await GetUserThreads(userId);
+			if (response.status !== 200) {
+				console.warn(
+					"Nem sikerült betölteni a felhasználó közösségeit.",
+					response,
 				);
-				setTargetUser(null);
+				setJoinedThreadsNum(0);
+				return;
 			}
-		};
-		checkIsMyProfile();
+			setJoinedThreadsNum(response.data.length);
+		} catch (err) {
+			console.error(
+				"Hiba történt a felhasználó közösségeinek lekérése közben:",
+				err,
+			);
+			setJoinedThreadsNum(0);
+		}
+	};
 
-		getViewedUserProfile(Number(params.id));
-	}, []);
-
+	// Handle user logout and cleanup.
 	const handleLogout = async () => {
 		try {
 			await Logout();
@@ -87,6 +88,28 @@ const UserProfile = () => {
 			navigate("/auth/login", { replace: true });
 		}
 	};
+
+	useEffect(() => {
+		const asyncInit = async () => {
+			const targetId = Number(params.id);
+
+			if (isNaN(targetId)) {
+				console.warn("Érvénytelen user ID az URL-ben:", params.id);
+				return;
+			}
+			if (!targetId) {
+				console.warn("Nincs user ID az URL-ben.");
+				return;
+			}
+
+			await checkIsMyProfile(targetId);
+
+			await getCurrentlyViewedUserProfile(targetId);
+			await getJoinedThreadsNum(targetId);
+		};
+
+		asyncInit();
+	}, [params.id]);
 
 	return (
 		<>
@@ -135,31 +158,13 @@ const UserProfile = () => {
 							</div>
 						</div>
 
-						<div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6 text-center">
-							<div>
-								<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-									Közösség
-								</p>
-								{/* <p className="mt-1 text-lg font-bold text-white">
-									{joinedThreadIds.length}
-								</p> */}
-							</div>
-							<div>
-								<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-									Posztok
-								</p>
-								<p className="mt-1 text-lg font-bold text-white">
-									TBI
-								</p>
-							</div>
-							<div>
-								<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-									Hozzászólások
-								</p>
-								<p className="mt-1 text-lg font-bold text-white">
-									TBI
-								</p>
-							</div>
+						<div className="flex flex-col items-center justify-center py-4">
+							<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+								Közösségek
+							</p>
+							<p className="mt-1 text-lg font-bold text-white">
+								{joinedThreadsNum}
+							</p>
 						</div>
 
 						{isMyProfile && targetUser && (
