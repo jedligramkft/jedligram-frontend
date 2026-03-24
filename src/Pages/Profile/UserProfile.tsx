@@ -154,11 +154,20 @@ const UserProfile = () => {
 									{targetUser?.bio || "Nincs bemutatkozás."}
 								</p>
 							</div>
+							<div className="w-full flex justify-center md:justify-end self-start">
+								<button
+									onClick={() => navigate("/")}
+									className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition"
+								>
+									<DynamicFAIcon exportName="faHome" />
+									Vissza a főoldalra
+								</button>
+							</div>
 						</div>
-						<hr className="text-gray-700/50" />
 
 						{isMyProfile && targetUser && (
 							<>
+								<hr className="text-gray-700/50" />
 								{/* Logout */}
 								<div className="p-6 text-center">
 									<button
