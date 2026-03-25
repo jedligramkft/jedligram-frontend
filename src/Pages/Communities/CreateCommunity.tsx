@@ -10,19 +10,15 @@ interface CreateCommunityProps {
 const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
     const navigate = useNavigate();
     const [created, setCreated] = useState(false);
-    const [creating, setCreating] = useState(false); 
     const [communityName, setCommunityName] = useState("");
-    const [category, setCategory] = useState("Stratégia");
     const [description, setDescription] = useState("");
     const [rules, setRules] = useState("");
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        setCreating(true);
-        if(!communityName.trim() || !description.trim() || !category.trim() || !rules.trim()){
+        if(!communityName.trim() || !description.trim() || !rules.trim()){
             alert("Kérem, töltse ki a kötelező mezőket!");
-            setCreating(false);
             return;
         }
         try{
@@ -30,7 +26,6 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                 id: -1,
                 name: communityName.trim(),
                 description: description.trim(),
-                category: category.trim(),
                 rules: rules.trim(),
             });
             setCreated(true);
@@ -40,8 +35,6 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
             alert(message ?? "Nem sikerült létrehozni a közösséget.");
             return;
         }
-        } finally {
-            setCreating(false);
         }
     };
 
@@ -81,23 +74,6 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                             </div>
 
                             <div>
-                                <label htmlFor="category" className="text-xs font-semibold uppercase tracking-wider text-white/60">Kategória</label>
-                                <div className="relative mt-2">
-                                    <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}  className="block w-full appearance-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 pr-10 text-sm text-white outline-none transition focus:border-white/20">
-                                        <option className="bg-[#1f2226]">Stratégia</option>
-                                        <option className="bg-[#1f2226]">RPG</option>
-                                        <option className="bg-[#1f2226]">Akció</option>
-                                    </select>
-
-                                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/60">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
                                 <label htmlFor="rules" className="text-xs font-semibold uppercase tracking-wider text-white/60">Szabályok</label>
                                 <textarea id="rules" value={rules} onChange={(e) => setRules(e.target.value)} className="mt-2 h-32 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder="Írd be a közösség szabályait…"/>
                             </div>
@@ -110,8 +86,8 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 
                             <div className="flex items-center justify-between gap-4">
                                 <p className="text-xs text-white/55">A közösség megjelenik a listában, és mások is csatlakozhatnak.</p>
-                                <button type="submit" disabled={creating} className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
-                                    {creating ? "Létrehozás…" : "Közösség létrehozása"}
+                                <button type="submit" className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
+                                    {"Közösség létrehozása"}
                                 </button>
                             </div>
 
