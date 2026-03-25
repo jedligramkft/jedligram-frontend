@@ -8,7 +8,6 @@ const CreatePost = () => {
   const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState(false);
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
   const handleSubmit = async () => {
@@ -27,7 +26,7 @@ const CreatePost = () => {
 
     setCreating(true);
     try{
-      await CreatePostInThread(Number(id), { title, content });
+      await CreatePostInThread(Number(id), content, { id: 0, name: "unknown" });
       setCreated(true);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -64,11 +63,6 @@ const CreatePost = () => {
               </button>
             </div>
             <form className="mt-8 grid gap-5" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-white/60">Cím</label>
-                <input type="text" placeholder="Adj egy rövid címet…" className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" value={title} onChange={(e) => setTitle(e.target.value)}/>
-              </div>
-
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-white/60">Tartalom</label>
                 <textarea placeholder="Írd le részletesebben…" className="mt-2 h-44 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" value={content} onChange={(e) => setContent(e.target.value)}/>
