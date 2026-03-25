@@ -124,8 +124,8 @@ const UserProfile = () => {
 
 				<div className="relative z-10 mx-auto max-w-4xl px-4 py-16">
 					<div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur">
-						<div className="p-8 flex flex-col md:flex-row items-center gap-8">
-							<div className="relative">
+						<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+							<div className="w-fit h-full flex flex-col md:flex-row items-center justify-center gap-4">
 								<div className="h-32 w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-5xl font-black shadow-lg">
 									{targetUser?.image_url ? (
 										<img
@@ -144,44 +144,45 @@ const UserProfile = () => {
 										</span>
 									)}
 								</div>
+								<div className="text-center md:text-left">
+									<h1 className="text-4xl font-bold">
+										{targetUser?.name || "Felhasználó"}
+									</h1>
+									<p className="mt-2 text-lg text-gray-400">
+										{targetUser?.email}
+									</p>
+									<p className="mt-4 text-sm text-gray-300 max-w-md">
+										{targetUser?.bio || "Nincs bemutatkozás."}
+									</p>
+								</div>
 							</div>
-							<div className="text-center md:text-left">
-								<h1 className="text-4xl font-bold">
-									{targetUser?.name || "Felhasználó"}
-								</h1>
-								<p className="mt-2 text-lg text-gray-400">
-									{targetUser?.email}
-								</p>
-								<p className="mt-4 text-sm text-gray-300 max-w-md">
-									{targetUser?.bio || "Nincs bemutatkozás."}
-								</p>
-							</div>
-							<div className="w-full flex justify-center md:justify-end self-start">
+							<div className="w-fit h-full flex flex-col items-center justify-between gap-6 place-self-center md:place-self-end">
 								<button
 									onClick={() => navigate("/")}
-									className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition"
+									className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition"
 								>
 									<DynamicFAIcon exportName="faHome" />
 									Vissza a főoldalra
 								</button>
+								{isMyProfile && targetUser && (
+									<>
+										{/* Logout */}
+										<button
+											onClick={() =>
+												setIsLogoutConfirmationOpen(true)
+											}
+											className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-gray-600 transition"
+										>
+											<DynamicFAIcon exportName="faSignOutAlt" />
+											Kijelentkezés
+										</button>
+									</>
+								)}
 							</div>
 						</div>
 
 						{isMyProfile && targetUser && (
 							<>
-								<hr className="text-gray-700/50" />
-								{/* Logout */}
-								<div className="p-6 text-center">
-									<button
-										onClick={() =>
-											setIsLogoutConfirmationOpen(true)
-										}
-										className="flex items-center justify-center w-full md:w-auto md:mx-auto gap-2 text-sm font-semibold text-red-500 transition hover:text-red-400"
-									>
-										<DynamicFAIcon exportName="faSignOutAlt" />
-										Kijelentkezés
-									</button>
-								</div>
 								<EditProfile
 									targetUser={targetUser}
 									saveCallback={setTargetUser}
