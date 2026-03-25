@@ -124,7 +124,7 @@ const UserProfile = () => {
 
 				<div className="relative z-10 mx-auto max-w-4xl px-4 py-16">
 					<div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur">
-						<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+						<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-6 place-items-center">
 							<div className="w-fit h-full flex flex-col md:flex-row items-center justify-center gap-4">
 								<div className="h-32 w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-5xl font-black shadow-lg">
 									{targetUser?.image_url ? (
