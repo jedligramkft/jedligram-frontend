@@ -23,7 +23,6 @@ const CommunityHeader = ({ id, thread, isJoined, onJoin, onLeave, onInvite }: Pr
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Community {id ? `#${id}` : ""}</div>
               <h1 className="text-3xl font-bold text-white md:text-4xl">{thread?.name ?? "Ismeretlen Közösség"}</h1>
-              <p className="mt-1 text-sm text-white/70">{thread?.category ? `${thread.category} • ` : ""}</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">

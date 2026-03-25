@@ -15,7 +15,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
   const [thread, setThread] = useState<ThreadData | null>(null);
   const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
   const [votingPostId, setVotingPostId] = useState<number | null>(null);
-  const [joinedUsernames, setJoinedUsernames] = useState<string[]>([]);
+  const [joinedUserId, setJoinedUserId] = useState<number[]>([]);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
   const profileStorageKey = "jedligram_profile";
@@ -70,7 +70,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
       window.removeEventListener("joined-threads-changed", sync);
   }, [threadId]);
 
-  const fetchJoinedUsernames = async (threadIdValue: number): Promise<string[]> => {
+  const fetchJoinedUserId = async (threadIdValue: number): Promise<number[]> => {
     if (Number.isNaN(threadIdValue)) return [];
 
     const response = await GetUsers(`thread:${threadIdValue}`);
@@ -78,8 +78,8 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
 
     if (!Array.isArray(usersData)) return [];
     return usersData
-      .map((u) => u.name)
-      .filter((name): name is string => typeof name === "string");
+      .map((u) => u.id)
+      .filter((id): id is number => typeof id === "number");
   };
 
   const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -100,8 +100,8 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     try {
       await JoinThread(threadId);
       setIsJoined(true);
-      const usernames = await fetchJoinedUsernames(threadId);
-      setJoinedUsernames(usernames);
+      const userIds = await fetchJoinedUserId(threadId);
+      setJoinedUserId(userIds);
       setShowAllMembers(false);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -116,8 +116,8 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
 
         if (alreadyMember) {
           setIsJoined(true);
-          const usernames = await fetchJoinedUsernames(threadId);
-          setJoinedUsernames(usernames);
+          const userIds = await fetchJoinedUserId(threadId);
+          setJoinedUserId(userIds);
           setShowAllMembers(false);
           return;
         }
@@ -142,10 +142,10 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
       setShowAllMembers(false);
 
       const profile = readProfile();
-      const currentUsername = profile.username;
-      if (currentUsername) {
-        setJoinedUsernames((prev) =>
-          prev.filter((u) => u.toLowerCase() !== currentUsername.toLowerCase()),
+      const currentUserId = profile.id;
+      if (currentUserId) {
+        setJoinedUserId((prev) =>
+          prev.filter((u) => u !== currentUserId),
         );
       }
     } catch (err) {
@@ -166,7 +166,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
 
     let isCancelled = false;
     const load = async () => {
-      setJoinedUsernames([]);
+      setJoinedUserId([]);
       setShowAllMembers(false);
       try {
         const [threadRes, postsRes] = await Promise.all([
@@ -188,11 +188,11 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
         }
 
         try {
-          const usernames = await fetchJoinedUsernames(threadId);
-          if (!isCancelled) setJoinedUsernames(usernames);
+          const userIds = await fetchJoinedUserId(threadId);
+          if (!isCancelled) setJoinedUserId(userIds);
         } catch (err) {
           console.warn("Nem sikerült betölteni a tagokat.", err);
-          if (!isCancelled) setJoinedUsernames([]);
+          if (!isCancelled) setJoinedUserId([]);
         }
       } catch (err) {
         if (isCancelled) return;
@@ -269,7 +269,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     posts,
     isJoined,
     votingPostId,
-    joinedUsernames,
+    joinedUserId,
     showAllMembers,
     handleNewPost,
     handleJoin,
