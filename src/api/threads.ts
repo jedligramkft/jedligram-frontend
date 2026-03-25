@@ -18,7 +18,6 @@ export const CreateThread = async (
 	const response = await httpClient.post("/api/threads", {
 		name: newThread.name,
 		description: newThread.description,
-		category: newThread.category,
 		rules: newThread.rules,
 	});
 
@@ -70,11 +69,15 @@ export const GetPostsInThread = async (
 
 export const CreatePostInThread = async (
 	threadId: number,
-	post: { title: string; content: string },
+	content: string,
+	user: { id: number; name: string }
 ): Promise<ResponseData> => {
 	const response = await httpClient.post(`/api/threads/${threadId}/post`, {
-		title: post.title,
-		content: post.content,
+		content: content,
+		user: {
+			id: user.id,
+			name: user.name,
+		}
 	});
 
 	return {

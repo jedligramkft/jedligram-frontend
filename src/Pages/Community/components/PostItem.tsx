@@ -12,11 +12,10 @@ type PostItemProps = {
 const PostItem = ({ post, postId, isVoting, score, isCommentsOpen, onToggleComments, onVote, children }: PostItemProps) => (
   <article className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
     <div className="flex items-center justify-between text-xs text-white/55">
-      {post.author ? `@${post.author}` : "Ismeretlen"}
-      <span>{new Date(post.created_at).toLocaleString()}</span>
+      {post.user ? `@${post.user.name}` : "Ismeretlen"}
+      <span>{post.age}</span>
     </div>
-    <h3 className="mt-3 text-lg font-semibold text-white">{post.title || "Poszt"}</h3>
-    <p className="mt-2 whitespace-pre-wrap text-sm text-white/75">{post.content || ""}</p>
+    <h3 className="mt-2 whitespace-pre-wrap text-sm text-white/75">{post.content || ""}</h3>
     <div className="mt-4 flex flex-wrap items-center gap-3">
       <button onClick={() => onToggleComments(postId)} className="cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">
         {isCommentsOpen ? "Kommentek bezárása" : "Kommentek"}
