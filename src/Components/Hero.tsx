@@ -1,17 +1,6 @@
-import { useState, useEffect } from "react";
-import { getActiveTheme } from "../theme";
 import { Searchbar } from "./Searchbar/Searchbar";
 
 const Hero = () => {
-	const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
-
-	useEffect(() => {
-		const onThemeChanged = () => setActiveTheme(getActiveTheme());
-		window.addEventListener("theme-changed", onThemeChanged);
-		return () =>
-			window.removeEventListener("theme-changed", onThemeChanged);
-	}, []);
-
 	return (
 		<div>
 			<div className="bg-linear-to-b from-[#424549] to-[#2a2d31] md:min-h-150 min-h-150 flex items-center justify-center relative overflow-hidden poppins-regular">
