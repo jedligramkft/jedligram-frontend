@@ -73,7 +73,6 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                         <div className={`absolute inset-0 bg-linear-to-br opacity-0 transition duration-500 group-hover:opacity-100`}/>
                         <div className="relative z-10 flex h-full flex-col gap-4">
                             <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-                                <span>{thread.category}</span>
                                 <span className="rounded-full bg-white/10 px-3 py-1 text-[10px]">
                                     Aktív
                                 </span>
