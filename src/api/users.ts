@@ -1,4 +1,5 @@
 import type { ResponseData } from "../Interfaces/ResponseData";
+import type { UserData } from "../Interfaces/UserData";
 import httpClient from "./httpClient";
 
 export const GetUsers = async (searchQuery?: string): Promise<ResponseData> => {
@@ -31,13 +32,12 @@ export const GetUserThreads = async (userId: number): Promise<ResponseData> => {
 };
 
 export const UpdateUserProfile = async (
-	userId: number,
-	name?: string,
-	email?: string,
+	toUpdateUser: UserData,
 ): Promise<ResponseData> => {
-	const response = await httpClient.put(`/api/users/${userId}`, {
-		name,
-		email,
+	const response = await httpClient.put(`/api/users/${toUpdateUser.id}`, {
+		name: toUpdateUser.name,
+		email: toUpdateUser.email,
+		bio: toUpdateUser.bio,
 	});
 
 	return {
@@ -46,12 +46,17 @@ export const UpdateUserProfile = async (
 	};
 };
 
-export const ProfilePictureUpload = async (file: File): Promise<ResponseData> => {
+export const ProfilePictureUpload = async (
+	file: File,
+): Promise<ResponseData> => {
 	const formData = new FormData();
 	formData.append("image", file, file.name);
 
 	try {
-		const response = await httpClient.post("/api/users/profile-picture", formData);
+		const response = await httpClient.post(
+			"/api/users/profile-picture",
+			formData,
+		);
 		return {
 			status: response.status,
 			data: response.data,
@@ -61,42 +66,4 @@ export const ProfilePictureUpload = async (file: File): Promise<ResponseData> =>
 
 		throw new Error(status ? `[${status}] ${err.message}` : err.message);
 	}
-};
-
-export const UploadProfilePicture = async (file: File): Promise<string> => {
-	const response = await ProfilePictureUpload(file);
-	const data: any = response?.data;
-
-	const pickString = (obj: any, keys: string[]): string | undefined => {
-		if (!obj || typeof obj !== "object") return undefined;
-		for (const key of keys) {
-			const value = obj[key];
-			if (typeof value === "string" && value.trim().length > 0) return value;
-		}
-		return undefined;
-	};
-
-	const keys = [
-		"url",
-		"path",
-		"profile_picture_url",
-		"profilePictureUrl",
-		"avatar_url",
-		"avatar",
-		"image_url",
-		"image",
-	];
-
-	const urlCandidate =
-		(typeof data === "string" ? data : undefined) ??
-		pickString(data, keys) ??
-		pickString(data?.data, keys) ??
-		pickString(data?.user, keys) ??
-		pickString(data?.data?.user, keys);
-
-	if (!urlCandidate || typeof urlCandidate !== "string") {
-		throw new Error("Nem sikerült kinyerni a profilkép URL-jét a válaszból.");
-	}
-
-	return urlCandidate;
 };
