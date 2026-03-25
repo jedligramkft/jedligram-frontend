@@ -49,7 +49,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               setReplyDraft={comments.setReplyDraft}
             />
           </div>
-          <CommunitySidebar joinedUserId={community.joinedUserId} showAllMembers={community.showAllMembers} onLoadMore={community.handleLoadMoreUsernames} postsCount={community.posts.length} />
+          <CommunitySidebar joinedUsers={community.joinedUsers} showAllMembers={community.showAllMembers} onLoadMore={community.handleLoadMoreUsernames} postsCount={community.posts.length} />
         </div>
       </div>
     </section>
