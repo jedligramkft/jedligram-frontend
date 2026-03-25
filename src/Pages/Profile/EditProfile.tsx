@@ -5,7 +5,7 @@ import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
-import ConfirmationModal from "../../Components/Utils/ConfirmationModal";
+import ConfirmationModal from "../../Components/Modal/Modal";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -18,9 +18,20 @@ export const EditProfile = (props: {
 	const [isSaveConfirmationOpen, setIsSaveConfirmationOpen] = useState(false);
 	const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
+	const [hasError, setHasError] = useState(false);
+
 	async function handleSave(): Promise<void> {
 		if (!editedUser) return;
 		if (!props.targetUser) return;
+
+		setHasError(false);
+
+		if(editedUser.name?.trim() === "" ||
+			editedUser.email?.trim() === "")
+		{
+			setHasError(true);
+			return;
+		}
 
 		setIsSavingChanges(true);
 		//profil adatainak frissítése
@@ -169,6 +180,7 @@ export const EditProfile = (props: {
 				</div>
 			</div>
 
+			{/* Mentés megerősítése */}
 			<ConfirmationModal
 				isOpen={isSaveConfirmationOpen}
 				title="Profil mentése"
@@ -182,6 +194,23 @@ export const EditProfile = (props: {
 				onConfirm={async () => {
 					setIsSaveConfirmationOpen(false);
 					await handleSave();
+				}}
+				isConfirmLoading={isSavingChanges}
+			/>
+
+			{/* Hibás adatok */}
+			<ConfirmationModal
+				isOpen={hasError}
+				title="Hibás adatok!"
+				description={"Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!"}
+				cancelText=""
+				confirmText="Ok"
+				cancelButtonClassName="hidden"
+				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
+				onCancel={() => setHasError(false)}
+				onClose={() => setHasError(false)}
+				onConfirm={async () => {
+					setHasError(false);
 				}}
 				isConfirmLoading={isSavingChanges}
 			/>

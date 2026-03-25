@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import DynamicFAIcon from "./DynamicFaIcon";
+import DynamicFAIcon from "../Utils/DynamicFaIcon";
 
 type ConfirmationModalProps = {
 	isOpen: boolean;
@@ -76,7 +76,7 @@ const ConfirmationModal = ({
 				>
 					{title}
 				</h3>
-				<p className="mt-3 text-sm text-white/75">{description}</p>
+				<p className="mt-3 text-sm text-white/75 whitespace-pre-line">{description}</p>
 
 				<div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
 					<button

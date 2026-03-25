@@ -7,7 +7,7 @@ import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { Logout } from "../../api/auth";
 import { EditProfile } from "./EditProfile";
 import type { ThreadData } from "../../Interfaces/ThreadData";
-import ConfirmationModal from "../../Components/Utils/ConfirmationModal";
+import ConfirmationModal from "../../Components/Modal/Modal";
 
 const profileStorageKey =
 	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
