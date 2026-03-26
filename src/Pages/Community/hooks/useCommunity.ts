@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread } from "../../../api/threads";
-import { GetUsers } from "../../../api/users";
+import { GetUsers, GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import { VoteOnPost } from "../../../api/posts";
 import type { UserData } from "../../../Interfaces/UserData";
@@ -19,15 +19,35 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
   const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
-  const profileStorageKey = "jedligram_profile";
+  const profileKey = "jedligram_profile";
   const recentThreadsStorageKey = "jedligram_recent_threads";
 
   const readProfile = (): any => {
     try {
-      const raw = localStorage.getItem(profileStorageKey);
+      const raw = localStorage.getItem(profileKey);
       return raw ? JSON.parse(raw) : {};
     } catch {
       return {};
+    }
+  };
+
+  const getCurrentUserId = (): number | undefined => {
+    const profile = readProfile();
+    const userId = profile.id;
+    return userId;
+  };
+
+  const refreshIsJoined = async () => {
+    const userId = getCurrentUserId();
+
+    try {
+      const response = await GetUserThreads(userId!);
+      const list = response.data;
+      const joinedThreadIds = list.map((t: any) => Number(t.id));
+
+      setIsJoined(joinedThreadIds.includes(threadId));
+    } catch {
+      setIsJoined(false);
     }
   };
 
@@ -46,30 +66,9 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
       localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
       window.dispatchEvent(new Event("recent-threads-changed"));
     } catch {
-        // 
+      console.error("Failed to save recent thread.");
     }
   };
-
-  useEffect(() => {
-    if (Number.isNaN(threadId)) return;
-
-    const sync = () => {
-      const profile = readProfile();
-      const joinedThreadIds: number[] = Array.isArray(
-        profile.joinedThreadIds,
-      )
-        ? profile.joinedThreadIds
-            .map((x: any) => Number(x))
-            .filter((n: number) => Number.isFinite(n))
-        : [];
-      setIsJoined(joinedThreadIds.includes(threadId));
-    };
-
-    sync();
-    window.addEventListener("joined-threads-changed", sync);
-    return () =>
-      window.removeEventListener("joined-threads-changed", sync);
-  }, [threadId]);
 
   const fetchJoinedUsers = async (threadIdValue: number): Promise<UserData[]> => {
     if (Number.isNaN(threadIdValue)) return [];
@@ -125,7 +124,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
         return;
       }
     }
-  }, [threadId, isLoggedIn, navigateFn]);
+  }, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
 
   const handleLeave = useCallback(async () => {
     if (!isLoggedIn) {
@@ -158,7 +157,13 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
         return;
       }
     }
-  }, [threadId, isLoggedIn, navigateFn]);
+  }, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
+
+  useEffect(() => {
+    void refreshIsJoined();
+    window.addEventListener("joined-threads-changed", refreshIsJoined);
+    return () => window.removeEventListener("joined-threads-changed", refreshIsJoined);
+  }, [refreshIsJoined]);
 
   useEffect(() => {
     if (!id) return;
