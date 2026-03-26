@@ -11,10 +11,8 @@ export const useFilteredThreads = (query: string) => {
 
 		return threads.filter((thread) => {
 			const name = String(thread?.name ?? "").toLowerCase();
-			const category = String(thread?.category ?? "").toLowerCase();
 			return (
-				name.includes(normalizedQuery) ||
-				category.includes(normalizedQuery)
+				name.includes(normalizedQuery)
 			);
 		});
 	}, [query, threads]);
