@@ -73,9 +73,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                         <div className={`absolute inset-0 bg-linear-to-br opacity-0 transition duration-500 group-hover:opacity-100`}/>
                         <div className="relative z-10 flex h-full flex-col gap-4">
                             <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-                                <span className="rounded-full bg-white/10 px-3 py-1 text-[10px]">
-                                    Aktív
-                                </span>
+                                <span className="px-2 py-1 rounded-full border border-white/20 bg-white/10 text-xs font-semibold text-white/80">{thread.users_count ?? "N/A"} tag</span>
                             </div>
                             <div className="flex items-start gap-4">
                                 <div className="shrink-0 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
