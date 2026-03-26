@@ -7,11 +7,14 @@ import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import ConfirmationModal from "../../Components/Modal/Modal";
 import Switch from "../../Components/InputFields/SwitchComponent";
+import { useNavigate } from "react-router-dom";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
 	saveCallback: (updatedUser: UserData) => void | Promise<void>;
 }) => {
+	const navigate = useNavigate();
+
 	const [editedUser, setEditedUser] = useState<UserData | null>(
 		props.targetUser,
 	);
@@ -20,6 +23,8 @@ export const EditProfile = (props: {
 	const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
 	const [hasError, setHasError] = useState(false);
+
+	const [isSwitching2FA, setIsSwitching2FA] = useState(false);
 
 	async function handleSave(): Promise<void> {
 		if (!editedUser) return;
@@ -78,6 +83,14 @@ export const EditProfile = (props: {
 		await setFileToUpload(file);
 	};
 
+	function handle2faChange() {
+		setIsSwitching2FA(false);
+		navigate(
+			"/auth/verify-2fa?email=" +
+				encodeURIComponent(editedUser?.email || ""),
+		);
+	}
+
 	return (
 		<>
 			<div className="p-8 border-t border-gray-700/50">
@@ -131,6 +144,7 @@ export const EditProfile = (props: {
 							subtitle="A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
 							icon={"faShieldAlt"}
 							containerClass="w-full rounded-lg p-2 border border-white/10 bg-white/5 text-white"
+							onChange={() => setIsSwitching2FA(true)}
 						/>
 					</div>
 					<div className="md:col-span-2">
@@ -222,6 +236,25 @@ export const EditProfile = (props: {
 					setHasError(false);
 				}}
 				isConfirmLoading={isSavingChanges}
+			/>
+
+			{/* 2FA váltás megerősítése */}
+			<ConfirmationModal
+				isOpen={isSwitching2FA}
+				title="2 faktoros azonosítás"
+				description={
+					"A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
+				}
+				cancelText="Mégse"
+				confirmText="Váltás"
+				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
+				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
+				onCancel={() => setIsSwitching2FA(false)}
+				onClose={() => setIsSwitching2FA(false)}
+				onConfirm={async () => {
+					handle2faChange();
+				}}
+				isConfirmLoading={false}
 			/>
 		</>
 	);
