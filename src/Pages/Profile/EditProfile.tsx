@@ -6,6 +6,7 @@ import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponen
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import ConfirmationModal from "../../Components/Modal/Modal";
+import Switch from "../../Components/InputFields/SwitchComponent";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -26,9 +27,7 @@ export const EditProfile = (props: {
 
 		setHasError(false);
 
-		if(editedUser.name?.trim() === "" ||
-			editedUser.email?.trim() === "")
-		{
+		if (editedUser.name?.trim() === "" || editedUser.email?.trim() === "") {
 			setHasError(true);
 			return;
 		}
@@ -126,6 +125,14 @@ export const EditProfile = (props: {
 							textAreaClassName="resize-none"
 						/>
 					</div>
+					<div className="md:col-span-2 space-y-2">
+						<Switch
+							title="2 faktoros azonosítás"
+							subtitle="A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
+							icon={"faShieldAlt"}
+							containerClass="w-full rounded-lg p-2 border border-white/10 bg-white/5 text-white"
+						/>
+					</div>
 					<div className="md:col-span-2">
 						{(fileToUpload && (
 							<div className="mb-4 p-4 bg-green-600/20 border border-green-600 rounded">
@@ -151,11 +158,11 @@ export const EditProfile = (props: {
 								description="Húzd ide az új profilképet, vagy kattints ide a kiválasztáshoz."
 							/>
 						)}
-						<p className="text-xs text-gray-500 mt-1">
-							Utoljára mentve:{" "}
-							{localStorage.getItem("lastSavedAt") || "N/A"}
-						</p>
 					</div>
+					<p className="text-xs text-gray-500 mt-1">
+						Utoljára mentve:{" "}
+						{localStorage.getItem("lastSavedAt") || "N/A"}
+					</p>
 				</div>
 				<div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<button
@@ -202,7 +209,9 @@ export const EditProfile = (props: {
 			<ConfirmationModal
 				isOpen={hasError}
 				title="Hibás adatok!"
-				description={"Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!"}
+				description={
+					"Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!"
+				}
 				cancelText=""
 				confirmText="Ok"
 				cancelButtonClassName="hidden"
