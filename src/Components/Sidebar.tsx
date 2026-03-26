@@ -211,7 +211,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
 											icon={`#${t.id}`}
-											to={`/communities/${t.id}`}
+											to="#"
 											onClick={async () => {
 												closeSidebar();
 												try {
