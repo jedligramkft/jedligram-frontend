@@ -19,12 +19,12 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
   const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
   const [showAllMembers, setShowAllMembers] = useState(false);
 
-  const profileKey = "jedligram_profile";
+  const profileStorageKey = "jedligram_profile";
   const recentThreadsStorageKey = "jedligram_recent_threads";
 
   const readProfile = (): any => {
     try {
-      const raw = localStorage.getItem(profileKey);
+      const raw = localStorage.getItem(profileStorageKey);
       return raw ? JSON.parse(raw) : {};
     } catch {
       return {};
@@ -46,7 +46,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
       localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
       window.dispatchEvent(new Event("recent-threads-changed"));
     } catch {
-      console.error("Failed to save recent thread.");
+        // 
     }
   };
 
@@ -55,7 +55,14 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
 
     const sync = () => {
       const profile = readProfile();
-      setIsJoined(Array.isArray(profile.joinedThreadIds) && profile.joinedThreadIds.includes(threadId));
+      const joinedThreadIds: number[] = Array.isArray(
+        profile.joinedThreadIds,
+      )
+        ? profile.joinedThreadIds
+            .map((x: any) => Number(x))
+            .filter((n: number) => Number.isFinite(n))
+        : [];
+      setIsJoined(joinedThreadIds.includes(threadId));
     };
 
     sync();

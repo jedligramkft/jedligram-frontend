@@ -53,6 +53,7 @@ const SidebarCard = ({
 
 const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 	const navigate = useNavigate();
+	// const [activeCommunity, setActiveCommunity] = useState<number | null>(null);
 	const [joinedThreadIds, setJoinedThreadIds] = useState<JoinedThreadItem[]>(
 		[],
 	);
