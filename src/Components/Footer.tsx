@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface FooterProps {
@@ -5,6 +6,19 @@ interface FooterProps {
 }
 
 const Footer = ({ isLoggedIn }: FooterProps) => {
+	const [userId, setUserId] = useState<number | null>(null);
+
+	useEffect(() => {
+		const profileRaw = localStorage.getItem("jedligram_profile");
+		try {
+			const parsedProfile = JSON.parse(profileRaw || "{}");
+			setUserId(parsedProfile?.id ?? null);
+		} catch {
+			setUserId(null);
+		}
+	}, [isLoggedIn]);
+
+
 	const currentYear = new Date().getFullYear();
 	const logoUrl = new URL("/Images/jedligram_logo.png", import.meta.url).href;
 
@@ -28,14 +42,14 @@ const Footer = ({ isLoggedIn }: FooterProps) => {
 						<span>&copy; {currentYear} Jedligram. Minden jog fenntartva.</span>
 					</div>
 					<div className="flex items-center justify-center gap-4 md:justify-end">
+						<Link to="/" className="text-white/70 hover:text-white transition">
+							Főoldal
+						</Link>
 						<Link to="/all-communities" className="text-white/70 hover:text-white transition">
-							Közösség
+							Közösségek
 						</Link>
-						<Link to="/games" className="text-white/70 hover:text-white transition">
-							Játékok
-						</Link>
-						{isLoggedIn && (
-							<Link to="/profile" className="text-white/70 hover:text-white transition">
+						{isLoggedIn && userId !== null && (
+							<Link to={`/users/${userId}`} className="text-white/70 hover:text-white transition">
 								Profil
 							</Link>
 						)}
