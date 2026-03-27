@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
 import { PopularIcon } from "./CustomIcons/PopularIcon";
+import { GetThreadById } from "../api/threads";
 
 interface SidebarProps {
 	closeSidebar: () => void;
@@ -215,13 +216,10 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 											onClick={async () => {
 												closeSidebar();
 												try {
-													const res = await fetch(
-														`/api/threads/${t.id}`,
-													);
-													if (!res.ok)
-														throw new Error(
-															"Nem létezik",
-														);
+													const res = await GetThreadById(t.id);
+													if (res.status === 200) {
+														navigate(`/communities/${t.id}`);
+													}
 												} catch {
 													navigate(
 														`/deleted-community`,
