@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GetThreads } from "../api/threads";
 import type { ThreadData } from "../Interfaces/ThreadData";
 
 const Communities = () => {
+	const { t } = useTranslation();
 	const [threads, setThreads] = useState<ThreadData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -18,7 +20,7 @@ const Communities = () => {
 				const data = res.data?.threads ?? res.data;
 				setThreads(Array.isArray(data) ? data : []);
 			} catch (err: any) {
-				setLoadError(err?.response?.data?.message?.trim() || "Nem sikerült betölteni a közösségeket.");
+				setLoadError(err?.response?.data?.message?.trim() || t('communities.load_error'));
 				console.error(err);
 			} finally {
 				setIsLoading(false);
@@ -39,18 +41,18 @@ const Communities = () => {
 
 				<div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30 backdrop-blur md:flex-row md:items-center md:justify-between md:p-8">
 					<div>
-						<p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">Fedezd fel</p>
-						<h1 className="mt-3 text-3xl font-black text-white drop-shadow md:text-5xl">Kiemelt Közösségek</h1>
-						<p className="mt-3 max-w-xl text-sm text-white/70 md:text-base">Válogass a legaktívabb közösségek közül, és csatlakozz a kedvenceidhez.</p>
+						<p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/50">{t('communities.featured_title')}</p>
+						<h1 className="mt-3 text-3xl font-black text-white drop-shadow md:text-5xl">{t('communities.featured_heading')}</h1>
+						<p className="mt-3 max-w-xl text-sm text-white/70 md:text-base">{t('communities.featured_description')}</p>
 						<div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur">
-							<span className="text-white/60">Összesen</span>
+							<span className="text-white/60">{t('communities.total')}</span>
 							<span className="text-white">{threads.length}</span>
-							<span className="text-white/60">közösség</span>
+							<span className="text-white/60">{t('communities.community_count')}</span>
 						</div>
 					</div>
 					<div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
-						<Link to="/all-communities" className="text-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white/90 transition hover:border-white/30 hover:bg-white/10">Összes közösség</Link>
-						<Link to="/create-community" className="text-center rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white keep-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50">Közösség létrehozása</Link>
+						<Link to="/all-communities" className="text-center rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white/90 transition hover:border-white/30 hover:bg-white/10">{t('communities.view_all')}</Link>
+						<Link to="/create-community" className="text-center rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white keep-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50">{t('communities.create')}</Link>
 					</div>
 				</div>
 
@@ -58,7 +60,7 @@ const Communities = () => {
 					<div className="rounded-3xl border border-red-400/20 bg-red-500/10 p-5 text-white/80">
 						<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 							<p className="text-sm font-semibold text-red-200">{loadError}</p>
-							<button onClick={() => setReloadToken(t => t + 1)} className="rounded-2xl border border-white/15 bg-white/5 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">Újrapróbálom</button>
+							<button onClick={() => setReloadToken(t => t + 1)} className="rounded-2xl border border-white/15 bg-white/5 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">{t('communities.retry')}</button>
 						</div>
 					</div>
 				)}
@@ -85,9 +87,9 @@ const Communities = () => {
 
 					{!isLoading && !loadError && visibleThreads.length === 0 && (
 						<div className="md:col-span-2 lg:col-span-3 rounded-3xl border border-white/10 bg-white/5 p-8 text-center text-white/70 backdrop-blur">
-							<p className="text-sm font-semibold text-white/80">Nincs találat.</p>
-							<p className="mt-2 text-sm">Nézd meg az összes közösséget, vagy hozz létre egy újat.</p>
-							<Link to="/all-communities" className="mt-5 inline-block rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/10">Összes közösség</Link>
+							<p className="text-sm font-semibold text-white/80">{t('communities.no_results')}</p>
+							<p className="mt-2 text-sm">{t('communities.no_results_description')}</p>
+							<Link to="/all-communities" className="mt-5 inline-block rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/10">{t('communities.view_all')}</Link>
 						</div>
 					)}
 
@@ -97,13 +99,13 @@ const Communities = () => {
 								<div className="absolute inset-0 bg-linear-to-br from-cyan-400/30 to-blue-500/2 opacity-0 transition duration-500 group-hover:opacity-100"/>
 								<div className="relative z-10 flex h-full flex-col gap-4">
 									<div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-										<span className="rounded-full bg-white/10 px-3 py-1 text-[10px]">Aktív</span>
+										<span className="rounded-full bg-white/10 px-3 py-1 text-[10px]">{t('communities.active')}</span>
 									</div>
 									<h3 className="text-2xl font-semibold text-white">{thread.name}</h3>
-									<p className="text-sm text-white/70">{thread.description || "Csatlakozz, és kezdj el beszélgetni!"}</p>
+									<p className="text-sm text-white/70">{thread.description || t('communities.default_description')}</p>
 									<div className="mt-auto flex items-center justify-between">
-										<span className="text-sm font-semibold text-white/80">{thread.users_count} tag</span>
-										<Link to={`/communities/${thread.id}`} className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">Megnézem</Link>
+										<span className="text-sm font-semibold text-white/80">{thread.users_count} {t('communities.members')}</span>
+										<Link to={`/communities/${thread.id}`} className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">{t('communities.view_community')}</Link>
 									</div>
 								</div>
 							</div>
@@ -113,7 +115,7 @@ const Communities = () => {
 				</div>
 
 				<Link to="/all-communities" className="mx-auto mt-8 block rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/10">
-					További közösségek
+					{t('communities.more_communities')}
 				</Link>
 
 			</div>

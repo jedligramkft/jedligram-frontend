@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
 import { PopularIcon } from "./CustomIcons/PopularIcon";
 import { GetThreadById } from "../api/threads";
+import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
 	closeSidebar: () => void;
@@ -59,6 +60,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 		[],
 	);
 	const [recentThreads, setRecentThreads] = useState<RecentThreadItem[]>([]);
+
+	const { t } = useTranslation();
 
 	const loadFromStorage = () => {
 		if (!isLoggedIn) {
@@ -152,11 +155,11 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 			>
 				<div className="my-4 w-full px-3 space-y-2">
 					<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-						Főmenü
+						{t('sidebar.menus.main')}
 					</p>
 					<SidebarCard
-						title="Felfedezés"
-						subtitle="Népszerű közösségek"
+						title={t('sidebar.menus.main_buttons.explore')}
+						subtitle={t('sidebar.menus.main_buttons.popular_communities')}
 						icon={<PopularIcon />}
 						to="/all-communities"
 						onClick={() => {
@@ -166,8 +169,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 					{isLoggedIn && (
 						<>
 							<SidebarCard
-								title="Közösség létrehozása"
-								subtitle="Új közösség indítása"
+								title={t('sidebar.menus.main_buttons.create_community')}
+								subtitle={t('sidebar.menus.main_buttons.start_new_community')}
 								icon={
 									<DynamicFAIcon
 										exportName="faPlus"
@@ -180,8 +183,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 								}}
 							/>
 							<SidebarCard
-								title="Profil"
-								subtitle="Profilom kezelése"
+								title={t('sidebar.menus.main_buttons.profile')}
+								subtitle={t('sidebar.menus.main_buttons.manage_profile')}
 								icon={
 									<DynamicFAIcon
 										exportName="faUser"
@@ -205,7 +208,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							<>
 								<div className="my-4 w-full px-3 space-y-2">
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-										Legutóbb megtekintett
+										{t('sidebar.menus.recently_viewed')}
 									</p>
 									{recentThreads.map((t) => (
 										<SidebarCard
@@ -237,7 +240,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							<>
 								<div className="my-4 w-full px-3 space-y-2">
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-										Csatlakozott közösségek
+										{t('sidebar.menus.joined')}
 									</p>
 									{joinedThreadIds.map((t) => (
 										<SidebarCard
@@ -254,7 +257,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							</>
 						) : (
 							<p className="text-center mt-16 px-4 text-white/40">
-								Nem vagy egy közösség tagja sem.
+								{t('sidebar.menus.no_joined_threads')}
 							</p>
 						)}
 					</>
@@ -263,13 +266,13 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 				{!isLoggedIn && (
 					<div className="text-center space-y-4 mt-16 px-4">
 						<p className="text-white/40">
-							Kérlek, jelentkezz be a további funkciók eléréséhez.
+							{t('sidebar.menus.not_logged_in')}
 						</p>
 						<Link
 							to="/auth/login"
 							className="keep-white text-white rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition"
 						>
-							Jelentkezz be
+							{t('sidebar.menus.login_btn')}
 						</Link>
 					</div>
 				)}

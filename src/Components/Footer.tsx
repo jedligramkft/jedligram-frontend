@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface FooterProps {
 	isLoggedIn?: boolean;
@@ -7,6 +8,7 @@ interface FooterProps {
 
 const Footer = ({ isLoggedIn }: FooterProps) => {
 	const [userId, setUserId] = useState<number | null>(null);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		const profileRaw = localStorage.getItem("jedligram_profile");
@@ -39,23 +41,23 @@ const Footer = ({ isLoggedIn }: FooterProps) => {
 						/>
 					</div>
 					<div className="flex items-center justify-center md:justify-center">
-						<span>&copy; {currentYear} Jedligram. Minden jog fenntartva.</span>
+						<span>&copy; {currentYear} Jedligram. {t('footer.copyright')}</span>
 					</div>
 					<div className="flex items-center justify-center gap-4 md:justify-end">
 						<Link to="/" className="text-white/70 hover:text-white transition">
-							Főoldal
+							{t('footer.home')}
 						</Link>
 						<Link to="/all-communities" className="text-white/70 hover:text-white transition">
-							Közösségek
+							{t('footer.communities')}
 						</Link>
 						{isLoggedIn && userId !== null && (
 							<Link to={`/users/${userId}`} className="text-white/70 hover:text-white transition">
-								Profil
+								{t('footer.profile')}
 							</Link>
 						)}
 						{!isLoggedIn && (
 							<Link to="/auth/login" className="text-white/70 hover:text-white transition">
-								Bejelentkezés
+								{t('footer.login')}
 							</Link>
 						)}
 					</div>

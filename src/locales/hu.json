@@ -1,0 +1,97 @@
+{
+    "navbar": {
+        "search_placeholder": "Keress közösségeket..."
+    },
+    "sidebar": {
+        
+        "menus": {
+            "main": "Főmenü",
+            "main_buttons": {
+                "explore": "Felfedezés",
+                "popular_communities": "Népszerű közösségek",
+                "create_community": "Közösség létrehozása",
+                "start_new_community": "Új közösség indítása",
+                "profile": "Profil",
+                "manage_profile": "Profilom kezelése"
+            },
+            "recently_viewed": "Legutóbb megtekintett",
+            "joined": "Csatlakozott közösségek",
+            "not_logged_in": "Jelentkezz be a megtekintéshez",
+            "no_joined_threads": "Nem vagy egy közösség tagja sem.",
+            "login_btn": "Bejelentkezés"
+        }
+    },
+    "hero": {
+        "title": "Üdvözlünk a Jedligram oldalán!",
+        "description": "Fedezd fel a közösségeket, csatlakozz beszélgetésekhez, és oszd meg a gondolataidat!",
+        "search_placeholder": "Keress közösségeket..."
+    },
+    "createCommunity": {
+        "title": "Közösség létrehozása",
+        "description": "Add meg az alapadatokat. Később bármikor módosíthatod.",
+        "back_button": "Vissza",
+        "name_label": "Közösség neve",
+        "name_placeholder": "Írd be a közösség nevét…",
+        "rules_label": "Szabályok",
+        "rules_placeholder": "Írd be a közösség szabályait…",
+        "description_label": "Leírás",
+        "description_placeholder": "Írd be a közösség leírását…",
+        "description_tip": "Tipp: pár mondatban írd le, miről szól a közösség és kinek ajánlott.",
+        "info_text": "A közösség megjelenik a listában, és mások is csatlakozhatnak.",
+        "submit_button": "Közösség létrehozása",
+        "disclaimer": "A Létrehozás gombbal elfogadod a közösségi irányelveket.",
+        "validation_error": "Kérem, töltse ki a kötelező mezőket!",
+        "create_error": "Nem sikerült létrehozni a közösséget.",
+        "success_message": "Sikeresen létrehozva.",
+        "success_button": "Vissza a közösségekhez"
+    },
+    "allCommunities": {
+        "title": "Közösségek",
+        "description": "Fedezz fel témákat, csatlakozz beszélgetésekhez, és találd meg a helyed.",
+        "total": "Összesen",
+        "community_count": "közösség",
+        "create_button": "Közösség létrehozása",
+        "login_button": "Jelentkezz be közösség létrehozásához",
+        "members": "tag",
+        "default_description": "Csatlakozz heti eseményekhez, közös stratégiákhoz és barátságos versenyekhez.",
+        "view_button": "Megnézem"
+    },
+    "createPost": {
+        "title": "Új poszt",
+        "description": "Oszd meg a gondolataid a közösséggel",
+        "community_label": "Közösség",
+        "back_button": "Vissza",
+        "content_label": "Tartalom",
+        "content_placeholder": "Írd le részletesen…",
+        "info_text": "A poszt a közösség feedjében jelenik meg.",
+        "submit_button_loading": "Létrehozás…",
+        "submit_button": "Poszt létrehozása",
+        "success_message": "Sikeresen létrehozva.",
+        "success_button": "Vissza a közösségbe"
+    },
+    "communities": {
+        "featured_title": "Fedezd fel",
+        "featured_heading": "Kiemelt Közösségek",
+        "featured_description": "Válogass a legaktívabb közösségek közül, és csatlakozz a kedvenceidhez.",
+        "total": "Összesen",
+        "community_count": "közösség",
+        "view_all": "Összes közösség",
+        "create": "Közösség létrehozása",
+        "retry": "Újrapróbálom",
+        "load_error": "Nem sikerült betölteni a közösségeket.",
+        "active": "Aktív",
+        "default_description": "Csatlakozz, és kezdj el beszélgetni!",
+        "members": "tag",
+        "view_community": "Megnézem",
+        "more_communities": "További közösségek",
+        "no_results": "Nincs találat.",
+        "no_results_description": "Nézd meg az összes közösséget, vagy hozz létre egy újat."
+    },
+    "footer": {
+        "copyright": "Minden jog fenntartva.",
+        "home": "Főoldal",
+        "communities": "Közösségek",
+        "profile": "Profil",
+        "login": "Bejelentkezés"
+    }
+}
