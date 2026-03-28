@@ -33,6 +33,19 @@ export const EditProfile = (props: {
 			return;
 		}
 
+		// ékezet lehet és space is
+		const usernameRegex = /^[a-zA-Z0-9_áéíÁÉÍöÖüÜ\s]+$/;
+		if (!usernameRegex.test(editedUser.name!)) {
+			setHasError(true);
+			return;
+		}
+
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(editedUser.email!)) {
+			setHasError(true);
+			return;
+		}
+
 		setIsSavingChanges(true);
 		//profil adatainak frissítése
 		try {
