@@ -1,6 +1,7 @@
 import axios from "axios";
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CreateThread } from "../../api/threads";
 
 interface CreateCommunityProps {
@@ -9,6 +10,7 @@ interface CreateCommunityProps {
 
 const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [created, setCreated] = useState(false);
     const [communityName, setCommunityName] = useState("");
     const [description, setDescription] = useState("");
@@ -18,7 +20,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
         e.preventDefault();
 
         if(!communityName.trim() || !description.trim() || !rules.trim()){
-            alert("Kérem, töltse ki a kötelező mezőket!");
+            alert(t('createCommunity.validation_error'));
             return;
         }
         try{
@@ -32,7 +34,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
         } catch(err){
         if(axios.isAxiosError(err)){
             const message = (err.response?.data as any)?.message;
-            alert(message ?? "Nem sikerült létrehozni a közösséget.");
+            alert(message ?? t('createCommunity.create_error'));
             return;
         }
         }
@@ -57,48 +59,48 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                     <div className="relative z-10 p-8 md:p-10">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                             <div>
-                                <h1 className="text-3xl font-black text-white md:text-4xl">Közösség létrehozása</h1>
-                                <p className="mt-2 text-sm text-white/70">Add meg az alapadatokat. Később bármikor módosíthatod.</p>
+                                <h1 className="text-3xl font-black text-white md:text-4xl">{t('createCommunity.title')}</h1>
+                                <p className="mt-2 text-sm text-white/70">{t('createCommunity.description')}</p>
                             </div>
 
                             <button type="button" onClick={() => navigate("/all-communities")} className="cursor-pointer h-10 rounded-xl border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
-                                Vissza
+                                {t('createCommunity.back_button')}
                             </button>
                         </div>
 
                         <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
                             <div>
-                                <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-white/60">Közösség neve</label>
-                                <input  type="text" id="name" value={communityName} onChange={(e) => setCommunityName(e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder="Írd be a közösség nevét…"
+                                <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-white/60">{t('createCommunity.name_label')}</label>
+                                <input  type="text" id="name" value={communityName} onChange={(e) => setCommunityName(e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder={t('createCommunity.name_placeholder')}
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="rules" className="text-xs font-semibold uppercase tracking-wider text-white/60">Szabályok</label>
-                                <textarea id="rules" value={rules} onChange={(e) => setRules(e.target.value)} className="mt-2 h-32 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder="Írd be a közösség szabályait…"/>
+                                <label htmlFor="rules" className="text-xs font-semibold uppercase tracking-wider text-white/60">{t('createCommunity.rules_label')}</label>
+                                <textarea id="rules" value={rules} onChange={(e) => setRules(e.target.value)} className="mt-2 h-32 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20" placeholder={t('createCommunity.rules_placeholder')}/>
                             </div>
 
                             <div>
-                                <label htmlFor="description" className="text-xs font-semibold uppercase tracking-wider text-white/60">Leírás</label>
-                                <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-white/20" placeholder="Írd be a közösség leírását…"/>
-                                <p className="mt-2 text-xs text-white/55">Tipp: pár mondatban írd le, miről szól a közösség és kinek ajánlott.</p>
+                                <label htmlFor="description" className="text-xs font-semibold uppercase tracking-wider text-white/60">{t('createCommunity.description_label')}</label>
+                                <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-white/20" placeholder={t('createCommunity.description_placeholder')}/>
+                                <p className="mt-2 text-xs text-white/55">{t('createCommunity.description_tip')}</p>
                             </div>
 
                             <div className="flex items-center justify-between gap-4">
-                                <p className="text-xs text-white/55">A közösség megjelenik a listában, és mások is csatlakozhatnak.</p>
+                                <p className="text-xs text-white/55">{t('createCommunity.info_text')}</p>
                                 <button type="submit" className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
-                                    {"Közösség létrehozása"}
+                                    {t('createCommunity.submit_button')}
                                 </button>
                             </div>
 
-                            <div className="pt-1 text-center text-xs text-white/50">A „Létrehozás” gombbal elfogadod a közösségi irányelveket.</div>
+                            <div className="pt-1 text-center text-xs text-white/50">{t('createCommunity.disclaimer')}</div>
                         </form>
 
                         {created && (
                             <div className="mt-6 rounded-2xl border border-white/10 bg-black/10 p-4">
-                                <p className="text-sm font-semibold text-emerald-300">Sikeresen létrehozva.</p>
+                                <p className="text-sm font-semibold text-emerald-300">{t('createCommunity.success_message')}</p>
                                 <button type="button" onClick={() => navigate("/all-communities")} className="cursor-pointer mt-3 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
-                                    Vissza a közösségekhez
+                                    {t('createCommunity.success_button')}
                                 </button>
                             </div>
                         )}

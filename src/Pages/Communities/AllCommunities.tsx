@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetThreads } from "../../api/threads";
 import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
@@ -9,6 +10,7 @@ interface AllCommunityProps{
 }
 
 const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
+	const { t } = useTranslation();
 	const [threads, setThreads] = useState<ThreadData[]>([]);
 
 	useEffect(() => {
@@ -43,25 +45,25 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
             <div className="flex items-center justify-between mb-8">
                 <div className="z-10">
                     <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                        Közösségek
+                        {t('allCommunities.title')}
                     </h1>
                     <p className="mt-2 max-w-2xl text-sm text-white/70">
-                        Fedezz fel témákat, csatlakozz beszélgetésekhez, és találd meg a helyed.
+                        {t('allCommunities.description')}
                     </p>
                     <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 backdrop-blur">
-                        <span className="text-white/60">Összesen</span>
+                        <span className="text-white/60">{t('allCommunities.total')}</span>
                         <span className="text-white">{threads.length}</span>
-                        <span className="text-white/60">közösség</span>
+                        <span className="text-white/60">{t('allCommunities.community_count')}</span>
                     </div>
                 </div>
 				{isLoggedIn && (
                     <Link to={'/create-community'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white keep-white z-10">
-						Közösség létrehozása
+						{t('allCommunities.create_button')}
 					</Link>
 				)}
 				{!isLoggedIn && (
                     <Link to={'/auth/login'} className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-semibold transition shadow-md text-white keep-white z-10">
-						Jelentkezz be közösség létrehozásához
+						{t('allCommunities.login_button')}
 					</Link>
 				)}
             </div>
@@ -73,7 +75,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                         <div className={`absolute inset-0 bg-linear-to-br opacity-0 transition duration-500 group-hover:opacity-100`}/>
                         <div className="relative z-10 flex h-full flex-col gap-4">
                             <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-                                <span className="px-2 py-1 rounded-full border border-white/20 bg-white/10 text-xs font-semibold text-white/80">{thread.users_count ?? "N/A"} tag</span>
+                                <span className="px-2 py-1 rounded-full border border-white/20 bg-white/10 text-xs font-semibold text-white/80">{thread.users_count ?? "N/A"} {t('allCommunities.members')}</span>
                             </div>
                             <div className="flex items-start gap-4">
                                 <div className="shrink-0 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
@@ -84,7 +86,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                                         {thread.name}
                                     </h3>
                                     <p className="text-sm text-white/70">
-                                        {thread.description || "Csatlakozz heti eseményekhez, közös stratégiákhoz és barátságos versenyekhez."}
+                                        {thread.description || t('allCommunities.default_description')}
                                     </p>
                                 </div>
                             </div>
@@ -93,7 +95,7 @@ const AllCommunities = ({ isLoggedIn }: AllCommunityProps) => {
                                     {/* {thread.members} */}
                                 </span>
                                 <Link to={`/communities/${thread.id}`} className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">
-                                    Megnézem
+                                    {t('allCommunities.view_button')}
                                 </Link>
                             </div>
                         </div>

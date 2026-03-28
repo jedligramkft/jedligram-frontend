@@ -1,0 +1,96 @@
+{
+    "navbar": {
+        "search_placeholder": "Search communities..."
+    },
+    "sidebar": {
+        "menus": {
+        "main": "Main Menu",
+        "main_buttons": {
+            "explore": "Explore",
+            "popular_communities": "Popular Communities",
+            "create_community": "Create Community",
+            "start_new_community": "Start New Community",
+            "profile": "Profile",
+            "manage_profile": "Manage Profile"
+        },
+        "recently_viewed": "Recently Viewed",
+        "joined": "Joined Communities",
+        "not_logged_in": "Log in to view",
+        "no_joined_threads": "No joined communities",
+        "login_btn": "Login"
+        }
+    },
+    "hero": {
+        "title": "Welcome to Jedligram!",
+        "description": "Discover and join communities that share your interests.",
+        "search_placeholder": "Search communities..."
+    },
+    "createCommunity": {
+        "title": "Create Community",
+        "description": "Enter the basic information. You can modify it anytime later.",
+        "back_button": "Back",
+        "name_label": "Community Name",
+        "name_placeholder": "Enter community name…",
+        "rules_label": "Rules",
+        "rules_placeholder": "Enter community rules…",
+        "description_label": "Description",
+        "description_placeholder": "Enter community description…",
+        "description_tip": "Tip: describe what the community is about and who it's for in a few sentences.",
+        "info_text": "The community will appear in the list, and others can join.",
+        "submit_button": "Create Community",
+        "disclaimer": "By clicking Create, you accept the community guidelines.",
+        "validation_error": "Please fill in all required fields!",
+        "create_error": "Failed to create the community.",
+        "success_message": "Successfully created.",
+        "success_button": "Back to Communities"
+    },
+    "allCommunities": {
+        "title": "Communities",
+        "description": "Explore topics, join conversations, and find your place.",
+        "total": "Total",
+        "community_count": "communities",
+        "create_button": "Create Community",
+        "login_button": "Sign in to create community",
+        "members": "members",
+        "default_description": "Join weekly events, share strategies, and enjoy friendly competition.",
+        "view_button": "View"
+    },
+    "createPost": {
+        "title": "New Post",
+        "description": "Share your thoughts with the community",
+        "community_label": "Community",
+        "back_button": "Back",
+        "content_label": "Content",
+        "content_placeholder": "Write your post content here…",
+        "info_text": "The post will appear in the community feed.",
+        "submit_button_loading": "Creating…",
+        "submit_button": "Create Post",
+        "success_message": "Successfully created.",
+        "success_button": "Back to Community"
+    },
+    "communities": {
+        "featured_title": "Discover",
+        "featured_heading": "Featured Communities",
+        "featured_description": "Explore the most active communities and join your favorites.",
+        "total": "Total",
+        "community_count": "communities",
+        "view_all": "All Communities",
+        "create": "Create Community",
+        "retry": "Try Again",
+        "load_error": "Failed to load communities.",
+        "active": "Active",
+        "default_description": "Join and start conversations!",
+        "members": "members",
+        "view_community": "View",
+        "more_communities": "More Communities",
+        "no_results": "No results.",
+        "no_results_description": "Check all communities or create a new one."
+    },
+    "footer": {
+        "copyright": "All rights reserved.",
+        "home": "Home",
+        "communities": "Communities",
+        "profile": "Profile",
+        "login": "Login"
+    }
+}
