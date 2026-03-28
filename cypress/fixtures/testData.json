@@ -1,0 +1,17 @@
+{
+  "communities": [
+    {
+      "id": 1,
+      "name": "JavaScript Developers",
+      "description": "Beszélgessünk JavaScript-ről és web fejlesztésről",
+      "users_count": 245
+    },
+    {
+      "id": 2,
+      "name": "React Community",
+      "description": "React fejlesztőknek a legújabb trendekről",
+      "users_count": 189
+    }
+  ],
+  "searchQueries": ["javascript", "react", "typescript"]
+}
