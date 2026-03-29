@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router";
 
-export const Verify2fa = () => {
+export const VerificationPage = () => {
 	const searchParams = useSearchParams();
 	const [email, setEmail] = useState(searchParams[0].get("email") || "");
 	const [verificationCode, setVerificationCode] = useState(

@@ -13,7 +13,7 @@ import LoginPage from "./Pages/Auth/Login";
 import SearchResults from "./Pages/Search/SearchResults";
 import { GetUserThreads } from "./api/users";
 import DeletedCommunity from "./Pages/Community/DeletedCommunity";
-import { Verify2fa } from "./Pages/Auth/Verify2fa";
+import { VerificationPage } from "./Pages/Auth/Verification";
 
 function App() {
 	const location = useLocation();
@@ -153,7 +153,7 @@ function App() {
 
 				<Route path="auth" element={<AuthLayout />}>
 					<Route path="login" element={<LoginPage />} />
-					<Route path="verify-2fa" element={<Verify2fa />} />
+					<Route path="verification" element={<VerificationPage />} />
 				</Route>
 			</Routes>
 		</>

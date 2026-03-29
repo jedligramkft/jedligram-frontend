@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { UserData } from "../../Interfaces/UserData";
-import { ProfilePictureUpload, UpdateUserProfile } from "../../api/users";
+import {
+	ProfilePictureUpload,
+	Toggle2FA,
+	UpdateUserProfile,
+} from "../../api/users";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
@@ -83,12 +87,15 @@ export const EditProfile = (props: {
 		await setFileToUpload(file);
 	};
 
-	function handle2faChange() {
-		setIsSwitching2FA(false);
-		navigate(
-			"/auth/verify-2fa?email=" +
-				encodeURIComponent(editedUser?.email || ""),
-		);
+	async function handle2faChange() {
+		const response = await Toggle2FA();
+		if (response.status === 202 && response.data?.requires_verification) {
+			setIsSwitching2FA(false);
+			navigate(
+				"/auth/verification?email=" +
+					encodeURIComponent(editedUser?.email || ""),
+			);
+		}
 	}
 
 	return (

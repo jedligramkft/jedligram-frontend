@@ -33,7 +33,12 @@ const LoginPage = () => {
 
 		try {
 			const response = await Login(userData);
-			if (response.status === 200) {
+			if (
+				response.status === 202 &&
+				response.data?.requires_verification
+			) {
+				navigate("/auth/verification", { replace: true });
+			} else if (response.status === 200) {
 				window.dispatchEvent(new Event("auth-changed"));
 				navigate("/", { replace: true });
 			}
