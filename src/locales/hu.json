@@ -18,7 +18,8 @@
             "joined": "Csatlakozott közösségek",
             "not_logged_in": "Jelentkezz be a megtekintéshez",
             "no_joined_threads": "Nem vagy egy közösség tagja sem.",
-            "login_btn": "Bejelentkezés"
+            "login_btn": "Bejelentkezés",
+            "logout": "Kijelentkezés"
         }
     },
     "hero": {

@@ -17,7 +17,8 @@
         "joined": "Joined Communities",
         "not_logged_in": "Log in to view",
         "no_joined_threads": "No joined communities",
-        "login_btn": "Login"
+        "login_btn": "Login",
+        "logout": "Logout"
         }
     },
     "hero": {

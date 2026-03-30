@@ -119,11 +119,11 @@ const UserProfile = () => {
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]" />
 				<div className="absolute inset-0 bg-black/30" />
 
-				<div className="relative z-10 mx-auto max-w-4xl px-4 py-16">
-					<div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur">
-						<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 p-6 place-items-center">
-							<div className="w-fit h-full flex flex-col md:flex-row items-center justify-center gap-4">
-								<div className="h-32 w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-5xl font-black shadow-lg">
+				<div className="relative z-10 mx-auto max-w-4xl px-3 md:px-4 py-8 md:py-16">
+					<div className="rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-4 md:p-8 shadow-2xl shadow-black/30 backdrop-blur">
+						<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-3 md:p-6">
+							<div className="w-full flex flex-col items-center md:items-start md:flex-row gap-3 md:gap-4">
+								<div className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-3xl md:text-5xl font-black shadow-lg">
 									{targetUser?.image_url ? (
 										<img
 											src={targetUser.image_url}
@@ -138,59 +138,54 @@ const UserProfile = () => {
 									)}
 								</div>
 								<div className="text-center md:text-left">
-									<h1 className="text-4xl font-bold">
+									<h1 className="text-2xl md:text-4xl font-bold break-words">
 										{targetUser?.name || "Felhasználó"}
 									</h1>
-									<p className="mt-2 text-lg text-gray-400">
+									<p className="mt-1 md:mt-2 text-sm md:text-lg text-gray-400 break-all">
 										{targetUser?.email}
 									</p>
-									<p className="mt-4 text-sm text-gray-300 max-w-md">
+									<p className="mt-2 md:mt-4 text-xs md:text-sm text-gray-300 max-w-md break-words">
 										{targetUser?.bio || "Nincs bemutatkozás."}
 									</p>
 								</div>
 							</div>
-							<div className="w-fit h-full flex flex-col items-center justify-between gap-6 place-self-center md:place-self-end">
+							<div className="w-full flex flex-col gap-2 md:gap-4 items-center md:items-end justify-center">
 								<button
 									onClick={() => navigate("/")}
-									className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition">
+									className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition whitespace-nowrap">
 									<DynamicFAIcon exportName="faHome" />
 									Vissza a főoldalra
 								</button>
 								{isMyProfile && targetUser && (
-									<>
-										{/* Logout */}
-										<button
-											onClick={() => setIsLogoutConfirmationOpen(true)}
-											className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-gray-600 transition">
-											<DynamicFAIcon exportName="faSignOutAlt" />
-											Kijelentkezés
-										</button>
-									</>
+									<button
+										onClick={() => setIsLogoutConfirmationOpen(true)}
+										className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-red-600 transition whitespace-nowrap">
+										<DynamicFAIcon exportName="faSignOutAlt" />
+										Kijelentkezés
+									</button>
 								)}
 							</div>
 						</div>
 
 						{isMyProfile && targetUser && (
-							<>
-								<EditProfile
-									targetUser={targetUser}
-									saveCallback={setTargetUser}
-								/>
-							</>
+							<EditProfile
+								targetUser={targetUser}
+								saveCallback={setTargetUser}
+							/>
 						)}
 
 						<hr className="text-gray-700/50" />
-						<div className="flex flex-col items-center justify-center py-4">
+						<div className="flex flex-col items-center justify-center py-3 md:py-4">
 							<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
 								Közösségek
 							</p>
-							<p className="mt-1 text-lg font-bold text-white">
+							<p className="mt-1 text-base md:text-lg font-bold text-white">
 								{joinedThreads.length || 0}
 							</p>
 						</div>
-						<div className="flex gap-2.5 flex-wrap justify-center">
+						<div className="flex gap-2 md:gap-2.5 flex-wrap justify-center px-2 md:px-0">
 							{joinedThreads.length === 0 && (
-								<p className="text-sm text-gray-500 col-span-full text-center">
+								<p className="text-xs md:text-sm text-gray-500 col-span-full text-center">
 									Nem csatlakozott közösségekhez.
 								</p>
 							)}
@@ -200,11 +195,13 @@ const UserProfile = () => {
 									onClick={() => {
 										navigate("/communities/" + thread.id);
 									}}
-									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer transition hover:bg-white/10">
-									<h3 className="text-lg font-semibold text-white">
+									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-3 md:p-4 cursor-pointer transition hover:bg-white/10">
+									<h3 className="text-base md:text-lg font-semibold text-white break-words">
 										{thread.name}
 									</h3>
-									<p className="text-sm text-gray-400">{thread.description}</p>
+									<p className="text-xs md:text-sm text-gray-400 break-words">
+										{thread.description}
+									</p>
 									<p className="mt-2 text-xs text-gray-500">
 										{thread.users_count} tag
 									</p>
