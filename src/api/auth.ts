@@ -58,7 +58,9 @@ const trySetLocalstorage = (user: UserData, accessToken: string) => {
 
 		localStorage.removeItem(profileStorageKey);
 		seedProfileFromLoginResponse(user as UserData);
-	} catch {}
+	} catch (err) {
+		console.error("Failed to persist auth data to localStorage:", err);
+	}
 };
 
 export const Toggle2FA = async (): Promise<ResponseData> => {

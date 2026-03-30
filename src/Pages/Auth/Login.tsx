@@ -9,7 +9,7 @@ const LoginPage = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
-	const [isPassVisible, setPassVisible] = useState(false);
+	const [isPasswordVisible, setPasswordVisible] = useState(false);
 	const navigate = useNavigate();
 
 	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,7 +60,7 @@ const LoginPage = () => {
 	return (
 		<section className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur space-y-2">
 			<h1 className="text-2xl font-black">Bejelentkezés</h1>
-			<p className="text-sm text-white">Lépj be a Jedligram fiókodba.</p>
+			<p className="text-sm text-white/70">Lépj be a Jedligram fiókodba.</p>
 
 			{error && (
 				<div className="w-full rounded-xl flex items-center p-4 border border-red-500 bg-red-500/10 text-red-500 bg-linear-60 from-red-500/10 to-red-500/20">
@@ -84,7 +84,7 @@ const LoginPage = () => {
 
 				<InputComponent
 					label="Jelszó"
-					type={isPassVisible ? "text" : "password"}
+					type={isPasswordVisible ? "text" : "password"}
 					value={password}
 					placeholder="Jelszó"
 					onChange={(e) => setPassword(e.target.value)}
@@ -93,15 +93,15 @@ const LoginPage = () => {
 							<div
 								className="h-full w-12 absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer"
 								onClick={() => {
-									setPassVisible(!isPassVisible);
+									setPasswordVisible(!isPasswordVisible);
 								}}>
-								<div className={`${isPassVisible ? "block" : "hidden"}`}>
+								<div className={`${isPasswordVisible ? "block" : "hidden"}`}>
 									<DynamicFAIcon
 										exportName="faEye"
 										className="text-md scale-x-110"
 									/>
 								</div>
-								<div className={`${isPassVisible ? "hidden" : "block"}`}>
+								<div className={`${isPasswordVisible ? "hidden" : "block"}`}>
 									<DynamicFAIcon
 										exportName="faEyeSlash"
 										className="text-md scale-x-110"

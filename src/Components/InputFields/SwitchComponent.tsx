@@ -1,7 +1,12 @@
-"use client";
 import React from "react";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
+
+// Switch component:
+// - supports controlled (`checked` prop provided) and uncontrolled
+//   (internal state) use
+// - renders optional icon, title/subtitle, and an accessible switch button
+//   with `role="switch"` and `aria-checked`
 
 type ButtonProps = {
 	title?: string;
@@ -32,30 +37,48 @@ const Switch: React.FC<SwitchProps> = ({
 	checked,
 	onChange,
 }) => {
-	const [isChecked, setIsChecked] = React.useState(Boolean(checked));
+	// Support both controlled and uncontrolled usage from parent components.
+	// When `checked` is provided the parent controls the visual state and
+	// this component will only notify changes via `onChange` (it won't
+	// locally flip the UI). When `checked` is undefined the component is
+	// uncontrolled and keeps its own internal state.
+	const isControlled = checked !== undefined;
+	const [internalChecked, setInternalChecked] = React.useState(
+		Boolean(checked),
+	);
+	const isChecked = isControlled ? Boolean(checked) : internalChecked;
 
+	// Sync internal state with `checked` when controlled so internalChecked
+	// reflects the latest prop value. This keeps initial and transitional
+	// values consistent if the component is reused in different modes.
 	React.useEffect(() => {
-		if (checked !== undefined) {
-			setIsChecked(checked);
+		if (isControlled) {
+			setInternalChecked(Boolean(checked));
 		}
-	}, [checked]);
+	}, [isControlled, checked]);
 
 	const toggleSwitch = () => {
 		const newState = !isChecked;
-		setIsChecked(newState);
+		// In uncontrolled mode update internal state so the UI updates
+		// immediately. In controlled mode do NOT update local state — only
+		// notify the parent and let it pass a new `checked` prop.
+		if (!isControlled) {
+			setInternalChecked(newState);
+		}
+		// Always emit change so parent can respond.
 		onChange?.(newState);
 	};
 
+	// Provide a stable id for the button for accessibility. `useId()` is
+	// preferred; fall back to a readable string when not available.
 	const switchId = React.useId() ?? `switch-${title}-${subtitle}`;
 
 	return (
 		<div
-			className={`h-fit flex items-center justify-center gap-4  ${containerClass ?? ""}`}
-		>
+			className={`h-fit flex items-center justify-center gap-4  ${containerClass ?? ""}`}>
 			{icon && (
 				<div
-					className={`w-fit h-full flex items-center justify-center pl-2 pr-4 border-r border-white/20 py-4 ${iconClass ?? ""}`}
-				>
+					className={`w-fit h-full flex items-center justify-center pl-2 pr-4 border-r border-white/20 py-4 ${iconClass ?? ""}`}>
 					<DynamicFAIcon
 						exportName={icon.toString()}
 						className={iconClass}
@@ -67,15 +90,13 @@ const Switch: React.FC<SwitchProps> = ({
 				<div className="w-full h-full">
 					{title ? (
 						<p
-							className={`max-w-3/4 wrap-break-word font-medium text-white/90 ${titleClass ?? ""}`}
-						>
+							className={`max-w-[75%] wrap-break-word font-medium text-white/90 ${titleClass ?? ""}`}>
 							{title}
 						</p>
 					) : null}
 					{subtitle ? (
 						<p
-							className={`mt-0.5 max-w-3/4 wrap-break-word text-xs leading-4 text-neutral-400 ${subtitleClass ?? ""}`}
-						>
+							className={`mt-0.5 max-w-[75%] wrap-break-word text-xs leading-4 text-neutral-400 ${subtitleClass ?? ""}`}>
 							{subtitle}
 						</p>
 					) : null}
@@ -94,16 +115,14 @@ const Switch: React.FC<SwitchProps> = ({
 							? "rgba(38, 110, 72, 0.95)"
 							: "rgba(64, 68, 75, 0.95)",
 					}}
-					onClick={toggleSwitch}
-				>
+					onClick={toggleSwitch}>
 					<div
 						className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-200 text-[12px] font-bold text-neutral-700 shadow transition-transform duration-200 ease-in-out"
 						style={{
-							transform: isChecked
-								? "translateX(24px)"
-								: "translateX(0px)",
-						}}
-					>
+							transform: isChecked ? "translateX(24px)" : "translateX(0px)",
+						}}>
+						{/* Thumb icon shows current state. DynamicFAIcon expects the
+						   FontAwesome export name (e.g. "faCheck" / "faXmark"). */}
 						<DynamicFAIcon
 							exportName={isChecked ? "faCheck" : "faXmark"}
 							size="1x"

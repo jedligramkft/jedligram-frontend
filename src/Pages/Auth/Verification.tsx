@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Verify2FA } from "../../api/auth";
+import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
+import { InputComponent } from "../../Components/InputFields/InputComponent";
 
 export const VerificationPage = () => {
 	const searchParams = useSearchParams();
@@ -11,61 +13,89 @@ export const VerificationPage = () => {
 		searchParams[0].get("code") || "",
 	);
 
-	async function handleVerification(
-		event: React.MouseEvent<HTMLButtonElement>,
-	) {
-		event.currentTarget.disabled = true;
+	const [error, setError] = useState<string | null>(null);
 
-		const response = await Verify2FA(email, verificationCode);
+	async function handleVerification(e: React.MouseEvent<HTMLButtonElement>) {
+		e.preventDefault();
+		const button = e.currentTarget;
+		button.disabled = true;
+		setError(null);
 
-		if (response.status === 200) {
-			if (response.data.user) {
-				console.log("Login");
-				window.dispatchEvent(new Event("auth-changed"));
-				navigate("/");
-			} else {
-				console.log("switch");
-				navigate(-1);
-			}
+		if (!email || !verificationCode) {
+			setError("Email és ellenőrző kód megadása kötelező.");
+			button.disabled = false;
+			return;
 		}
 
-		event.currentTarget.disabled = false;
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			setError("Érvénytelen email cím formátum.");
+			button.disabled = false;
+			return;
+		}
+
+		try {
+			const response = await Verify2FA(email, verificationCode);
+
+			if (response.status === 200) {
+				if (response.data.user) {
+					window.dispatchEvent(new Event("auth-changed"));
+					navigate("/");
+				} else {
+					console.log("switch");
+					navigate(-1);
+				}
+			}
+		} catch (err) {
+			setError(`${"Hiba történt az ellenőrzés során."}`);
+		}
+
+		button.disabled = false;
 	}
 
 	return (
-		<section className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur">
+		<section className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur space-y-2">
 			<h1 className="text-2xl font-black">Kétfaktoros azonosítás</h1>
-			<p className="mt-2 text-sm text-white/70">
-				Kérjük, ellenőrizze email-jét a visszaigazolási linkért.
+			<p className="text-sm text-white/70">
+				Kérjük, ellenőrizze email-jét a visszaigazolási kódért.
 			</p>
-			<div className="mt-6 flex flex-col gap-3">
-				<input
+
+			{error && (
+				<div className="w-full rounded-xl flex items-center p-4 border border-red-500 bg-red-500/10 text-red-500 bg-linear-60 from-red-500/10 to-red-500/20">
+					<DynamicFAIcon
+						exportName="faExclamationCircle"
+						className="text-2xl"
+					/>
+					<p className="text-sm text-white ml-3">{error}</p>
+				</div>
+			)}
+			<form
+				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}>
+				<InputComponent
+					label="Fiók email"
 					type="email"
-					placeholder="Email"
 					value={email}
+					placeholder="Írd be az email címed"
 					onChange={(e) => setEmail(e.target.value)}
-					className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20"
 				/>
-				<input
+				<InputComponent
+					label="Ellenőrző kód"
 					type="text"
-					placeholder="Verification code"
 					value={verificationCode}
+					placeholder="Írd be az ellenőrző kódot"
 					onChange={(e) => setVerificationCode(e.target.value)}
-					className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20"
 				/>
-			</div>
-			<button
-				onClick={(e) => {
-					handleVerification(e);
-				}}
-				className="mt-4 w-full rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 focus:outline-none disabled:bg-blue-800 disabled:text-neutral-400">
-				Ellenőrzés
-			</button>
-			<a
-				href="#"
-				className="mt-4 inline-block text-sm text-blue-500 hover:underline">
-				Email újraküldése
-			</a>
+				<button
+					type="submit"
+					onClick={(e) => {
+						handleVerification(e);
+					}}
+					className="mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700
+					active:scale-[0.98] duration-150 ease-in-out disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed disabled:opacity-50
+					">
+					Ellenőrzés
+				</button>
+			</form>
 		</section>
 	);
 };

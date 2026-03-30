@@ -162,7 +162,10 @@ export const EditProfile = (props: {
 							subtitle="A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
 							icon={"faShieldAlt"}
 							containerClass="w-full rounded-lg p-2 border border-white/10 bg-white/5 text-white"
-							onChange={() => setIsSwitching2FA(true)}
+							onChange={() => {
+								setIsSwitching2FA(true);
+								setIsVerificationEnabled((prev) => !prev);
+							}}
 							checked={isVerificationEnabled}
 						/>
 					</div>
@@ -219,7 +222,6 @@ export const EditProfile = (props: {
 				confirmText="Mentés"
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
-				onCancel={() => setIsSaveConfirmationOpen(false)}
 				onClose={() => setIsSaveConfirmationOpen(false)}
 				onConfirm={async () => {
 					setIsSaveConfirmationOpen(false);
@@ -239,7 +241,6 @@ export const EditProfile = (props: {
 				confirmText="Ok"
 				cancelButtonClassName="hidden"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
-				onCancel={() => setHasError(false)}
 				onClose={() => setHasError(false)}
 				onConfirm={async () => {
 					setHasError(false);
@@ -258,10 +259,12 @@ export const EditProfile = (props: {
 				confirmText="Váltás"
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
-				onCancel={() => setIsSwitching2FA(false)}
-				onClose={() => setIsSwitching2FA(false)}
+				onClose={() => {
+					setIsSwitching2FA(false);
+					setIsVerificationEnabled((prev) => !prev);
+				}}
 				onConfirm={async () => {
-					handle2faChange();
+					await handle2faChange();
 				}}
 				isConfirmLoading={false}
 			/>
