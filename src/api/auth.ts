@@ -23,13 +23,9 @@ const seedProfileFromLoginResponse = (user: UserData) => {
 export const Login = async (userData: UserData): Promise<ResponseData> => {
 	const response = await httpClient.post("/api/login", userData);
 
-	const bearerToken: string = response.data.access_token;
-	localStorage.setItem(authTokenName, bearerToken);
-
-	localStorage.removeItem(profileStorageKey);
-	seedProfileFromLoginResponse(response.data.user as UserData);
-
-	response.data.access_token = undefined;
+	if (response.data.user && response.data.access_token) {
+		trySetLocalstorage(response.data.user, response.data.access_token);
+	}
 
 	return {
 		status: response.status,
@@ -53,4 +49,65 @@ export const getAuthToken = (): string | null => {
 export const isLoggedIn = (): boolean => {
 	const token = getAuthToken();
 	return typeof token === "string" && token.trim().length > 0;
+};
+
+const trySetLocalstorage = (user: UserData, accessToken: string) => {
+	try {
+		const bearerToken: string = accessToken;
+		localStorage.setItem(authTokenName, bearerToken);
+
+		localStorage.removeItem(profileStorageKey);
+		seedProfileFromLoginResponse(user as UserData);
+	} catch {}
+};
+
+export const Toggle2FA = async (): Promise<ResponseData> => {
+	try {
+		const response = await httpClient.post("/api/toggle-2fa");
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const status = err?.response?.status;
+
+		throw new Error(status ? `[${status}] ${err.message}` : err.message);
+	}
+};
+
+export const Verify2FA = async (
+	email: string,
+	code: string,
+): Promise<ResponseData> => {
+	try {
+		const response = await httpClient.post("/api/verify-2fa", {
+			email: email,
+			verification_code: code,
+		});
+
+		if (response.data.user && response.data.access_token) {
+			trySetLocalstorage(response.data.user, response.data.access_token);
+		}
+
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const status = err?.response?.status;
+		throw new Error(status ? `[${status}] ${err.message}` : err.message);
+	}
+};
+
+export const IsVerificationEnabled = async (): Promise<ResponseData> => {
+	try {
+		const response = await httpClient.get("/api/is-2fa-enabled");
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const status = err?.response?.status;
+		throw new Error(status ? `[${status}] ${err.message}` : err.message);
+	}
 };

@@ -1,10 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { UserData } from "../../Interfaces/UserData";
-import {
-	ProfilePictureUpload,
-	Toggle2FA,
-	UpdateUserProfile,
-} from "../../api/users";
+import { ProfilePictureUpload, UpdateUserProfile } from "../../api/users";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
@@ -12,6 +8,7 @@ import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import ConfirmationModal from "../../Components/Modal/Modal";
 import Switch from "../../Components/InputFields/SwitchComponent";
 import { useNavigate } from "react-router-dom";
+import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -28,6 +25,7 @@ export const EditProfile = (props: {
 
 	const [hasError, setHasError] = useState(false);
 
+	const [isVerificationEnabled, setIsVerificationEnabled] = useState(false);
 	const [isSwitching2FA, setIsSwitching2FA] = useState(false);
 
 	async function handleSave(): Promise<void> {
@@ -98,6 +96,19 @@ export const EditProfile = (props: {
 		}
 	}
 
+	async function getVerificationButton() {
+		const isEnabled = (await IsVerificationEnabled()).data.is_2fa_enabled;
+
+		setIsVerificationEnabled(isEnabled);
+	}
+
+	useEffect(() => {
+		async function Init() {
+			await getVerificationButton();
+		}
+		Init();
+	}, []);
+
 	return (
 		<>
 			<div className="p-8 border-t border-gray-700/50">
@@ -152,6 +163,7 @@ export const EditProfile = (props: {
 							icon={"faShieldAlt"}
 							containerClass="w-full rounded-lg p-2 border border-white/10 bg-white/5 text-white"
 							onChange={() => setIsSwitching2FA(true)}
+							checked={isVerificationEnabled}
 						/>
 					</div>
 					<div className="md:col-span-2">
@@ -164,10 +176,7 @@ export const EditProfile = (props: {
 										alt="Preview"
 										className="h-10 w-10 object-cover rounded-full inline-block ml-2"
 									/>
-									<button
-										className="p-4"
-										onClick={() => setFileToUpload(null)}
-									>
+									<button className="p-4" onClick={() => setFileToUpload(null)}>
 										<DynamicFAIcon exportName="faX" />
 									</button>
 								</p>
@@ -181,28 +190,21 @@ export const EditProfile = (props: {
 						)}
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
-						Utoljára mentve:{" "}
-						{localStorage.getItem("lastSavedAt") || "N/A"}
+						Utoljára mentve: {localStorage.getItem("lastSavedAt") || "N/A"}
 					</p>
 				</div>
 				<div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<button
 						onClick={() => setIsSaveConfirmationOpen(true)}
 						disabled={isSavingChanges}
-						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait"
-					>
+						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait">
 						{isSavingChanges ? (
-							<DynamicFAIcon
-								exportName="faSpinner"
-								className="animate-spin"
-							/>
+							<DynamicFAIcon exportName="faSpinner" className="animate-spin" />
 						) : (
 							<DynamicFAIcon exportName="faSave" />
 						)}
 						<span>
-							{isSavingChanges
-								? "Mentés..."
-								: "Változtatások mentése"}
+							{isSavingChanges ? "Mentés..." : "Változtatások mentése"}
 						</span>
 					</button>
 				</div>
