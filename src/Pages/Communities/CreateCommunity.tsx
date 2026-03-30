@@ -12,6 +12,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [created, setCreated] = useState(false);
+    const [communityId, setCommunityId] = useState<number | null>(null);
     const [communityName, setCommunityName] = useState("");
     const [description, setDescription] = useState("");
     const [rules, setRules] = useState("");
@@ -24,13 +25,14 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
             return;
         }
         try{
-            await CreateThread({
+            const response = await CreateThread({
                 id: -1,
                 name: communityName.trim(),
                 description: description.trim(),
                 rules: rules.trim(),
             });
             setCreated(true);
+            setCommunityId(response.data.id);
         } catch(err){
         if(axios.isAxiosError(err)){
             const message = (err.response?.data as any)?.message;
@@ -45,6 +47,12 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
             navigate("/auth/login");
         }
     }, [isLoggedIn, navigate]);
+
+    useEffect(() => {
+        if(created){
+            navigate(`/communities/${communityId}`);
+        }
+    })
 
     return (
         <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -95,15 +103,6 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 
                             <div className="pt-1 text-center text-xs text-white/50">{t('createCommunity.disclaimer')}</div>
                         </form>
-
-                        {created && (
-                            <div className="mt-6 rounded-2xl border border-white/10 bg-black/10 p-4">
-                                <p className="text-sm font-semibold text-emerald-300">{t('createCommunity.success_message')}</p>
-                                <button type="button" onClick={() => navigate("/all-communities")} className="cursor-pointer mt-3 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
-                                    {t('createCommunity.success_button')}
-                                </button>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
