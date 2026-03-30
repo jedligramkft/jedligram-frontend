@@ -10,6 +10,7 @@ export const TextAreaComponent = (props: {
 	rows?: number;
 	textAreaClassName?: string;
 	labelClassName?: string;
+	maxLength?: number;
 }) => {
 	const {
 		label,
@@ -18,6 +19,7 @@ export const TextAreaComponent = (props: {
 		onChange,
 		absoluteChildren,
 		rows = 2,
+		maxLength,
 	} = props;
 
 	return (
@@ -35,6 +37,7 @@ export const TextAreaComponent = (props: {
 					value={value}
 					onChange={onChange}
 					rows={rows}
+					maxLength={maxLength}
 					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20 ${props.textAreaClassName || ""}`}
 				/>
 				{absoluteChildren}
