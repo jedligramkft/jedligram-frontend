@@ -10,6 +10,7 @@ export const InputComponent = (props: {
 	absoluteChildren?: ReactNode;
 	inputClassName?: string;
 	labelClassName?: string;
+	maxLength?: number;
 }) => {
 	const {
 		label,

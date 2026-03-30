@@ -10,6 +10,7 @@ export const TextAreaComponent = (props: {
 	rows?: number;
 	textAreaClassName?: string;
 	labelClassName?: string;
+	maxLength?: number;
 }) => {
 	const {
 		label,
