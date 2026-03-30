@@ -49,10 +49,7 @@ const UserProfile = () => {
 			//Successfully got user data
 			setTargetUser(response.data);
 		} catch (err) {
-			console.error(
-				"Hiba történt a felhasználói adatok lekérése közben:",
-				err,
-			);
+			console.error("Hiba történt a felhasználói adatok lekérése közben:", err);
 			setTargetUser(null);
 		}
 	};
@@ -135,12 +132,8 @@ const UserProfile = () => {
 										/>
 									) : (
 										<span>
-											{targetUser?.name
-												?.split(" ")[0]
-												?.charAt(0)}{" "}
-											{targetUser?.name
-												?.split(" ")[1]
-												?.charAt(0)}
+											{targetUser?.name?.split(" ")[0]?.charAt(0)}{" "}
+											{targetUser?.name?.split(" ")[1]?.charAt(0)}
 										</span>
 									)}
 								</div>
@@ -159,8 +152,7 @@ const UserProfile = () => {
 							<div className="w-fit h-full flex flex-col items-center justify-between gap-6 place-self-center md:place-self-end">
 								<button
 									onClick={() => navigate("/")}
-									className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition"
-								>
+									className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition">
 									<DynamicFAIcon exportName="faHome" />
 									Vissza a főoldalra
 								</button>
@@ -168,11 +160,8 @@ const UserProfile = () => {
 									<>
 										{/* Logout */}
 										<button
-											onClick={() =>
-												setIsLogoutConfirmationOpen(true)
-											}
-											className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-gray-600 transition"
-										>
+											onClick={() => setIsLogoutConfirmationOpen(true)}
+											className="w-full flex items-center justify-center gap-2 text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-gray-600 transition">
 											<DynamicFAIcon exportName="faSignOutAlt" />
 											Kijelentkezés
 										</button>
@@ -211,14 +200,11 @@ const UserProfile = () => {
 									onClick={() => {
 										navigate("/communities/" + thread.id);
 									}}
-									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer transition hover:bg-white/10"
-								>
+									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-4 cursor-pointer transition hover:bg-white/10">
 									<h3 className="text-lg font-semibold text-white">
 										{thread.name}
 									</h3>
-									<p className="text-sm text-gray-400">
-										{thread.description}
-									</p>
+									<p className="text-sm text-gray-400">{thread.description}</p>
 									<p className="mt-2 text-xs text-gray-500">
 										{thread.users_count} tag
 									</p>
@@ -237,7 +223,6 @@ const UserProfile = () => {
 				confirmText="Kijelentkezés"
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-red-600 hover:bg-red-500 disabled:opacity-75"
-				onCancel={() => setIsLogoutConfirmationOpen(false)}
 				onClose={() => setIsLogoutConfirmationOpen(false)}
 				onConfirm={async () => {
 					setIsLogoutConfirmationOpen(false);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { UserData } from "../../Interfaces/UserData";
 import { ProfilePictureUpload, UpdateUserProfile } from "../../api/users";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
@@ -6,11 +6,16 @@ import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponen
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import ConfirmationModal from "../../Components/Modal/Modal";
+import Switch from "../../Components/InputFields/SwitchComponent";
+import { useNavigate } from "react-router-dom";
+import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
 	saveCallback: (updatedUser: UserData) => void | Promise<void>;
 }) => {
+	const navigate = useNavigate();
+
 	const [editedUser, setEditedUser] = useState<UserData | null>(
 		props.targetUser,
 	);
@@ -20,15 +25,16 @@ export const EditProfile = (props: {
 
 	const [hasError, setHasError] = useState(false);
 
+	const [isVerificationEnabled, setIsVerificationEnabled] = useState(false);
+	const [isSwitching2FA, setIsSwitching2FA] = useState(false);
+
 	async function handleSave(): Promise<void> {
 		if (!editedUser) return;
 		if (!props.targetUser) return;
 
 		setHasError(false);
 
-		if(editedUser.name?.trim() === "" ||
-			editedUser.email?.trim() === "")
-		{
+		if (editedUser.name?.trim() === "" || editedUser.email?.trim() === "") {
 			setHasError(true);
 			return;
 		}
@@ -92,6 +98,30 @@ export const EditProfile = (props: {
 		await setFileToUpload(file);
 	};
 
+	async function handle2faChange() {
+		const response = await Toggle2FA();
+		if (response.status === 202 && response.data?.requires_verification) {
+			setIsSwitching2FA(false);
+			navigate(
+				"/auth/verification?email=" +
+					encodeURIComponent(editedUser?.email || ""),
+			);
+		}
+	}
+
+	async function getVerificationButton() {
+		const isEnabled = (await IsVerificationEnabled()).data.is_2fa_enabled;
+
+		setIsVerificationEnabled(isEnabled);
+	}
+
+	useEffect(() => {
+		async function Init() {
+			await getVerificationButton();
+		}
+		Init();
+	}, []);
+
 	return (
 		<>
 			<div className="p-8 border-t border-gray-700/50">
@@ -139,6 +169,19 @@ export const EditProfile = (props: {
 							textAreaClassName="resize-none"
 						/>
 					</div>
+					<div className="md:col-span-2 space-y-2">
+						<Switch
+							title="2 faktoros azonosítás"
+							subtitle="A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
+							icon={"faShieldAlt"}
+							containerClass="w-full rounded-lg p-2 border border-white/10 bg-white/5 text-white"
+							onChange={() => {
+								setIsSwitching2FA(true);
+								setIsVerificationEnabled((prev) => !prev);
+							}}
+							checked={isVerificationEnabled}
+						/>
+					</div>
 					<div className="md:col-span-2">
 						{(fileToUpload && (
 							<div className="mb-4 p-4 bg-green-600/20 border border-green-600 rounded">
@@ -149,10 +192,7 @@ export const EditProfile = (props: {
 										alt="Preview"
 										className="h-10 w-10 object-cover rounded-full inline-block ml-2"
 									/>
-									<button
-										className="p-4"
-										onClick={() => setFileToUpload(null)}
-									>
+									<button className="p-4" onClick={() => setFileToUpload(null)}>
 										<DynamicFAIcon exportName="faX" />
 									</button>
 								</p>
@@ -164,30 +204,23 @@ export const EditProfile = (props: {
 								description="Húzd ide az új profilképet, vagy kattints ide a kiválasztáshoz."
 							/>
 						)}
-						<p className="text-xs text-gray-500 mt-1">
-							Utoljára mentve:{" "}
-							{localStorage.getItem("lastSavedAt") || "N/A"}
-						</p>
 					</div>
+					<p className="text-xs text-gray-500 mt-1">
+						Utoljára mentve: {localStorage.getItem("lastSavedAt") || "N/A"}
+					</p>
 				</div>
 				<div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4">
 					<button
 						onClick={() => setIsSaveConfirmationOpen(true)}
 						disabled={isSavingChanges}
-						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait"
-					>
+						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait">
 						{isSavingChanges ? (
-							<DynamicFAIcon
-								exportName="faSpinner"
-								className="animate-spin"
-							/>
+							<DynamicFAIcon exportName="faSpinner" className="animate-spin" />
 						) : (
 							<DynamicFAIcon exportName="faSave" />
 						)}
 						<span>
-							{isSavingChanges
-								? "Mentés..."
-								: "Változtatások mentése"}
+							{isSavingChanges ? "Mentés..." : "Változtatások mentése"}
 						</span>
 					</button>
 				</div>
@@ -202,7 +235,6 @@ export const EditProfile = (props: {
 				confirmText="Mentés"
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
-				onCancel={() => setIsSaveConfirmationOpen(false)}
 				onClose={() => setIsSaveConfirmationOpen(false)}
 				onConfirm={async () => {
 					setIsSaveConfirmationOpen(false);
@@ -215,17 +247,39 @@ export const EditProfile = (props: {
 			<ConfirmationModal
 				isOpen={hasError}
 				title="Hibás adatok!"
-				description={"Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!"}
+				description={
+					"Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!"
+				}
 				cancelText=""
 				confirmText="Ok"
 				cancelButtonClassName="hidden"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
-				onCancel={() => setHasError(false)}
 				onClose={() => setHasError(false)}
 				onConfirm={async () => {
 					setHasError(false);
 				}}
 				isConfirmLoading={isSavingChanges}
+			/>
+
+			{/* 2FA váltás megerősítése */}
+			<ConfirmationModal
+				isOpen={isSwitching2FA}
+				title="2 faktoros azonosítás"
+				description={
+					"A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
+				}
+				cancelText="Mégse"
+				confirmText="Váltás"
+				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
+				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
+				onClose={() => {
+					setIsSwitching2FA(false);
+					setIsVerificationEnabled((prev) => !prev);
+				}}
+				onConfirm={async () => {
+					await handle2faChange();
+				}}
+				isConfirmLoading={false}
 			/>
 		</>
 	);
