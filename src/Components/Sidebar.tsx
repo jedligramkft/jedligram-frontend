@@ -6,7 +6,6 @@ import { GetThreadById } from "../api/threads";
 import { useTranslation } from "react-i18next";
 import { GetUserThreads } from "../api/users";
 import type { ThreadData } from "../Interfaces/ThreadData";
-import ConfirmationModal from "./Modal/Modal";
 import { Logout } from "../api/auth";
 
 interface SidebarProps {
