@@ -29,7 +29,7 @@ export const VerificationPage = () => {
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(email)) {
-			setError("Érvénytelen email cím formátum.");
+			setError("Érvénytelen e-mail cím formátum.");
 			button.disabled = false;
 			return;
 		}
