@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
@@ -41,6 +41,12 @@ const CreatePost = () => {
     }
   }
 
+  useEffect(() => {
+    if(created){
+      navigate(`/communities/${encodeURIComponent(id ?? "")}`);
+    }
+  })
+
   return (
     <section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%)]' />
@@ -78,15 +84,6 @@ const CreatePost = () => {
                 </button>
               </div>
             </form>
-
-            {created && (
-              <div className="mt-6 rounded-2xl border border-white/10 bg-black/10 p-4">
-                <p className="text-sm font-semibold text-emerald-300">{t('createPost.success_message')}</p>
-                <button type="button" onClick={() => navigate(id ? `/communities/${encodeURIComponent(id)}` : "/all-communities")} className="cursor-pointer mt-3 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">
-                  {t('createPost.success_button')}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
