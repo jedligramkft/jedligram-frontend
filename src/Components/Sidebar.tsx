@@ -4,6 +4,8 @@ import DynamicFAIcon from "./Utils/DynamicFaIcon";
 import { PopularIcon } from "./CustomIcons/PopularIcon";
 import { GetThreadById } from "../api/threads";
 import { useTranslation } from "react-i18next";
+import { GetUserThreads } from "../api/users";
+import type { ThreadData } from "../Interfaces/ThreadData";
 
 interface SidebarProps {
 	closeSidebar: () => void;
@@ -12,11 +14,6 @@ interface SidebarProps {
 }
 
 type RecentThreadItem = {
-	id: number;
-	name?: string;
-};
-
-type JoinedThreadItem = {
 	id: number;
 	name?: string;
 };
@@ -56,56 +53,15 @@ const SidebarCard = ({
 const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 	const navigate = useNavigate();
 	// const [activeCommunity, setActiveCommunity] = useState<number | null>(null);
-	const [joinedThreadIds, setJoinedThreadIds] = useState<JoinedThreadItem[]>(
-		[],
-	);
 	const [recentThreads, setRecentThreads] = useState<RecentThreadItem[]>([]);
+	const [joinedThreads, setJoinedThreads] = useState<ThreadData[]>([]);
 
 	const { t } = useTranslation();
 
 	const loadFromStorage = () => {
 		if (!isLoggedIn) {
 			setRecentThreads([]);
-			setJoinedThreadIds([]);
 			return;
-		}
-
-		const profileRaw = localStorage.getItem("jedligram_profile");
-		try {
-			const parsedProfile = profileRaw ? JSON.parse(profileRaw) : {};
-
-			const ids: number[] = Array.isArray(parsedProfile?.joinedThreadIds)
-				? parsedProfile.joinedThreadIds.map((x: any) => Number(x))
-				: [];
-
-			const joinedThreadsRaw = parsedProfile?.joinedThreads;
-
-			if (
-				Array.isArray(joinedThreadsRaw) &&
-				joinedThreadsRaw.some(
-					(x: any) => x && typeof x === "object" && "id" in x,
-				)
-			) {
-				const threads: JoinedThreadItem[] = joinedThreadsRaw
-					.filter((t: any) => t)
-					.map((t: any) => ({
-						id: Number(t.id),
-						name: typeof t.name === "string" ? t.name : undefined,
-					}));
-				setJoinedThreadIds(threads);
-			} else if (
-				Array.isArray(joinedThreadsRaw) &&
-				joinedThreadsRaw.every((x: any) => typeof x === "string")
-			) {
-				const names: string[] = joinedThreadsRaw.map((s: string) => s);
-				const threads: JoinedThreadItem[] = ids.map((id, idx) => ({
-					id,
-					name: names[idx],
-				}));
-				setJoinedThreadIds(threads);
-			}
-		} catch {
-			setJoinedThreadIds([]);
 		}
 
 		const recentRaw = localStorage.getItem("jedligram_recent_threads");
@@ -127,6 +83,17 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 	};
 
 	const [userId, setUserId] = useState<number>(-1);
+
+	const getJoinedThreads = async () => {
+		const response = await GetUserThreads(userId);
+		setJoinedThreads(Array.isArray(response.data) ? response.data : []);
+	}
+
+	useEffect(() => {
+		if(isLoggedIn && userId !== -1){
+			getJoinedThreads();
+		}
+	})
 
 	useEffect(() => {
 		loadFromStorage();
@@ -236,13 +203,13 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							</>
 						)}
 
-						{joinedThreadIds.length > 0 ? (
+						{joinedThreads.length > 0 ? (
 							<>
 								<div className="my-4 w-full px-3 space-y-2">
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 										{t('sidebar.menus.joined')}
 									</p>
-									{joinedThreadIds.map((t) => (
+									{joinedThreads.map((t) => (
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
