@@ -93,12 +93,12 @@ export const UploadThreadImage = async (
 	};
 };
 
-export const UploadThreadBanner = async (
+export const UploadThreadHeader = async (
 	threadId: number,
-	bannerFile: File,
+	headerFile: File,
 ): Promise<ResponseData> => {
 	const formData = new FormData();
-	formData.append("header", bannerFile);
+	formData.append("header", headerFile);
 	const response = await httpClient.post(
 		`/api/threads/${threadId}/header`,
 		formData,

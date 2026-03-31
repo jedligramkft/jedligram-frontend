@@ -5,4 +5,6 @@ export interface ThreadData {
 	description: string;
 	rules: string;
 	users_count?: number;
+	image?: string;
+	header?: string;
 }
