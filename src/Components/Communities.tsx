@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GetThreads } from "../api/threads";
 import type { ThreadData } from "../Interfaces/ThreadData";
+import CommunityCardItem from "./CommunityCard/CommunityCardItem";
 
 const Communities = () => {
 	const { t } = useTranslation();
 	const [threads, setThreads] = useState<ThreadData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadError, setLoadError] = useState<string | null>(null);
-	const [reloadToken, setReloadToken] = useState(0);
 
 	useEffect(() => {
 		const fetchThreads = async () => {
@@ -27,7 +27,7 @@ const Communities = () => {
 			}
 		};
 		fetchThreads();
-	}, [reloadToken]);
+	}, [t]);
 
 	const visibleThreads = threads.slice(0, 6);
 
@@ -55,15 +55,6 @@ const Communities = () => {
 						<Link to="/create-community" className="text-center rounded-2xl bg-linear-to-r from-blue-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white keep-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/50">{t('communities.create')}</Link>
 					</div>
 				</div>
-
-				{loadError && (
-					<div className="rounded-3xl border border-red-400/20 bg-red-500/10 p-5 text-white/80">
-						<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-							<p className="text-sm font-semibold text-red-200">{loadError}</p>
-							<button onClick={() => setReloadToken(t => t + 1)} className="rounded-2xl border border-white/15 bg-white/5 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10">{t('communities.retry')}</button>
-						</div>
-					</div>
-				)}
 
 				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
@@ -95,20 +86,7 @@ const Communities = () => {
 
 					{!isLoading && !loadError && visibleThreads.map(thread => {
 						return (
-							<div key={thread.id} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur transition hover:-translate-y-1 hover:border-white/20">
-								<div className="absolute inset-0 bg-linear-to-br from-cyan-400/30 to-blue-500/2 opacity-0 transition duration-500 group-hover:opacity-100"/>
-								<div className="relative z-10 flex h-full flex-col gap-4">
-									<div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-										<span className="rounded-full bg-white/10 px-3 py-1 text-[10px]">{t('communities.active')}</span>
-									</div>
-									<h3 className="text-2xl font-semibold text-white">{thread.name}</h3>
-									<p className="text-sm text-white/70">{thread.description || t('communities.default_description')}</p>
-									<div className="mt-auto flex items-center justify-between">
-										<span className="text-sm font-semibold text-white/80">{thread.users_count} {t('communities.members')}</span>
-										<Link to={`/communities/${thread.id}`} className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10">{t('communities.view_community')}</Link>
-									</div>
-								</div>
-							</div>
+							<CommunityCardItem key={thread.id} threads={[thread]} />
 						);
 					})}
 
