@@ -112,7 +112,8 @@
             "no_joined_communities": "Not joined to any communities.",
             "user": "User",
             "profile_picture": "Profile picture",
-            "no_bio": "No bio."
+            "no_bio": "No bio.",
+            "community_members": "members"
         },
         "edit_profile": {
             "account_settings": "Account Settings",
@@ -199,5 +200,9 @@
         "results": "Results: ",
         "no_results": "No results.",
         "communities": "Communities"
+    },
+    "dragNdrop": {
+        "accepted_files": "Accepted file types",
+        "max_file_size": "Max file size"
     }
 }

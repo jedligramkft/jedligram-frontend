@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
@@ -31,6 +32,7 @@ export const DragnDrop = ({
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const { t } = useTranslation();
 
 	const acceptedMimeTypes = accept.map((ext) => {
 		return ext.replace(".", "image/");
@@ -135,13 +137,13 @@ export const DragnDrop = ({
 				</button>
 				<div className="*:text-xs *:text-gray-500 mt-4">
 					<p>
-						Elfogadott formátumok:{" "}
+						{t("dragNdrop.accepted_files")}:{" "}
 						{accept.includes("*")
 							? "Minden formátum"
 							: accept.join(", ")}
 					</p>
 					<p>
-						Maximum fájl méret:{" "}
+						{t("dragNdrop.max_file_size")}:{" "}
 						{maxFileSizeBytes === -1
 							? "Nincs korlátozás"
 							: `${maxFileSizeBytes / (1024 * 1024)} MB`}

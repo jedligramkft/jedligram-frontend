@@ -205,7 +205,7 @@ const UserProfile = () => {
 										{thread.description}
 									</p>
 									<p className="mt-2 text-xs text-gray-500">
-										{thread.users_count} tag
+										{thread.users_count} {t('profile.user_profile.community_members')}
 									</p>
 								</div>
 							))}

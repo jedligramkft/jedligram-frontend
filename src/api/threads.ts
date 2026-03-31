@@ -96,3 +96,13 @@ export const searchThreads = async (query: string): Promise<ResponseData> => {
 		data: response.data,
 	};
 };
+
+export const GetThreadMembers = async (
+	threadId: number,
+): Promise<ResponseData> => {
+	const response = await httpClient.get(`/api/threads/${threadId}/members`);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
