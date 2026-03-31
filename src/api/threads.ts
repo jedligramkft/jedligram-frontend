@@ -77,6 +77,52 @@ export const GetThreadMembers = async (
 	};
 };
 
+export const UploadThreadImage = async (
+	threadId: number,
+	imageFile: File,
+): Promise<ResponseData> => {
+	const formData = new FormData();
+	formData.append("image", imageFile);
+	const response = await httpClient.post(
+		`/api/threads/${threadId}/image`,
+		formData,
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
+export const UploadThreadBanner = async (
+	threadId: number,
+	bannerFile: File,
+): Promise<ResponseData> => {
+	const formData = new FormData();
+	formData.append("header", bannerFile);
+	const response = await httpClient.post(
+		`/api/threads/${threadId}/header`,
+		formData,
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
+export const UpdateThreadDetails = async (
+	threadId: number,
+	updatedDetails: Partial<ThreadData>,
+): Promise<ResponseData> => {
+	const response = await httpClient.put(
+		`/api/threads/${threadId}`,
+		updatedDetails,
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
 export const UpdateRoleOfMemberInThread = async (
 	threadId: number,
 	userId: number,
