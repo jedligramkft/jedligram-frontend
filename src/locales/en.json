@@ -87,11 +87,117 @@
         "no_results": "No results.",
         "no_results_description": "Check all communities or create a new one."
     },
+    "welcome_banner" : {
+        "AllCommunitytitle": "Welcome!",
+        "AllCommunitydescription": "Discover communities, join conversations, and find your place!",
+        "CommunityTitle": "Welcome to the community!",
+        "CommunityDescription": "Explore topics, join conversations, and share your thoughts"
+    },
     "footer": {
         "copyright": "All rights reserved.",
         "home": "Home",
         "communities": "Communities",
         "profile": "Profile",
         "login": "Login"
+    },
+    "profile": {
+        "user_profile": {
+            "back_to_home": "Back to home page",
+            "logout": "Logout",
+            "logout_confirm_title": "Logout",
+            "logout_confirm_description": "Are you sure you want to log out?",
+            "logout_confirm_cancel": "Stay logged in",
+            "logout_confirm": "Logout",
+            "communities": "Communities",
+            "no_joined_communities": "Not joined to any communities.",
+            "user": "User",
+            "profile_picture": "Profile picture",
+            "no_bio": "No bio."
+        },
+        "edit_profile": {
+            "account_settings": "Account Settings",
+            "username_label": "Username (max. 50 characters)",
+            "username_placeholder": "jedlik_user",
+            "email_label": "Email",
+            "email_placeholder": "email@example.hu",
+            "bio_label": "Bio (max. 200 characters)",
+            "bio_placeholder": "Tell us about yourself...",
+            "character_limit_50": "/50",
+            "character_limit_200": "/200",
+            "two_fa": "Two Factor Authentication",
+            "two_fa_subtitle": "Two factor authentication adds an extra layer of security to your account by requiring a second form of identification in addition to your password.",
+            "upload_profile_picture": "Upload Profile Picture",
+            "drag_picture_text": "Drag new profile picture here or click to select.",
+            "file_selected": "File selected:",
+            "last_saved": "Last saved:",
+            "saving": "Saving...",
+            "save_changes": "Save Changes",
+            "save_profile_title": "Save Profile",
+            "save_profile_description": "Are you sure you want to save profile changes?",
+            "cancel": "Cancel",
+            "save": "Save",
+            "invalid_data_title": "Invalid Data!",
+            "invalid_data_description": "Email and name fields cannot be empty! Email must be in valid format!",
+            "ok": "OK",
+            "two_fa_confirm_title": "Two Factor Authentication",
+            "two_fa_confirm_description": "Two factor authentication adds an extra layer of security to your account by requiring a second form of identification in addition to your password.",
+            "two_fa_cancel": "Cancel",
+            "two_fa_confirm": "Switch"
+        }
+    },
+    "community": {
+        "community_sidebar": {
+            "members": "Members",
+            "no_members": "No members yet",
+            "profile": "Profile",
+            "member" : "member",
+            "stats": "Stats",
+            "posts": "Posts"
+        },
+        "community_header": {
+            "community": "Community",
+            "unknown_community": "Unknown Community",
+            "join": "Join",
+            "leave": "Leave",
+            "invite": "Invite",
+            "back": "Back",
+            "description": "Description",
+            "no_description": "No description.",
+            "rules": "Rules",
+            "no_rules": "No rules."
+        },
+        "comment_section": {
+            "comments": "Comments",
+            "no_comments": "No comments yet. Be the first to comment!",
+            "write_comment_placeholder": "Write your comment here…",
+            "submit_comment": "Submit"
+        },
+        "post_item": {
+            "unknown_author": "Unknown Author",
+            "open_comments": "Comments",
+            "close_comments": "Close Comments"
+        },
+        "post_list": {
+            "feed": "Feed",
+            "create_post": "Create Post",
+            "join_to_post": "Join to Post",
+            "no_posts": "No posts yet. Be the first to create a post!"
+        },
+        "reply_item": {
+            "close_replies": "Close Replies",
+            "replies": "Replies",
+            "reply": "Reply",
+            "write_reply_placeholder": "Write your reply here…",
+            "submit_reply": "Submit"
+        }
+    },
+    "search_results":{
+        "title": "Search Results",
+        "back_btn": "Back",
+        "loading": "Loading...",
+        "results_for": "Results for: ",
+        "results": "Results: ",
+        "no_results": "No results.",
+        "communities": "Communities"
     }
 }

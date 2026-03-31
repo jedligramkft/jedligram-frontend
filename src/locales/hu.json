@@ -88,11 +88,118 @@
         "no_results": "Nincs találat.",
         "no_results_description": "Nézd meg az összes közösséget, vagy hozz létre egy újat."
     },
+    "welcome_banner" : {
+        "AllCommunitytitle": "Üdvözlünk!",
+        "AllCommunitydescription": "Fedezd fel a közösségeket, csatlakozz beszélgetésekhez és találd meg a helyed!",
+        "CommunityTitle": "Üdvözlünk a közösségben!",
+        "CommunityDescription": "Fedezd fel a témákat, csatlakozz beszélgetésekhez, és oszd meg a gondolataid"
+    },
     "footer": {
         "copyright": "Minden jog fenntartva.",
         "home": "Főoldal",
         "communities": "Közösségek",
         "profile": "Profil",
         "login": "Bejelentkezés"
+    },
+    "profile": {
+        "user_profile": {
+            "back_to_home": "Vissza a főoldalra",
+            "logout": "Kijelentkezés",
+            "logout_confirm_title": "Kijelentkezés",
+            "logout_confirm_description": "Biztosan kijelentkezel a fiókból?",
+            "logout_confirm_cancel": "Még maradok",
+            "logout_confirm": "Kijelentkezés",
+            "communities": "Közösségek",
+            "no_joined_communities": "Nem csatlakozott közösségekhez.",
+            "user": "Felhasználó",
+            "profile_picture": "Profilkép",
+            "no_bio": "Nincs bemutatkozás."
+        },
+        "edit_profile": {
+            "account_settings": "Fiók beállítások",
+            "username_label": "Felhasználónév (max. 50 karakter)",
+            "username_placeholder": "jedlik_user",
+            "email_label": "Email",
+            "email_placeholder": "email@pelda.hu",
+            "bio_label": "Bemutatkozás (max. 200 karakter)",
+            "bio_placeholder": "Pár szó magadról...",
+            "character_limit_50": "/50",
+            "character_limit_200": "/200",
+            "two_fa": "2 faktoros azonosítás",
+            "two_fa_subtitle": "A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett.",
+            "upload_profile_picture": "Profilkép feltöltése",
+            "drag_picture_text": "Húzd ide az új profilképet, vagy kattints ide a kiválasztáshoz.",
+            "file_selected": "Fájl kiválasztva:",
+            "last_saved": "Utoljára mentve:",
+            "saving": "Mentés...",
+            "save_changes": "Változtatások mentése",
+            "save_profile_title": "Profil mentése",
+            "save_profile_description": "Biztosan elmented a profil módosításait?",
+            "cancel": "Mégse",
+            "save": "Mentés",
+            "invalid_data_title": "Hibás adatok!",
+            "invalid_data_description": "Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!",
+            "ok": "Ok",
+            "two_fa_confirm_title": "2 faktoros azonosítás",
+            "two_fa_confirm_description": "A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett.",
+            "two_fa_cancel": "Mégse",
+            "two_fa_confirm": "Váltás"
+        }
+    },
+    "community": {
+        "community_sidebar": {
+            "members": "Tagok",
+            "no_members": "Nincsenek tagok még",
+            "profile": "Profil",
+            "member" : "tag",
+            "stats": "Statisztika",
+            "posts": "Posztok"
+        },
+        "community_header": {
+            "community": "Közösség",
+            "unknown_community": "Ismeretlen közösség",
+            "join": "Csatlakozás",
+            "leave": "Kilépés",
+            "invite": "Meghívás",
+            "back": "Vissza",
+            "description": "Leírás",
+            "no_description": "Nincs leírás.",
+            "rules": "Szabályok",
+            "no_rules": "Nincsenek szabályok."
+        },
+        "comment_section": {
+            "comments": "Hozzászólások",
+            "no_comments": "Nincs még hozzászólás. Legyél te az első, aki hozzászól!",
+            "write_comment_placeholder": "Írd ide a hozzászólásodat…",
+            "submit_comment": "Küldés"
+        },
+        "post_item": {
+            "unknown_author": "Ismeretlen szerző",
+            "open_comments": "Kommentek",
+            "close_comments": "Hozzászólások bezárása"
+        },
+        "post_list": {
+            "feed": "Feed",
+            "create_post": "Poszt létrehozása",
+            "join_to_post": "Csatlakozz a posztoláshoz",
+            "no_posts": "Nincsenek posztok még. Legyél te az első, aki posztol!"
+        },
+        "reply_item" : {
+            "close_replies": "Válaszok bezárása",
+            "replies": "Válaszok",
+            "reply": "Válasz",
+            "write_reply_placeholder": "Írd ide a válaszodat…",
+            "submit_reply": "Küldés"
+        }
+    },
+    "search_results":{
+        "title": "Keresési eredmények",
+        "back_btn": "Vissza",
+        "loading": "Betöltés...",
+        "results_for": "Eredmények erre: ",
+        "results": "Eredmények: ",
+        "no_results": "Nincs találat.",
+        "communities": "Közösségek"
     }
+
 }

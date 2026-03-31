@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import ReplyItem from "./ReplyItem";
 
 type Props = {
@@ -19,16 +20,17 @@ type Props = {
 const CommentSection = (props: Props) => {
   const comments = (props.commentsByPostId[props.postId] || []).filter((c) => !c.parent_id || c.parent_id === 0);
   const draft = props.commentDraftByPostId[props.postId] || "";
+  const { t } = useTranslation();
 
   return (
     <div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-4">
-      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">Kommentek</div>
-      {comments.length === 0 && <div className="mt-2 text-sm text-white/70">Nincs még komment.</div>}
+      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">{t("community.comment_section.comments")}</div>
+      {comments.length === 0 && <div className="mt-2 text-sm text-white/70">{t("community.comment_section.no_comments")}</div>}
       <div className="mt-4">
-        <textarea value={draft} onChange={(e) => props.setCommentDraft(props.postId, e.target.value)} placeholder="Írj egy kommentet..." rows={3} className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"/>
+        <textarea value={draft} onChange={(e) => props.setCommentDraft(props.postId, e.target.value)} placeholder={t("community.comment_section.write_comment_placeholder")} rows={3} className="w-full resize-none rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/90 placeholder:text-white/40 focus:outline-hidden"/>
         <div className="mt-3 flex justify-end">
           <button onClick={() => props.onSubmitComment(props.postId)} disabled={!draft.trim()} className="cursor-pointer rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-            Küldés
+            {t("community.comment_section.submit_comment")}
           </button>
         </div>
       </div>

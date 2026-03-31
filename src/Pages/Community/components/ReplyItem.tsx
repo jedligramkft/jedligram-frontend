@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 type Props = {
   postId: number;
   commentId: number;
@@ -12,46 +14,50 @@ type Props = {
   setReplyDraft: (commentId: number, value: string) => void;
 };
 
-const ReplyItem = (props: Props) => (
-  <div className="rounded-xl border border-white/10 bg-black/10 p-3">
-    <div className="flex items-center justify-between text-xs text-white/55">
-      <span>@{props.comment.author}</span>
-      {props.comment.created_at && <span>{new Date(props.comment.created_at).toLocaleString()}</span>}
-    </div>
-    <div className="mt-2 whitespace-pre-wrap text-sm text-white/80">{props.comment.content}</div>
-    <div className="mt-3 flex gap-2">
-      <button onClick={() => props.onToggleReplies(props.commentId)} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10">
-        {props.isRepliesOpen ? "Bezár" : `Válaszok (${props.replies.length})`}
-      </button>
-      <button onClick={() => props.onReplyClick(props.commentId, props.comment.author)} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10">
-        Válasz
-      </button>
-    </div>
-    {props.isRepliesOpen && (
-      <div className="mt-3 space-y-2 ml-4 border-l border-white/10 pl-2">
-        {props.replies.map((r: any) => (
-          <div key={r.id} className="rounded-xl border border-white/10 bg-black/10 p-3">
-            <div className="text-xs text-white/55">@{r.author}</div>
-            <div className="mt-1 text-sm text-white/80">{r.content}</div>
-          </div>
-        ))}
+const ReplyItem = (props: Props) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/10 p-3">
+      <div className="flex items-center justify-between text-xs text-white/55">
+        <span>@{props.comment.author}</span>
+        {props.comment.created_at && <span>{new Date(props.comment.created_at).toLocaleString()}</span>}
       </div>
-    )}
-    {props.isReplyComposerOpen && (
-      <div className="mt-3">
-        <textarea
-          value={props.replyDraft}
-          onChange={(e) => props.setReplyDraft(props.commentId, e.target.value)}
-          placeholder="Válasz írása..."
-          rows={2}
-          className="w-full rounded-xl bg-black/20 p-3 text-sm text-white"
-        />
-        <button onClick={() => props.onReplySubmit(props.postId, props.commentId)} className="mt-2 float-right rounded-lg bg-white/10 px-4 py-1 text-sm text-white">
-          Küldés
+      <div className="mt-2 whitespace-pre-wrap text-sm text-white/80">{props.comment.content}</div>
+      <div className="mt-3 flex gap-2">
+        <button onClick={() => props.onToggleReplies(props.commentId)} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10">
+          {props.isRepliesOpen ? t("community.reply_item.close_replies") : t("community.reply_item.replies", { count: props.replies.length })}
+        </button>
+        <button onClick={() => props.onReplyClick(props.commentId, props.comment.author)} className="rounded-xl border border-white/15 px-3 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10">
+          {t("community.reply_item.reply")}
         </button>
       </div>
-    )}
-  </div>
-);
+      {props.isRepliesOpen && (
+        <div className="mt-3 space-y-2 ml-4 border-l border-white/10 pl-2">
+          {props.replies.map((r: any) => (
+            <div key={r.id} className="rounded-xl border border-white/10 bg-black/10 p-3">
+              <div className="text-xs text-white/55">@{r.author}</div>
+              <div className="mt-1 text-sm text-white/80">{r.content}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {props.isReplyComposerOpen && (
+        <div className="mt-3">
+          <textarea
+            value={props.replyDraft}
+            onChange={(e) => props.setReplyDraft(props.commentId, e.target.value)}
+            placeholder={t("community.reply_item.write_reply_placeholder")}
+            rows={2}
+            className="w-full rounded-xl bg-black/20 p-3 text-sm text-white"
+          />
+          <button onClick={() => props.onReplySubmit(props.postId, props.commentId)} className="mt-2 float-right rounded-lg bg-white/10 px-4 py-1 text-sm text-white">
+            {t("community.reply_item.submit_reply")}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default ReplyItem;

@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface WelcomeBannerProps {
   username?: string;
   communityName?: string;
 }
 
-const WelcomeBanner = ({ username, communityName }: WelcomeBannerProps) => {
+const WelcomeBanner = ({ communityName }: WelcomeBannerProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const storageKey = communityName 
     ? `jedligram_welcome_${communityName}` 
     : "jedligram_welcome_shown";
+  const { t } = useTranslation();
 
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem(storageKey);
@@ -35,13 +37,13 @@ const WelcomeBanner = ({ username, communityName }: WelcomeBannerProps) => {
           <div>
             <h3 className="font-semibold text-white">
               {communityName 
-                ? `Üdv a ${communityName} közösségben!` 
-                : `Üdvözlünk${username ? `, ${username}` : ""}!`}
+                ? t('welcome_banner.CommunityTitle', { communityName })
+                : t('welcome_banner.AllCommunitytitle')}
             </h3>
             <p className="mt-1 text-sm text-white/70">
               {communityName
-                ? "Csatlakozz a beszélgetésekhez, oszd meg gondolataidat és ismerj meg új embereket!"
-                : "Fedezd fel a közösségeket, csatlakozz beszélgetésekhez és találd meg a helyed!"}
+                ? t('welcome_banner.CommunityDescription')
+                : t('welcome_banner.AllCommunitydescription')}
             </p>
           </div>
         </div>
