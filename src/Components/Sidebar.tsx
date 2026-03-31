@@ -88,13 +88,13 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 	const getJoinedThreads = async () => {
 		const response = await GetUserThreads(userId);
 		setJoinedThreads(Array.isArray(response.data) ? response.data : []);
-	}
+	};
 
 	useEffect(() => {
-		if(isLoggedIn && userId !== -1){
+		if (isLoggedIn && userId !== -1) {
 			getJoinedThreads();
 		}
-	})
+	}, []);
 
 	useEffect(() => {
 		loadFromStorage();
@@ -123,11 +123,13 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 			>
 				<div className="my-4 w-full px-3 space-y-2">
 					<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-						{t('sidebar.menus.main')}
+						{t("sidebar.menus.main")}
 					</p>
 					<SidebarCard
-						title={t('sidebar.menus.main_buttons.explore')}
-						subtitle={t('sidebar.menus.main_buttons.popular_communities')}
+						title={t("sidebar.menus.main_buttons.explore")}
+						subtitle={t(
+							"sidebar.menus.main_buttons.popular_communities",
+						)}
 						icon={<PopularIcon />}
 						to="/all-communities"
 						onClick={() => {
@@ -137,8 +139,12 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 					{isLoggedIn && (
 						<>
 							<SidebarCard
-								title={t('sidebar.menus.main_buttons.create_community')}
-								subtitle={t('sidebar.menus.main_buttons.start_new_community')}
+								title={t(
+									"sidebar.menus.main_buttons.create_community",
+								)}
+								subtitle={t(
+									"sidebar.menus.main_buttons.start_new_community",
+								)}
 								icon={
 									<DynamicFAIcon
 										exportName="faPlus"
@@ -151,15 +157,21 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 								}}
 							/>
 							<SidebarCard
-								title={t('sidebar.menus.main_buttons.profile')}
-								subtitle={t('sidebar.menus.main_buttons.manage_profile')}
+								title={t("sidebar.menus.main_buttons.profile")}
+								subtitle={t(
+									"sidebar.menus.main_buttons.manage_profile",
+								)}
 								icon={
 									<DynamicFAIcon
 										exportName="faUser"
 										size="lg"
 									/>
 								}
-								to={isLoggedIn && userId !== -1 ? `/users/${userId}` : "/auth/login"}
+								to={
+									isLoggedIn && userId !== -1
+										? `/users/${userId}`
+										: "/auth/login"
+								}
 								onClick={() => {
 									closeSidebar();
 								}}
@@ -176,7 +188,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							<>
 								<div className="my-4 w-full px-3 space-y-2">
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-										{t('sidebar.menus.recently_viewed')}
+										{t("sidebar.menus.recently_viewed")}
 									</p>
 									{recentThreads.map((t) => (
 										<SidebarCard
@@ -187,9 +199,14 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 											onClick={async () => {
 												closeSidebar();
 												try {
-													const res = await GetThreadById(t.id);
+													const res =
+														await GetThreadById(
+															t.id,
+														);
 													if (res.status === 200) {
-														navigate(`/communities/${t.id}`);
+														navigate(
+															`/communities/${t.id}`,
+														);
 													}
 												} catch {
 													navigate(
@@ -208,7 +225,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							<>
 								<div className="my-4 w-full px-3 space-y-2">
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
-										{t('sidebar.menus.joined')}
+										{t("sidebar.menus.joined")}
 									</p>
 									{joinedThreads.map((t) => (
 										<SidebarCard
@@ -226,7 +243,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							</>
 						) : (
 							<p className="text-center mt-16 px-4 text-white/40">
-								{t('sidebar.menus.no_joined_threads')}
+								{t("sidebar.menus.no_joined_threads")}
 							</p>
 						)}
 
@@ -238,11 +255,11 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 									onClick={() => {
 										Logout().then(() => {
 											window.location.href = "/";
-										})
+										});
 									}}
 									className="w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500/20"
 								>
-									{t('sidebar.menus.logout')}
+									{t("sidebar.menus.logout")}
 								</button>
 							)}
 						</div>
@@ -252,13 +269,13 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 				{!isLoggedIn && (
 					<div className="text-center space-y-4 mt-16 px-4">
 						<p className="text-white/40">
-							{t('sidebar.menus.not_logged_in')}
+							{t("sidebar.menus.not_logged_in")}
 						</p>
 						<Link
 							to="/auth/login"
 							className="keep-white text-white rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition"
 						>
-							{t('sidebar.menus.login_btn')}
+							{t("sidebar.menus.login_btn")}
 						</Link>
 					</div>
 				)}
