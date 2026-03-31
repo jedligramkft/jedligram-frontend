@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { searchThreads } from "../../api/threads";
 import type { ThreadData } from "../../Interfaces/ThreadData";
+import { useTranslation } from "react-i18next";
 
 // type PostResult = {
 //   id: number;
@@ -17,6 +18,7 @@ const SearchResults = () => {
   const [threadResults, setThreadResults] = useState<ThreadData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     let cancelled = false;
@@ -64,26 +66,26 @@ const SearchResults = () => {
         <div className='rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur'>
           <div className='flex items-start justify-between gap-4'>
             <div>
-              <h1 className='text-3xl font-black text-white'>Keresési találatok</h1>
-              <p className='mt-2 text-sm text-white/70'>Kifejezés: <span className='font-semibold text-white/85'>{q || "—"}</span></p>
+              <h1 className='text-3xl font-black text-white'>{t("search_results.title")}</h1>
+              <p className='mt-2 text-sm text-white/70'>{t("search_results.results_for")} <span className='font-semibold text-white/85'>{q || "—"}</span></p>
             </div>
             <Link to='/' className='rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10'>
-              Vissza
+              {t("search_results.back_btn")}
             </Link>
           </div>
 
           {q && isLoading && (
-            <div className='mt-8 text-sm text-white/70'>Találatok betöltése…</div>
+            <div className='mt-8 text-sm text-white/70'>{t("search_results.loading")}</div>
           )}
 
           {q && !isLoading && !error && (
             <div className='mt-8'>
-              <h2 className='text-xl font-semibold text-white'>Közösségek</h2>
-              <p className='mt-1 text-sm text-white/60'>Találatok: {threadResults.length}</p>
+              <h2 className='text-xl font-semibold text-white'>{t("search_results.communities")}</h2>
+              <p className='mt-1 text-sm text-white/60'>{t("search_results.results")} {threadResults.length}</p>
 
               <div className='mt-4 grid gap-3'>
                 {threadResults.length === 0 ? (
-                  <div className='text-sm text-white/60'>Nincs találat.</div>
+                  <div className='text-sm text-white/60'>{t("search_results.no_results")}</div>
                 ) : (
                   threadResults.map((t) => (
                     <Link key={t.id} to={`/communities/${t.id}`} className='block rounded-2xl border border-white/10 bg-black/10 p-4 transition hover:border-white/20 hover:bg-white/5'>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { UserData } from "../../Interfaces/UserData";
 import { ProfilePictureUpload, UpdateUserProfile } from "../../api/users";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
@@ -15,6 +16,7 @@ export const EditProfile = (props: {
 	saveCallback: (updatedUser: UserData) => void | Promise<void>;
 }) => {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	const [editedUser, setEditedUser] = useState<UserData | null>(
 		props.targetUser,
@@ -125,12 +127,12 @@ export const EditProfile = (props: {
 	return (
 		<>
 			<div className="p-4 md:p-8 border-t border-gray-700/50">
-				<h2 className="text-xl md:text-2xl font-bold mb-6">Fiók beállítások</h2>
+				<h2 className="text-xl md:text-2xl font-bold mb-6">{t('profile.edit_profile.account_settings')}</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 					<div>
 						<InputComponent
-							label="Felhasználónév (max. 50 karakter)"
-							placeholder="jedlik_user"
+							label={t('profile.edit_profile.username_label')}
+							placeholder={t('profile.edit_profile.username_placeholder')}
 							value={editedUser?.name ?? ""}
 							onChange={(e) =>
 								setEditedUser({
@@ -141,13 +143,13 @@ export const EditProfile = (props: {
 							maxLength={50}
 						/>
 						<p className="text-xs text-gray-500 mt-1">
-							{editedUser?.name?.length ?? 0}/50
+							{editedUser?.name?.length ?? 0}{t('profile.edit_profile.character_limit_50')}
 						</p>
 					</div>
 					<div>
 						<InputComponent
-							label="Email"
-							placeholder="email@pelda.hu"
+							label={t('profile.edit_profile.email_label')}
+							placeholder={t('profile.edit_profile.email_placeholder')}
 							value={editedUser?.email ?? ""}
 							onChange={(e) =>
 								setEditedUser({
@@ -161,8 +163,8 @@ export const EditProfile = (props: {
 					</div>
 					<div className="md:col-span-2">
 						<TextAreaComponent
-							label="Bemutatkozás (max. 200 karakter)"
-							placeholder="Pár szó magadról..."
+							label={t('profile.edit_profile.bio_label')}
+							placeholder={t('profile.edit_profile.bio_placeholder')}
 							value={editedUser?.bio ?? ""}
 							onChange={(e) => {
 								setEditedUser({
@@ -175,13 +177,13 @@ export const EditProfile = (props: {
 							maxLength={200}
 						/>
 						<p className="text-xs text-gray-500 mt-1">
-							{editedUser?.bio?.length ?? 0}/200
+							{editedUser?.bio?.length ?? 0}{t('profile.edit_profile.character_limit_200')}
 						</p>
 					</div>
 					<div className="md:col-span-2">
 						<Switch
-							title="2 faktoros azonosítás"
-							subtitle="A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
+							title={t('profile.edit_profile.two_fa')}
+							subtitle={t('profile.edit_profile.two_fa_subtitle')}
 							icon={"faShieldAlt"}
 							containerClass="w-full rounded-lg p-3 md:p-4 border border-white/10 bg-white/5 text-white"
 							onChange={() => {
@@ -195,7 +197,7 @@ export const EditProfile = (props: {
 						{(fileToUpload && (
 							<div className="mb-4 p-3 md:p-4 bg-green-600/20 border border-green-600 rounded">
 								<p className="text-xs md:text-sm text-green-300 flex flex-wrap items-center gap-2">
-									<span>Fájl kiválasztva:</span>
+									<span>{t('profile.edit_profile.file_selected')}</span>
 									<img
 										src={URL.createObjectURL(fileToUpload)}
 										alt="Preview"
@@ -212,13 +214,13 @@ export const EditProfile = (props: {
 						)) || (
 							<DragnDrop
 								onFileSelected={onProfilePictureSelected}
-								title="Profilkép feltöltése"
-								description="Húzd ide az új profilképet, vagy kattints ide a kiválasztáshoz."
+								title={t('profile.edit_profile.upload_profile_picture')}
+								description={t('profile.edit_profile.drag_picture_text')}
 							/>
 						)}
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
-						Utoljára mentve: {localStorage.getItem("lastSavedAt") || "N/A"}
+						{t('profile.edit_profile.last_saved')} {localStorage.getItem("lastSavedAt") || "N/A"}
 					</p>
 				</div>
 				<div className="mt-6 md:mt-8 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
@@ -232,7 +234,7 @@ export const EditProfile = (props: {
 							<DynamicFAIcon exportName="faSave" />
 						)}
 						<span>
-							{isSavingChanges ? "Mentés..." : "Változtatások mentése"}
+							{isSavingChanges ? t('profile.edit_profile.saving') : t('profile.edit_profile.save_changes')}
 						</span>
 					</button>
 				</div>
@@ -241,10 +243,10 @@ export const EditProfile = (props: {
 			{/* Mentés megerősítése */}
 			<ConfirmationModal
 				isOpen={isSaveConfirmationOpen}
-				title="Profil mentése"
-				description="Biztosan elmented a profil módosításait?"
-				cancelText="Mégse"
-				confirmText="Mentés"
+				title={t('profile.edit_profile.save_profile_title')}
+				description={t('profile.edit_profile.save_profile_description')}
+				cancelText={t('profile.edit_profile.cancel')}
+				confirmText={t('profile.edit_profile.save')}
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => setIsSaveConfirmationOpen(false)}
@@ -258,12 +260,10 @@ export const EditProfile = (props: {
 			{/* Hibás adatok */}
 			<ConfirmationModal
 				isOpen={hasError}
-				title="Hibás adatok!"
-				description={
-					"Az email és a név mező nem lehet üres!\nAz email legyen érvényes formátumú!"
-				}
+				title={t('profile.edit_profile.invalid_data_title')}
+				description={t('profile.edit_profile.invalid_data_description')}
 				cancelText=""
-				confirmText="Ok"
+				confirmText={t('profile.edit_profile.ok')}
 				cancelButtonClassName="hidden"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => setHasError(false)}
@@ -276,12 +276,10 @@ export const EditProfile = (props: {
 			{/* 2FA váltás megerősítése */}
 			<ConfirmationModal
 				isOpen={isSwitching2FA}
-				title="2 faktoros azonosítás"
-				description={
-					"A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett."
-				}
-				cancelText="Mégse"
-				confirmText="Váltás"
+				title={t('profile.edit_profile.two_fa_confirm_title')}
+				description={t('profile.edit_profile.two_fa_confirm_description')}
+				cancelText={t('profile.edit_profile.two_fa_cancel')}
+				confirmText={t('profile.edit_profile.two_fa_confirm')}
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => {
