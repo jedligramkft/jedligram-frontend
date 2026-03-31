@@ -113,7 +113,8 @@
             "no_joined_communities": "Nem csatlakozott közösségekhez.",
             "user": "Felhasználó",
             "profile_picture": "Profilkép",
-            "no_bio": "Nincs bemutatkozás."
+            "no_bio": "Nincs bemutatkozás.",
+            "community_members": "tag"
         },
         "edit_profile": {
             "account_settings": "Fiók beállítások",
@@ -200,6 +201,10 @@
         "results": "Eredmények: ",
         "no_results": "Nincs találat.",
         "communities": "Közösségek"
-    }
+    },
+    "dragNdrop": {
+        "accepted_files": "Elfogadott fájltípusok",
+        "max_file_size": "Max fájlméret"
+     }
 
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread } from "../../../api/threads";
-import { GetUsers, GetUserThreads } from "../../../api/users";
+import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread, GetThreadMembers } from "../../../api/threads";
+import { GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import { VoteOnPost } from "../../../api/posts";
 import type { UserData } from "../../../Interfaces/UserData";
@@ -73,7 +73,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
   const fetchJoinedUsers = async (threadIdValue: number): Promise<UserData[]> => {
     if (Number.isNaN(threadIdValue)) return [];
 
-    const response = await GetUsers(`thread:${threadIdValue}`);
+    const response = await GetThreadMembers(threadIdValue);
     const usersData = response.data?.users ?? response.data;
 
     if (!Array.isArray(usersData)) return [];
