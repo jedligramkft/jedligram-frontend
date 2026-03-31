@@ -28,6 +28,7 @@ export const EditProfile = (props: {
 	const [hasError, setHasError] = useState(false);
 
 	const [isVerificationEnabled, setIsVerificationEnabled] = useState(false);
+	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
 	const [isSwitching2FA, setIsSwitching2FA] = useState(false);
 
 	async function handleSave(): Promise<void> {
@@ -35,6 +36,7 @@ export const EditProfile = (props: {
 		if (!props.targetUser) return;
 
 		setHasError(false);
+		setIsSavingChanges(true);
 
 		if (editedUser.name?.trim() === "" || editedUser.email?.trim() === "") {
 			setHasError(true);
@@ -54,7 +56,6 @@ export const EditProfile = (props: {
 			return;
 		}
 
-		setIsSavingChanges(true);
 		//profil adatainak frissítése
 		try {
 			const response = await UpdateUserProfile(editedUser);
@@ -101,7 +102,9 @@ export const EditProfile = (props: {
 	};
 
 	async function handle2faChange() {
+		setIsVerificationLoading(true);
 		const response = await Toggle2FA();
+		setIsVerificationLoading(false);
 		if (response.status === 202 && response.data?.requires_verification) {
 			setIsSwitching2FA(false);
 			navigate(
@@ -127,12 +130,16 @@ export const EditProfile = (props: {
 	return (
 		<>
 			<div className="p-4 md:p-8 border-t border-gray-700/50">
-				<h2 className="text-xl md:text-2xl font-bold mb-6">{t('profile.edit_profile.account_settings')}</h2>
+				<h2 className="text-xl md:text-2xl font-bold mb-6">
+					{t("profile.edit_profile.account_settings")}
+				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 					<div>
 						<InputComponent
-							label={t('profile.edit_profile.username_label')}
-							placeholder={t('profile.edit_profile.username_placeholder')}
+							label={t("profile.edit_profile.username_label")}
+							placeholder={t(
+								"profile.edit_profile.username_placeholder",
+							)}
 							value={editedUser?.name ?? ""}
 							onChange={(e) =>
 								setEditedUser({
@@ -142,14 +149,13 @@ export const EditProfile = (props: {
 							}
 							maxLength={50}
 						/>
-						<p className="text-xs text-gray-500 mt-1">
-							{editedUser?.name?.length ?? 0}{t('profile.edit_profile.character_limit_50')}
-						</p>
 					</div>
 					<div>
 						<InputComponent
-							label={t('profile.edit_profile.email_label')}
-							placeholder={t('profile.edit_profile.email_placeholder')}
+							label={t("profile.edit_profile.email_label")}
+							placeholder={t(
+								"profile.edit_profile.email_placeholder",
+							)}
 							value={editedUser?.email ?? ""}
 							onChange={(e) =>
 								setEditedUser({
@@ -163,27 +169,26 @@ export const EditProfile = (props: {
 					</div>
 					<div className="md:col-span-2">
 						<TextAreaComponent
-							label={t('profile.edit_profile.bio_label')}
-							placeholder={t('profile.edit_profile.bio_placeholder')}
+							label={t("profile.edit_profile.bio_label")}
+							placeholder={t(
+								"profile.edit_profile.bio_placeholder",
+							)}
 							value={editedUser?.bio ?? ""}
 							onChange={(e) => {
 								setEditedUser({
 									...editedUser,
-									bio: e.target.value.slice(0, 200),
+									bio: e.target.value.slice(0, 100),
 								} as UserData);
 							}}
 							rows={3}
 							textAreaClassName="resize-none"
-							maxLength={200}
+							maxLength={100}
 						/>
-						<p className="text-xs text-gray-500 mt-1">
-							{editedUser?.bio?.length ?? 0}{t('profile.edit_profile.character_limit_200')}
-						</p>
 					</div>
 					<div className="md:col-span-2">
 						<Switch
-							title={t('profile.edit_profile.two_fa')}
-							subtitle={t('profile.edit_profile.two_fa_subtitle')}
+							title={t("profile.edit_profile.two_fa")}
+							subtitle={t("profile.edit_profile.two_fa_subtitle")}
 							icon={"faShieldAlt"}
 							containerClass="w-full rounded-lg p-3 md:p-4 border border-white/10 bg-white/5 text-white"
 							onChange={() => {
@@ -197,13 +202,17 @@ export const EditProfile = (props: {
 						{(fileToUpload && (
 							<div className="mb-4 p-3 md:p-4 bg-green-600/20 border border-green-600 rounded">
 								<p className="text-xs md:text-sm text-green-300 flex flex-wrap items-center gap-2">
-									<span>{t('profile.edit_profile.file_selected')}</span>
+									<span>
+										{t(
+											"profile.edit_profile.file_selected",
+										)}
+									</span>
 									<img
 										src={URL.createObjectURL(fileToUpload)}
 										alt="Preview"
 										className="h-10 w-10 object-cover rounded-full"
 									/>
-									<button 
+									<button
 										className="p-2 hover:bg-green-600/30 rounded transition"
 										onClick={() => setFileToUpload(null)}
 									>
@@ -214,27 +223,38 @@ export const EditProfile = (props: {
 						)) || (
 							<DragnDrop
 								onFileSelected={onProfilePictureSelected}
-								title={t('profile.edit_profile.upload_profile_picture')}
-								description={t('profile.edit_profile.drag_picture_text')}
+								title={t(
+									"profile.edit_profile.upload_profile_picture",
+								)}
+								description={t(
+									"profile.edit_profile.drag_picture_text",
+								)}
 							/>
 						)}
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
-						{t('profile.edit_profile.last_saved')} {localStorage.getItem("lastSavedAt") || "N/A"}
+						{t("profile.edit_profile.last_saved")}{" "}
+						{localStorage.getItem("lastSavedAt") || "N/A"}
 					</p>
 				</div>
 				<div className="mt-6 md:mt-8 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
 					<button
 						onClick={() => setIsSaveConfirmationOpen(true)}
 						disabled={isSavingChanges}
-						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait">
+						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait"
+					>
 						{isSavingChanges ? (
-							<DynamicFAIcon exportName="faSpinner" className="animate-spin" />
+							<DynamicFAIcon
+								exportName="faSpinner"
+								className="animate-spin"
+							/>
 						) : (
 							<DynamicFAIcon exportName="faSave" />
 						)}
 						<span>
-							{isSavingChanges ? t('profile.edit_profile.saving') : t('profile.edit_profile.save_changes')}
+							{isSavingChanges
+								? t("profile.edit_profile.saving")
+								: t("profile.edit_profile.save_changes")}
 						</span>
 					</button>
 				</div>
@@ -243,10 +263,10 @@ export const EditProfile = (props: {
 			{/* Mentés megerősítése */}
 			<ConfirmationModal
 				isOpen={isSaveConfirmationOpen}
-				title={t('profile.edit_profile.save_profile_title')}
-				description={t('profile.edit_profile.save_profile_description')}
-				cancelText={t('profile.edit_profile.cancel')}
-				confirmText={t('profile.edit_profile.save')}
+				title={t("profile.edit_profile.save_profile_title")}
+				description={t("profile.edit_profile.save_profile_description")}
+				cancelText={t("profile.edit_profile.cancel")}
+				confirmText={t("profile.edit_profile.save")}
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => setIsSaveConfirmationOpen(false)}
@@ -260,10 +280,10 @@ export const EditProfile = (props: {
 			{/* Hibás adatok */}
 			<ConfirmationModal
 				isOpen={hasError}
-				title={t('profile.edit_profile.invalid_data_title')}
-				description={t('profile.edit_profile.invalid_data_description')}
+				title={t("profile.edit_profile.invalid_data_title")}
+				description={t("profile.edit_profile.invalid_data_description")}
 				cancelText=""
-				confirmText={t('profile.edit_profile.ok')}
+				confirmText={t("profile.edit_profile.ok")}
 				cancelButtonClassName="hidden"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => setHasError(false)}
@@ -276,10 +296,12 @@ export const EditProfile = (props: {
 			{/* 2FA váltás megerősítése */}
 			<ConfirmationModal
 				isOpen={isSwitching2FA}
-				title={t('profile.edit_profile.two_fa_confirm_title')}
-				description={t('profile.edit_profile.two_fa_confirm_description')}
-				cancelText={t('profile.edit_profile.two_fa_cancel')}
-				confirmText={t('profile.edit_profile.two_fa_confirm')}
+				title={t("profile.edit_profile.two_fa_confirm_title")}
+				description={t(
+					"profile.edit_profile.two_fa_confirm_description",
+				)}
+				cancelText={t("profile.edit_profile.two_fa_cancel")}
+				confirmText={t("profile.edit_profile.two_fa_confirm")}
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => {
@@ -289,7 +311,7 @@ export const EditProfile = (props: {
 				onConfirm={async () => {
 					await handle2faChange();
 				}}
-				isConfirmLoading={false}
+				isConfirmLoading={isVerificationLoading}
 			/>
 		</>
 	);

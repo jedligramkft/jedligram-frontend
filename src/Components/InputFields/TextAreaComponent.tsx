@@ -42,6 +42,11 @@ export const TextAreaComponent = (props: {
 				/>
 				{absoluteChildren}
 			</div>
+			{maxLength && (
+				<p className="text-xs text-gray-500">
+					{value.length}/{maxLength}
+				</p>
+			)}
 		</div>
 	);
 };

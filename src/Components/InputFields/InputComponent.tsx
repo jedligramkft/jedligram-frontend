@@ -42,6 +42,11 @@ export const InputComponent = (props: {
 				/>
 				{absoluteChildren}
 			</div>
+			{maxLength && (
+				<p className="text-xs text-gray-500 mt-1">
+					{value.length}/{maxLength}
+				</p>
+			)}
 		</div>
 	);
 };
