@@ -31,7 +31,9 @@ export const useComments = (isLoggedIn: boolean) => {
 
 	const loadComments = async (postId: number) => {
 		try {
+			console.log("Kommentek betöltése postId alapján:", postId);
 			const res = await GetCommentsForPost(postId);
+			console.log("Kommentek betöltve:", res.data);
 			setCommentsByPostId((p) => ({
 				...p,
 				[postId]: Array.isArray(res.data) ? res.data : [],
