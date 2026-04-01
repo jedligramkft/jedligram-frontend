@@ -75,10 +75,12 @@ const Switch: React.FC<SwitchProps> = ({
 
 	return (
 		<div
-			className={`h-fit flex items-center justify-center gap-4  ${containerClass ?? ""}`}>
+			className={`h-fit flex items-center gap-4 ${containerClass ?? ""}`}
+		>
 			{icon && (
 				<div
-					className={`w-fit h-full flex items-center justify-center pl-2 pr-4 border-r border-white/20 py-4 ${iconClass ?? ""}`}>
+					className={`w-fit h-full flex items-center justify-center pl-2 pr-4 border-r border-white/20 py-4 ${iconClass ?? ""}`}
+				>
 					<DynamicFAIcon
 						exportName={icon.toString()}
 						className={iconClass}
@@ -87,16 +89,18 @@ const Switch: React.FC<SwitchProps> = ({
 				</div>
 			)}
 			{title || subtitle ? (
-				<div className="w-full h-full">
+				<div className="w-full h-full space-y-0.5">
 					{title ? (
 						<p
-							className={`max-w-[75%] wrap-break-word font-medium text-white/90 ${titleClass ?? ""}`}>
+							className={`max-w-full md:max-w-[80%] wrap-break-word text-sm md:text-base font-medium text-white/90 ${titleClass ?? ""}`}
+						>
 							{title}
 						</p>
 					) : null}
 					{subtitle ? (
 						<p
-							className={`mt-0.5 max-w-[75%] wrap-break-word text-xs leading-4 text-neutral-400 ${subtitleClass ?? ""}`}>
+							className={`max-w-full md:max-w-[80%] wrap-break-word text-xs md:text-sm leading-4 text-neutral-400 ${subtitleClass ?? ""}`}
+						>
 							{subtitle}
 						</p>
 					) : null}
@@ -115,12 +119,16 @@ const Switch: React.FC<SwitchProps> = ({
 							? "rgba(38, 110, 72, 0.95)"
 							: "rgba(64, 68, 75, 0.95)",
 					}}
-					onClick={toggleSwitch}>
+					onClick={toggleSwitch}
+				>
 					<div
 						className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-200 text-[12px] font-bold text-neutral-700 shadow transition-transform duration-200 ease-in-out"
 						style={{
-							transform: isChecked ? "translateX(24px)" : "translateX(0px)",
-						}}>
+							transform: isChecked
+								? "translateX(24px)"
+								: "translateX(0px)",
+						}}
+					>
 						{/* Thumb icon shows current state. DynamicFAIcon expects the
 						   FontAwesome export name (e.g. "faCheck" / "faXmark"). */}
 						<DynamicFAIcon

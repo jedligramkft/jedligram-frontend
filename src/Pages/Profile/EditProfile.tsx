@@ -15,6 +15,10 @@ export const EditProfile = (props: {
 	targetUser: UserData;
 	saveCallback: (updatedUser: UserData) => void | Promise<void>;
 }) => {
+	const NAME_MAX_LENGTH = 40;
+	const EMAIL_MAX_LENGTH = 60;
+	const BIO_MAX_LENGTH = 100;
+
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 
@@ -25,7 +29,7 @@ export const EditProfile = (props: {
 	const [isSaveConfirmationOpen, setIsSaveConfirmationOpen] = useState(false);
 	const [fileToUpload, setFileToUpload] = useState<File | null>(null);
 
-	const [hasError, setHasError] = useState(false);
+	const [hasError, setHasError] = useState(false); // Általános hibaállapot, érvénytelen adatok esetén true lesz
 
 	const [isVerificationEnabled, setIsVerificationEnabled] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
@@ -40,6 +44,23 @@ export const EditProfile = (props: {
 
 		if (editedUser.name?.trim() === "" || editedUser.email?.trim() === "") {
 			setHasError(true);
+			setIsSavingChanges(false);
+			return;
+		}
+
+		if (editedUser.name && editedUser.name.length > NAME_MAX_LENGTH) {
+			setHasError(true);
+			setIsSavingChanges(false);
+			return;
+		}
+		if (editedUser.email && editedUser.email.length > EMAIL_MAX_LENGTH) {
+			setHasError(true);
+			setIsSavingChanges(false);
+			return;
+		}
+		if (editedUser.bio && editedUser.bio.length > BIO_MAX_LENGTH) {
+			setHasError(true);
+			setIsSavingChanges(false);
 			return;
 		}
 
@@ -47,12 +68,14 @@ export const EditProfile = (props: {
 		const usernameRegex = /^[a-zA-Z0-9_áéíÁÉÍöÖüÜ\s]+$/;
 		if (!usernameRegex.test(editedUser.name!)) {
 			setHasError(true);
+			setIsSavingChanges(false);
 			return;
 		}
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(editedUser.email!)) {
 			setHasError(true);
+			setIsSavingChanges(false);
 			return;
 		}
 
@@ -63,9 +86,15 @@ export const EditProfile = (props: {
 				console.log("Profil sikeresen frissítve:", response.data);
 			} else {
 				console.warn("Nem sikerült frissíteni a profilt:", response);
+				setIsSavingChanges(false);
+				setHasError(true);
+				return;
 			}
 		} catch (error) {
 			console.error("Hiba történt a profil frissítésekor:", error);
+			setIsSavingChanges(false);
+			setHasError(true);
+			return;
 		}
 
 		//fájl feltöltés
@@ -144,10 +173,13 @@ export const EditProfile = (props: {
 							onChange={(e) =>
 								setEditedUser({
 									...editedUser,
-									name: e.target.value.slice(0, 50),
+									name: e.target.value.slice(
+										0,
+										NAME_MAX_LENGTH,
+									),
 								} as UserData)
 							}
-							maxLength={50}
+							maxLength={NAME_MAX_LENGTH}
 						/>
 					</div>
 					<div>
@@ -157,14 +189,18 @@ export const EditProfile = (props: {
 								"profile.edit_profile.email_placeholder",
 							)}
 							value={editedUser?.email ?? ""}
+							disabled={isVerificationEnabled} // Email mező letiltása, ha 2FA engedélyezve van
 							onChange={(e) =>
 								setEditedUser({
 									...editedUser,
-									email: e.target.value.slice(0, 100),
+									email: e.target.value.slice(
+										0,
+										EMAIL_MAX_LENGTH,
+									),
 								} as UserData)
 							}
 							type={"email"}
-							maxLength={100}
+							maxLength={EMAIL_MAX_LENGTH}
 						/>
 					</div>
 					<div className="md:col-span-2">
@@ -177,12 +213,15 @@ export const EditProfile = (props: {
 							onChange={(e) => {
 								setEditedUser({
 									...editedUser,
-									bio: e.target.value.slice(0, 100),
+									bio: e.target.value.slice(
+										0,
+										BIO_MAX_LENGTH,
+									),
 								} as UserData);
 							}}
 							rows={3}
 							textAreaClassName="resize-none"
-							maxLength={100}
+							maxLength={BIO_MAX_LENGTH}
 						/>
 					</div>
 					<div className="md:col-span-2">

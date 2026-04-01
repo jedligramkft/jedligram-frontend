@@ -11,6 +11,7 @@ export const InputComponent = (props: {
 	inputClassName?: string;
 	labelClassName?: string;
 	maxLength?: number;
+	disabled?: boolean;
 }) => {
 	const {
 		label,
@@ -20,6 +21,7 @@ export const InputComponent = (props: {
 		onChange,
 		absoluteChildren,
 		maxLength,
+		disabled,
 	} = props;
 
 	return (
@@ -38,7 +40,8 @@ export const InputComponent = (props: {
 					value={value}
 					onChange={onChange}
 					maxLength={maxLength}
-					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20 ${props.inputClassName || ""}`}
+					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20 disabled:cursor-not-allowed disabled:border-white/5 disabled:bg-white/5 disabled:text-white/40 disabled:placeholder:text-white/30 ${props.inputClassName || ""}`}
+					disabled={disabled}
 				/>
 				{absoluteChildren}
 			</div>
