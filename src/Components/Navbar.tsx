@@ -1,9 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getActiveTheme, toggleTheme } from "../theme";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
-import { MoonIcon } from "./CustomIcons/MoonIcon";
-import { SunIcon } from "./CustomIcons/SunIcon";
 import { Searchbar } from "./Searchbar/Searchbar";
 import { useTranslation } from "react-i18next";
 
@@ -13,7 +9,6 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
-	const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
 	const { i18n } = useTranslation();
 	const language = i18n.language;
 
@@ -21,13 +16,6 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 		i18n.changeLanguage(lang);
 		localStorage.setItem("language", lang);
 	};
-
-	useEffect(() => {
-		const onThemeChanged = () => setActiveTheme(getActiveTheme());
-		window.addEventListener("theme-changed", onThemeChanged);
-		return () =>
-			window.removeEventListener("theme-changed", onThemeChanged);
-	}, []);
 
 	return (
 		<nav className="bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-b border-gray-700 text-white shadow-lg sticky top-0 z-50 poppins-regular">
@@ -46,39 +34,21 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 				</button>
 
 				<div className="flex flex-row gap-10">
-					{/* Theme Toggle  */}
-					<button
-						type="button"
-						onClick={() => setActiveTheme(toggleTheme())}
-						className="p-2 rounded-lg hover:bg-white/10 transition text-white"
-						aria-label={
-							activeTheme === "dark"
-								? "Világos téma"
-								: "Sötét téma"
-						}
-						title={
-							activeTheme === "dark"
-								? "Világos téma"
-								: "Sötét téma"
-						}
-					>
-						{activeTheme === "dark" ? <SunIcon /> : <MoonIcon />}
-					</button>
 					<div className="flex bg-white/5 rounded-lg p-1">
-						<button onClick={() => handleLanguageChange("hu")} className={`px-3 py-1 rounded-md transition
-							${language === "hu"
-									? "bg-blue-500 text-white"
-									: "hover:bg-white/10"
-								}`}
-							>HU
+						<button
+							onClick={() => handleLanguageChange("hu")}
+							className={`px-3 py-1 rounded-md transition
+							${language === "hu" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
+						>
+							HU
 						</button>
 
-						<button onClick={() => handleLanguageChange("en")} className={`px-3 py-1 rounded-md transition
-							${language === "en"
-								? "bg-blue-500 text-white"
-								: "hover:bg-white/10"
-								}`}
-							>EN
+						<button
+							onClick={() => handleLanguageChange("en")}
+							className={`px-3 py-1 rounded-md transition
+							${language === "en" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
+						>
+							EN
 						</button>
 					</div>
 					<Link to="/">

@@ -24,7 +24,7 @@ export const Login = async (userData: UserData): Promise<ResponseData> => {
 	const response = await httpClient.post("/api/login", userData);
 
 	if (response.data.user && response.data.access_token) {
-		trySetLocalstorage(response.data.user, response.data.access_token);
+		TrySetLocalstorage(response.data.user, response.data.access_token);
 	}
 
 	return {
@@ -42,16 +42,16 @@ export const Logout = async (): Promise<void> => {
 	}
 };
 
-export const getAuthToken = (): string | null => {
+export const GetAuthToken = (): string | null => {
 	return localStorage.getItem(authTokenName);
 };
 
-export const isLoggedIn = (): boolean => {
-	const token = getAuthToken();
+export const IsLoggedIn = (): boolean => {
+	const token = GetAuthToken();
 	return typeof token === "string" && token.trim().length > 0;
 };
 
-const trySetLocalstorage = (user: UserData, accessToken: string) => {
+const TrySetLocalstorage = (user: UserData, accessToken: string) => {
 	try {
 		const bearerToken: string = accessToken;
 		localStorage.setItem(authTokenName, bearerToken);
@@ -88,7 +88,7 @@ export const Verify2FA = async (
 		});
 
 		if (response.data.user && response.data.access_token) {
-			trySetLocalstorage(response.data.user, response.data.access_token);
+			TrySetLocalstorage(response.data.user, response.data.access_token);
 		}
 
 		return {

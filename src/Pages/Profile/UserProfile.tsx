@@ -51,7 +51,10 @@ const UserProfile = () => {
 			//Successfully got user data
 			setTargetUser(response.data);
 		} catch (err) {
-			console.error("Hiba történt a felhasználói adatok lekérése közben:", err);
+			console.error(
+				"Hiba történt a felhasználói adatok lekérése közben:",
+				err,
+			);
 			setTargetUser(null);
 		}
 	};
@@ -111,6 +114,9 @@ const UserProfile = () => {
 			await getJoinedThreads(targetId);
 		};
 
+		setTargetUser(null);
+		setJoinedThreads([]);
+
 		asyncInit();
 	}, [params.id]);
 
@@ -123,47 +129,48 @@ const UserProfile = () => {
 
 				<div className="relative z-10 mx-auto max-w-4xl px-3 md:px-4 py-8 md:py-16">
 					<div className="rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-4 md:p-8 shadow-2xl shadow-black/30 backdrop-blur">
-						<div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-3 md:p-6">
-							<div className="w-full flex flex-col items-center md:items-start md:flex-row gap-3 md:gap-4">
-								<div className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex-shrink-0 flex items-center justify-center text-3xl md:text-5xl font-black shadow-lg">
-									{targetUser?.image_url ? (
+						<div className="w-full h-full p-3 md:p-6 flex flex-col md:flex-row items-center md:items-stretch gap-4">
+							<div className="flex items-center justify-center">
+								<div className="h-24 w-24 md:h-32 md:w-32 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl md:text-5xl font-black shadow-lg">
+									{targetUser?.image_url && (
 										<img
 											src={targetUser.image_url}
 											alt="Profilkép"
 											className="h-full w-full object-cover rounded-full"
 										/>
-									) : (
-										<span>
-											{targetUser?.name?.split(" ")[0]?.charAt(0)}{" "}
-											{targetUser?.name?.split(" ")[1]?.charAt(0)}
-										</span>
 									)}
 								</div>
-								<div className="text-center md:text-left">
-									<h1 className="text-2xl md:text-4xl font-bold break-words">
-										{targetUser?.name || t('profile.user_profile.user')}
-									</h1>
-									<p className="mt-1 md:mt-2 text-sm md:text-lg text-gray-400 break-all">
-										{targetUser?.email}
-									</p>
-									<p className="mt-2 md:mt-4 text-xs md:text-sm text-gray-300 max-w-md break-words">
-										{targetUser?.bio || t('profile.user_profile.no_bio')}
-									</p>
-								</div>
 							</div>
-							<div className="w-full flex flex-col gap-2 md:gap-4 items-center md:items-end justify-center">
+							<div className="w-3/4 md:w-full text-center md:text-left ">
+								<h1 className="text-2xl md:text-4xl font-bold wrap-anywhere">
+									{targetUser?.name ||
+										t("profile.user_profile.user")}
+								</h1>
+								<p className="mt-1 md:mt-2 text-sm md:text-lg text-gray-400 wrap-anywhere">
+									{targetUser?.email || "-"}
+								</p>
+								<p className="mt-2 md:mt-4 text-xs md:text-sm text-gray-300 wrap-anywhere">
+									{targetUser?.bio ||
+										t("profile.user_profile.no_bio")}
+								</p>
+							</div>
+							<div className="flex flex-col justify-between gap-4 *:px-6 *:py-3">
 								<button
 									onClick={() => navigate("/")}
-									className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition whitespace-nowrap">
+									className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition whitespace-nowrap"
+								>
 									<DynamicFAIcon exportName="faHome" />
-									{t('profile.user_profile.back_to_home')}
+									{t("profile.user_profile.back_to_home")}
 								</button>
 								{isMyProfile && targetUser && (
 									<button
-										onClick={() => setIsLogoutConfirmationOpen(true)}
-										className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-red-600 transition whitespace-nowrap">
+										onClick={() =>
+											setIsLogoutConfirmationOpen(true)
+										}
+										className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-red-600 transition whitespace-nowrap"
+									>
 										<DynamicFAIcon exportName="faSignOutAlt" />
-										{t('profile.user_profile.logout')}
+										{t("profile.user_profile.logout")}
 									</button>
 								)}
 							</div>
@@ -179,7 +186,7 @@ const UserProfile = () => {
 						<hr className="text-gray-700/50" />
 						<div className="flex flex-col items-center justify-center py-3 md:py-4">
 							<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-								{t('profile.user_profile.communities')}
+								{t("profile.user_profile.communities")}
 							</p>
 							<p className="mt-1 text-base md:text-lg font-bold text-white">
 								{joinedThreads.length || 0}
@@ -188,7 +195,9 @@ const UserProfile = () => {
 						<div className="flex gap-2 md:gap-2.5 flex-wrap justify-center px-2 md:px-0">
 							{joinedThreads.length === 0 && (
 								<p className="text-xs md:text-sm text-gray-500 col-span-full text-center">
-									{t('profile.user_profile.no_joined_communities')}
+									{t(
+										"profile.user_profile.no_joined_communities",
+									)}
 								</p>
 							)}
 							{joinedThreads.map((thread) => (
@@ -197,15 +206,19 @@ const UserProfile = () => {
 									onClick={() => {
 										navigate("/communities/" + thread.id);
 									}}
-									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-3 md:p-4 cursor-pointer transition hover:bg-white/10">
-									<h3 className="text-base md:text-lg font-semibold text-white break-words">
+									className="w-full md:w-[calc(50%-10px)] bg-white/5 border border-white/10 rounded-lg p-3 md:p-4 cursor-pointer transition hover:bg-white/10"
+								>
+									<h3 className="text-base md:text-lg font-semibold text-white wrap-break-word">
 										{thread.name}
 									</h3>
-									<p className="text-xs md:text-sm text-gray-400 break-words">
+									<p className="text-xs md:text-sm text-gray-400 wrap-break-word">
 										{thread.description}
 									</p>
 									<p className="mt-2 text-xs text-gray-500">
-										{thread.users_count} {t('profile.user_profile.community_members')}
+										{thread.users_count}{" "}
+										{t(
+											"profile.user_profile.community_members",
+										)}
 									</p>
 								</div>
 							))}
@@ -216,10 +229,12 @@ const UserProfile = () => {
 
 			<ConfirmationModal
 				isOpen={isLogoutConfirmationOpen}
-			title={t('profile.user_profile.logout_confirm_title')}
-			description={t('profile.user_profile.logout_confirm_description')}
-			cancelText={t('profile.user_profile.logout_confirm_cancel')}
-			confirmText={t('profile.user_profile.logout_confirm')}
+				title={t("profile.user_profile.logout_confirm_title")}
+				description={t(
+					"profile.user_profile.logout_confirm_description",
+				)}
+				cancelText={t("profile.user_profile.logout_confirm_cancel")}
+				confirmText={t("profile.user_profile.logout_confirm")}
 				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
 				confirmButtonClassName="bg-red-600 hover:bg-red-500 disabled:opacity-75"
 				onClose={() => setIsLogoutConfirmationOpen(false)}
