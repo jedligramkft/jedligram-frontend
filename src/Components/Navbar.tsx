@@ -13,7 +13,6 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
-	const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
 	const { i18n } = useTranslation();
 	const language = i18n.language;
 
@@ -46,39 +45,21 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 				</button>
 
 				<div className="flex flex-row gap-10">
-					{/* Theme Toggle  */}
-					<button
-						type="button"
-						onClick={() => setActiveTheme(toggleTheme())}
-						className="p-2 rounded-lg hover:bg-white/10 transition text-white"
-						aria-label={
-							activeTheme === "dark"
-								? "Világos téma"
-								: "Sötét téma"
-						}
-						title={
-							activeTheme === "dark"
-								? "Világos téma"
-								: "Sötét téma"
-						}
-					>
-						{activeTheme === "dark" ? <SunIcon /> : <MoonIcon />}
-					</button>
 					<div className="flex bg-white/5 rounded-lg p-1">
-						<button onClick={() => handleLanguageChange("hu")} className={`px-3 py-1 rounded-md transition
-							${language === "hu"
-									? "bg-blue-500 text-white"
-									: "hover:bg-white/10"
-								}`}
-							>HU
+						<button
+							onClick={() => handleLanguageChange("hu")}
+							className={`px-3 py-1 rounded-md transition
+							${language === "hu" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
+						>
+							HU
 						</button>
 
-						<button onClick={() => handleLanguageChange("en")} className={`px-3 py-1 rounded-md transition
-							${language === "en"
-								? "bg-blue-500 text-white"
-								: "hover:bg-white/10"
-								}`}
-							>EN
+						<button
+							onClick={() => handleLanguageChange("en")}
+							className={`px-3 py-1 rounded-md transition
+							${language === "en" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
+						>
+							EN
 						</button>
 					</div>
 					<Link to="/">

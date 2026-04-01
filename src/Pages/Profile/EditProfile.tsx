@@ -10,6 +10,7 @@ import ConfirmationModal from "../../Components/Modal/Modal";
 import Switch from "../../Components/InputFields/SwitchComponent";
 import { useNavigate } from "react-router-dom";
 import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
+import { getActiveTheme, toggleTheme } from "../../theme";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -22,6 +23,7 @@ export const EditProfile = (props: {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 
+	// Módosított adatok tárolása
 	const [editedUser, setEditedUser] = useState<UserData | null>(
 		props.targetUser,
 	);
@@ -31,9 +33,13 @@ export const EditProfile = (props: {
 
 	const [hasError, setHasError] = useState(false); // Általános hibaállapot, érvénytelen adatok esetén true lesz
 
+	// 2FA állapot
 	const [isVerificationEnabled, setIsVerificationEnabled] = useState(false);
 	const [isVerificationLoading, setIsVerificationLoading] = useState(false);
 	const [isSwitching2FA, setIsSwitching2FA] = useState(false);
+
+	// Sötét mód állapot
+	const [activeTheme, setActiveTheme] = useState(() => getActiveTheme());
 
 	async function handleSave(): Promise<void> {
 		if (!editedUser) return;
@@ -224,7 +230,7 @@ export const EditProfile = (props: {
 							maxLength={BIO_MAX_LENGTH}
 						/>
 					</div>
-					<div className="md:col-span-2">
+					<div className="md:col-span-2 space-y-2">
 						<Switch
 							title={t("profile.edit_profile.two_fa")}
 							subtitle={t("profile.edit_profile.two_fa_subtitle")}
@@ -236,28 +242,37 @@ export const EditProfile = (props: {
 							}}
 							checked={isVerificationEnabled}
 						/>
+						<Switch
+							title={t("profile.edit_profile.dark_mode")}
+							subtitle={t(
+								"profile.edit_profile.dark_mode_subtitle",
+							)}
+							icon={activeTheme === "dark" ? "faSun" : "faMoon"}
+							containerClass="w-full rounded-lg p-3 md:p-4 border border-white/10 bg-white/5 text-white"
+							onChange={() => {
+								setActiveTheme(toggleTheme());
+							}}
+							checked={activeTheme === "dark"}
+						/>
 					</div>
 					<div className="md:col-span-2">
 						{(fileToUpload && (
-							<div className="mb-4 p-3 md:p-4 bg-green-600/20 border border-green-600 rounded">
-								<p className="text-xs md:text-sm text-green-300 flex flex-wrap items-center gap-2">
-									<span>
-										{t(
-											"profile.edit_profile.file_selected",
-										)}
-									</span>
-									<img
-										src={URL.createObjectURL(fileToUpload)}
-										alt="Preview"
-										className="h-10 w-10 object-cover rounded-full"
-									/>
-									<button
-										className="p-2 hover:bg-green-600/30 rounded transition"
-										onClick={() => setFileToUpload(null)}
-									>
-										<DynamicFAIcon exportName="faX" />
-									</button>
+							<div className="rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2">
+								<p className="text-sm font-semibold text-green-300">
+									{t("profile.edit_profile.file_selected")}
 								</p>
+								<img
+									src={URL.createObjectURL(fileToUpload)}
+									alt="Preview"
+									className="h-32 w-32 object-cover rounded-full mx-auto"
+								/>
+								<button
+									type="button"
+									onClick={() => setFileToUpload(null)}
+									className="mt-4 inline-flex items-center justify-center rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-red-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
+								>
+									{t("profile.edit_profile.remove_file")}
+								</button>
 							</div>
 						)) || (
 							<DragnDrop

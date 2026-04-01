@@ -128,6 +128,7 @@
 			"upload_profile_picture": "Upload Profile Picture",
 			"drag_picture_text": "Drag new profile picture here or click to select.",
 			"file_selected": "File selected:",
+			"remove_file": "Select another file",
 			"last_saved": "Last saved:",
 			"saving": "Saving...",
 			"save_changes": "Save Changes",
@@ -141,7 +142,9 @@
 			"two_fa_confirm_title": "Two Factor Authentication",
 			"two_fa_confirm_description": "Two factor authentication adds an extra layer of security to your account by requiring a second form of identification in addition to your password.",
 			"two_fa_cancel": "Cancel",
-			"two_fa_confirm": "Switch"
+			"two_fa_confirm": "Switch",
+			"dark_mode": "Dark Mode",
+			"dark_mode_subtitle": "Switch to dark theme for a better experience"
 		}
 	},
 	"community": {

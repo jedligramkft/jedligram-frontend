@@ -128,6 +128,7 @@
 			"upload_profile_picture": "Profilkép feltöltése",
 			"drag_picture_text": "Húzd ide az új profilképet, vagy kattints ide a kiválasztáshoz.",
 			"file_selected": "Fájl kiválasztva:",
+			"remove_file": "Másik fájl kiválasztása",
 			"last_saved": "Utoljára mentve:",
 			"saving": "Mentés...",
 			"save_changes": "Változtatások mentése",
@@ -141,7 +142,9 @@
 			"two_fa_confirm_title": "2 faktoros azonosítás",
 			"two_fa_confirm_description": "A kétfaktoros azonosítás egy extra biztonsági réteget ad a fiókodhoz, megkövetelve egy második azonosítási formát a jelszó mellett.",
 			"two_fa_cancel": "Mégse",
-			"two_fa_confirm": "Váltás"
+			"two_fa_confirm": "Váltás",
+			"dark_mode": "Sötét mód",
+			"dark_mode_subtitle": "Sötét témára váltás a jobb élmény érdekében"
 		}
 	},
 	"community": {
