@@ -172,6 +172,9 @@ export const EditProfile = (props: {
 					<div>
 						<InputComponent
 							label={t("profile.edit_profile.username_label")}
+							name="profile_display_name"
+							autoComplete="off"
+							ignorePasswordManager
 							placeholder={t(
 								"profile.edit_profile.username_placeholder",
 							)}
@@ -191,6 +194,9 @@ export const EditProfile = (props: {
 					<div>
 						<InputComponent
 							label={t("profile.edit_profile.email_label")}
+							name="profile_contact_email"
+							autoComplete="off"
+							ignorePasswordManager
 							placeholder={t(
 								"profile.edit_profile.email_placeholder",
 							)}
@@ -212,6 +218,9 @@ export const EditProfile = (props: {
 					<div className="md:col-span-2">
 						<TextAreaComponent
 							label={t("profile.edit_profile.bio_label")}
+							name="profile_bio"
+							autoComplete="off"
+							ignorePasswordManager
 							placeholder={t(
 								"profile.edit_profile.bio_placeholder",
 							)}

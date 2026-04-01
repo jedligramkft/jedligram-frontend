@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 export const InputComponent = (props: {
 	label: string;
 	type?: string;
+	name?: string;
 	value: string;
 	placeholder?: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -12,16 +13,21 @@ export const InputComponent = (props: {
 	labelClassName?: string;
 	maxLength?: number;
 	disabled?: boolean;
+	autoComplete?: string;
+	ignorePasswordManager?: boolean;
 }) => {
 	const {
 		label,
 		type = "text",
+		name,
 		value,
 		placeholder,
 		onChange,
 		absoluteChildren,
 		maxLength,
 		disabled,
+		autoComplete,
+		ignorePasswordManager,
 	} = props;
 
 	return (
@@ -34,14 +40,21 @@ export const InputComponent = (props: {
 			</label>
 			<div className={`${absoluteChildren ? "relative" : "block"}`}>
 				<input
-					name={label}
+					name={name ?? label}
 					type={type}
 					placeholder={placeholder}
 					value={value}
 					onChange={onChange}
 					maxLength={maxLength}
+					autoComplete={
+						autoComplete ??
+						(ignorePasswordManager ? "off" : undefined)
+					}
 					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20 disabled:cursor-not-allowed disabled:border-white/5 disabled:bg-white/5 disabled:text-white/40 disabled:placeholder:text-white/30 ${props.inputClassName || ""}`}
 					disabled={disabled}
+					data-bwignore={ignorePasswordManager ? "true" : undefined}
+					data-lpignore={ignorePasswordManager ? "true" : undefined}
+					data-1p-ignore={ignorePasswordManager ? "true" : undefined}
 				/>
 				{absoluteChildren}
 			</div>
