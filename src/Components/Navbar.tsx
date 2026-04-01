@@ -1,9 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getActiveTheme, toggleTheme } from "../theme";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
-import { MoonIcon } from "./CustomIcons/MoonIcon";
-import { SunIcon } from "./CustomIcons/SunIcon";
 import { Searchbar } from "./Searchbar/Searchbar";
 import { useTranslation } from "react-i18next";
 
@@ -20,13 +16,6 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 		i18n.changeLanguage(lang);
 		localStorage.setItem("language", lang);
 	};
-
-	useEffect(() => {
-		const onThemeChanged = () => setActiveTheme(getActiveTheme());
-		window.addEventListener("theme-changed", onThemeChanged);
-		return () =>
-			window.removeEventListener("theme-changed", onThemeChanged);
-	}, []);
 
 	return (
 		<nav className="bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-b border-gray-700 text-white shadow-lg sticky top-0 z-50 poppins-regular">
