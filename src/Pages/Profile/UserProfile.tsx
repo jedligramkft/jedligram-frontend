@@ -114,6 +114,9 @@ const UserProfile = () => {
 			await getJoinedThreads(targetId);
 		};
 
+		setTargetUser(null);
+		setJoinedThreads([]);
+
 		asyncInit();
 	}, [params.id]);
 
