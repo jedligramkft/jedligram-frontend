@@ -100,6 +100,7 @@ const ConfirmationModal = ({
 									exportName="faSpinner"
 									className="animate-spin"
 								/>
+								Folyamatban...
 							</span>
 						) : (
 							<span>{confirmText}</span>

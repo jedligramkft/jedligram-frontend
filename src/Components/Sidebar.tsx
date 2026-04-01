@@ -94,7 +94,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 		if (isLoggedIn && userId !== -1) {
 			getJoinedThreads();
 		}
-	}, []);
+	}, [isLoggedIn, userId]);
 
 	useEffect(() => {
 		loadFromStorage();
