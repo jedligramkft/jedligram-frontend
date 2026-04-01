@@ -271,6 +271,10 @@ export const EditProfile = (props: {
 									onClick={() => setFileToUpload(null)}
 									className="mt-4 inline-flex items-center justify-center rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-red-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
 								>
+									<DynamicFAIcon
+										exportName="faX"
+										className="mr-2"
+									/>
 									{t("profile.edit_profile.remove_file")}
 								</button>
 							</div>
