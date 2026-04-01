@@ -51,9 +51,7 @@ export const TextAreaComponent = (props: {
 					className={`w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none focus:border-white/20 ${props.textAreaClassName || ""}`}
 					data-bwignore={ignorePasswordManager ? "true" : undefined}
 					data-lpignore={ignorePasswordManager ? "true" : undefined}
-					data-1p-ignore={
-						ignorePasswordManager ? "true" : undefined
-					}
+					data-1p-ignore={ignorePasswordManager ? "true" : undefined}
 				/>
 				{absoluteChildren}
 			</div>
