@@ -2,9 +2,14 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import { VoteOnPost } from "../../../api/vote";
+import { InputComponent } from "../../../Components/InputFields/InputComponent";
+import { TextAreaComponent } from "../../../Components/InputFields/TextAreaComponent";
+import { CommentOnPostOrReplyToComment } from "../../../api/comments";
 
 type PostItemProps = {
 	node: PostAndCommentData;
+	originalPostId: number; // The ID of the original top-level post that all comments and replies are ultimately associated with, used for API calls related to commenting and voting.
+	isTopLevel: boolean; // Whether this node is a top-level post (true) or a comment reply (false), used for styling decisions.
 	hasReplies: boolean;
 	avatarSizeStyle: CSSProperties;
 	connectorLineStyle: CSSProperties;
@@ -13,6 +18,8 @@ type PostItemProps = {
 
 const PostItem = ({
 	node,
+	originalPostId,
+	isTopLevel,
 	hasReplies,
 	avatarSizeStyle,
 	connectorLineStyle,
@@ -31,6 +38,22 @@ const PostItem = ({
 		} else if (response.status === 204) {
 			setMyVote(null);
 		}
+	}
+
+	const [commentContent, setCommentContent] = useState("");
+	const [commentOpen, setCommentOpen] = useState(false);
+
+	async function HandleCommentSubmit(postId: number, content: string) {
+		if (isTopLevel) {
+			await CommentOnPostOrReplyToComment(originalPostId, content);
+		} else {
+			await CommentOnPostOrReplyToComment(
+				originalPostId,
+				content,
+				postId,
+			);
+		}
+		// TODO - ideally we would want to optimistically update the UI here instead of waiting for a refetch, but that requires some extra logic to insert the new comment into the correct place in the existing tree, so for now we'll just rely on the fact that after submitting a comment, the API will return the updated list of comments which will then be merged and rendered by the existing useEffect in PostList that watches for changes to the active thread ID.
 	}
 
 	return (
@@ -88,13 +111,49 @@ const PostItem = ({
 									</button>
 								</div>
 							)}
-							<button className="text-white/75 hover:text-white text-sm">
+							<button
+								className={`hover:text-white text-sm transition-colors ${commentOpen ? "text-white" : "text-white/75"}`}
+								onClick={() => setCommentOpen(true)}
+							>
 								<DynamicFAIcon exportName="faComment" /> Reply
 							</button>
 							<button className="text-white/75 hover:text-white text-sm">
 								<DynamicFAIcon exportName="faShare" /> Share
 							</button>
 						</div>
+						{commentOpen && (
+							<div>
+								<TextAreaComponent
+									value={commentContent}
+									onChange={(e) =>
+										setCommentContent(e.target.value)
+									}
+									placeholder={`Válaszolj @${node.user.name} kommentjére...`}
+								/>
+								<div
+									className="flex gap-2 
+									*:mt-2 *:rounded-xl *:border *:border-white/20 *:px-4 *:py-2 *:text-sm *:font-semibold *:text-white/90 *:transition"
+								>
+									<button
+										onClick={() =>
+											HandleCommentSubmit(
+												node.id,
+												commentContent,
+											)
+										}
+										className="bg-blue-500/15 hover:bg-blue-500/20"
+									>
+										Elküld
+									</button>
+									<button
+										onClick={() => setCommentOpen(false)}
+										className="bg-white/5 hover:bg-white/10"
+									>
+										Mégse
+									</button>
+								</div>
+							</div>
+						)}
 						{/* Indented container for child replies of this node. */}
 						{hasReplies ? (
 							<div className="space-y-4 mt-4">{children}</div>

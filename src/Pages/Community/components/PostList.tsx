@@ -11,8 +11,6 @@ type Props = {
 	id: string | undefined;
 };
 
-// Shared shape used by the recursive renderer for posts and comment replies.
-
 const PostList = (props: Props) => {
 	const [postsAndComments, setPostsAndComments] = useState<
 		PostAndCommentData[]
@@ -78,7 +76,11 @@ const PostList = (props: Props) => {
 	}
 
 	// Recursively render a post tree: depth 0 is a post, depth > 0 are replies.
-	function renderReplies(nodes: PostAndCommentData[], depth = 0): ReactNode {
+	function renderReplies(
+		nodes: PostAndCommentData[],
+		depth = 0,
+		originalPostId: number,
+	): ReactNode {
 		if (!nodes || nodes.length === 0) {
 			return null;
 		}
@@ -87,10 +89,19 @@ const PostList = (props: Props) => {
 			const hasReplies =
 				Array.isArray(node.replies) && node.replies.length > 0; // Check if there are replies to render for this node.
 
+			const originalPostIdForChildren =
+				depth === 0 ? node.id : originalPostId; // For top-level posts, the original post ID is the node's own ID. For replies, it is passed down from above.
+
+			if (!hasReplies) {
+				console.log(`Post/comment with ID ${node.id} has no replies.`);
+			}
+
 			return (
 				<PostItem
 					key={`${depth}-${node.id}`}
 					node={node}
+					isTopLevel={depth === 0}
+					originalPostId={originalPostIdForChildren} // Pass the original post ID down to all replies for voting/commenting purposes.
 					hasReplies={hasReplies}
 					avatarSizeStyle={avatarSizeStyle}
 					connectorLineStyle={connectorLineStyle}
@@ -99,6 +110,7 @@ const PostList = (props: Props) => {
 						? renderReplies(
 								node.replies as PostAndCommentData[],
 								depth + 1,
+								originalPostIdForChildren,
 							)
 						: null}
 				</PostItem>
@@ -153,7 +165,7 @@ const PostList = (props: Props) => {
 						{t("community.post_list.no_posts")}
 					</div>
 				)} */}
-				{renderReplies(postsAndComments)}
+				{renderReplies(postsAndComments, 1, 0)}
 			</div>
 		</div>
 	);
