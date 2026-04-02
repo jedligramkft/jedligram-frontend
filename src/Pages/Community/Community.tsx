@@ -33,6 +33,8 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               posts={community.posts}
               votingPostId={community.votingPostId}
               onVote={community.handleVote}
+              onDeletePost={community.handleDeletePost}
+              userRole={community.getCurrentUserThreadRole()}
               openCommentsPostId={comments.openCommentsPostId}
               onToggleComments={comments.handleToggleComments}
               commentsByPostId={comments.commentsByPostId}

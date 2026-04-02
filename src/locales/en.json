@@ -177,7 +177,8 @@
 		"post_item": {
 			"unknown_author": "Unknown Author",
 			"open_comments": "Comments",
-			"close_comments": "Close Comments"
+			"close_comments": "Close Comments",
+			"delete": "Delete"
 		},
 		"post_list": {
 			"feed": "Feed",

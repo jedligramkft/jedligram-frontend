@@ -177,7 +177,8 @@
 		"post_item": {
 			"unknown_author": "Ismeretlen szerző",
 			"open_comments": "Kommentek",
-			"close_comments": "Hozzászólások bezárása"
+			"close_comments": "Hozzászólások bezárása",
+			"delete": "Törlés"
 		},
 		"post_list": {
 			"feed": "Feed",

@@ -3,7 +3,7 @@ import axios from "axios";
 import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread, GetThreadMembers } from "../../../api/threads";
 import { GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
-import { VoteOnPost } from "../../../api/posts";
+import { DeletePost, VoteOnPost } from "../../../api/posts";
 import type { UserData } from "../../../Interfaces/UserData";
 
 type RecentThreadItem = {
@@ -78,6 +78,16 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
 
     if (!Array.isArray(usersData)) return [];
     return usersData as UserData[];
+  };
+
+  const getCurrentUserThreadRole = (): number | undefined => {
+    const currentUserId = getCurrentUserId();
+
+    const member = joinedUsers.find((u) => Number(u.id) === Number(currentUserId));
+    if (!member) return undefined;
+
+    const roleNumber = Number((member as any)?.role_id);
+    return roleNumber;
   };
 
   const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -268,6 +278,19 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     }
   };
 
+  const handleDeletePost = async (postId: number) => {
+      const confirmed = window.confirm("Biztosan törölni szeretnéd ezt a posztot?");
+      if (!confirmed) return;
+
+      try {
+        await DeletePost(postId);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          err.response?.status === 401;
+        }
+      }
+    };
+
   return {
     thread,
     posts,
@@ -275,11 +298,13 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     votingPostId,
     joinedUsers,
     showAllMembers,
+    getCurrentUserThreadRole,
     handleNewPost,
     handleJoin,
     handleLeave,
     handleVote,
     handleLoadMoreUsernames,
     handleInvite,
+    handleDeletePost,
   };
 };

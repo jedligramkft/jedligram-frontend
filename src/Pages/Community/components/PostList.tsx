@@ -10,6 +10,8 @@ type Props = {
   posts: any[];
   votingPostId: number | null;
   onVote: (postId: number, isUpvote: boolean) => void;
+  onDeletePost?: (postId: number) => void;
+  userRole?: number;
   openCommentsPostId: number | null;
   onToggleComments: (postId: number) => void;
   commentsByPostId: Record<number, any[]>;
@@ -58,6 +60,8 @@ const PostList = (props: Props) => {
               isCommentsOpen={isOpen}
               onToggleComments={props.onToggleComments}
               onVote={props.onVote}
+              onDelete={props.onDeletePost}
+              userRole={props.userRole}
             >
               {isOpen && (
                 <CommentSection

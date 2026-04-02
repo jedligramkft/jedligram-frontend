@@ -8,11 +8,14 @@ type PostItemProps = {
   isCommentsOpen: boolean;
   onToggleComments: (postId: number) => void;
   onVote: (postId: number, isUpvote: boolean) => void;
+  onDelete?: (postId: number) => void;
+  userRole?: number;
   children?: React.ReactNode;
 };
 
-const PostItem = ({ post, postId, isVoting, score, isCommentsOpen, onToggleComments, onVote, children }: PostItemProps) => {
+const PostItem = ({ post, postId, isVoting, score, isCommentsOpen, onToggleComments, onVote, children, onDelete, userRole }: PostItemProps) => {
   const { t } = useTranslation();
+  const canDelete = userRole === 1 || userRole === 2;
 
   return (
     <article className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
@@ -33,7 +36,12 @@ const PostItem = ({ post, postId, isVoting, score, isCommentsOpen, onToggleComme
           <button disabled={isVoting} onClick={() => onVote(postId, false)} className="cursor-pointer rounded-lg border border-white/15 px-2 py-1 text-xs font-bold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
             ▼
           </button>
-        </div>
+        </div>        
+        {canDelete && onDelete && (
+          <button onClick={() => onDelete(postId)} className="cursor-pointer rounded-xl border border-red-500/30 px-4 py-2 text-xs font-semibold text-red-400/80 transition hover:bg-red-500/10">
+            {t("community.post_item.delete")}
+          </button>
+        )}
       </div>
       {children}
     </article>

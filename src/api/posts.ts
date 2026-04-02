@@ -48,6 +48,14 @@ export const GetCommentsForPost = async (postId: number): Promise<ResponseData> 
 	};
 };
 
+export const DeletePost = async (postId: number): Promise<ResponseData> => {
+	const response = await httpClient.delete(`/api/posts/${postId}`);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
 export const GetReplyCommentsForComment = async (commentId: number): Promise<ResponseData> => {
 	const response = await httpClient.get(`/api/comments/${commentId}/replies`);
 	return {
