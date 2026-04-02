@@ -59,6 +59,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
             userRole={community.getCurrentUserThreadRole()}
             currentUserId={community.getCurrentUserId()}
             onPromoteUser={community.handlePromoteUser}
+            onBanUser={community.handleBanUser}
           />
         </div>
       </div>

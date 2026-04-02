@@ -106,3 +106,21 @@ export const GetThreadMembers = async (
 		data: response.data,
 	};
 };
+
+export const BanThreadMember = async (
+	threadId: number,
+	userId: number,
+	roleId: number = 4,
+): Promise<ResponseData> => {
+	const response = await httpClient.patch(
+		`/api/threads/${threadId}/members/${userId}/ban`,
+		{
+			role_id: roleId,
+		},
+	);
+
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};

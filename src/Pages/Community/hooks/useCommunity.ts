@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread, GetThreadMembers } from "../../../api/threads";
+import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread, GetThreadMembers, BanThreadMember } from "../../../api/threads";
 import { GetUserThreads, UpdateUserThreadRole } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import { DeletePost, VoteOnPost } from "../../../api/posts";
@@ -284,6 +284,13 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
 
       try {
         await DeletePost(postId);
+        const response = await GetPostsInThread(threadId);
+        const refreshedPosts = (response.data?.posts ?? response.data) as unknown;
+        setPosts(
+          Array.isArray(refreshedPosts)
+            ? (refreshedPosts as Array<Record<string, unknown>>)
+            : [],
+        );
       } catch (err) {
         if (axios.isAxiosError(err)) {
           err.response?.status === 401;
@@ -310,6 +317,23 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     }
   };
 
+  const handleBanUser = async (userId: number) => {
+    if (Number.isNaN(threadId)) return;
+
+    const confirmed = window.confirm("Biztosan ki szeretnéd tiltani ezt a felhasználót?");
+    if (!confirmed) return;
+
+    try {
+      await BanThreadMember(threadId, userId);
+      const users = await fetchJoinedUsers(threadId);
+      setJoinedUsers(users);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        err.response?.status === 401;
+      }
+    }
+  };
+
   return {
     thread,
     posts,
@@ -327,5 +351,6 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     handleInvite,
     handleDeletePost,
     handlePromoteUser,
+    handleBanUser,
   };
 };

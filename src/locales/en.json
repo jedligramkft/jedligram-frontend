@@ -155,7 +155,10 @@
 			"member": "member",
 			"stats": "Stats",
 			"posts": "Posts",
-			"promote": "Promote"
+			"promote": "Promote",
+			"ban": "Ban",
+			"owner": "Owner",
+			"moderator": "Moderator"
 		},
 		"community_header": {
 			"community": "Community",

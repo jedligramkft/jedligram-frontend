@@ -155,7 +155,10 @@
 			"member": "tag",
 			"stats": "Statisztika",
 			"posts": "Posztok",
-			"promote": "Promóció"
+			"promote": "Promóció",
+			"ban": "Kitiltás",
+			"owner": "Tulajdonos",
+			"moderator": "Moderátor"
 		},
 		"community_header": {
 			"community": "Közösség",

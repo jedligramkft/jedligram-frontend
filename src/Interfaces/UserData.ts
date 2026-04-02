@@ -6,4 +6,5 @@ export interface UserData {
 	name?: string;
 	image_url?: string;
 	bio?: string;
+	role_id?: number;
 }
