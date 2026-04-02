@@ -19,7 +19,9 @@ const CommunityHeader = ({ id, thread, isJoined, onJoin, onLeave, onInvite }: Pr
     <>
       <WelcomeBanner communityName={thread?.name} />
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/30 backdrop-blur">
-        <div className="absolute inset-0 bg-linear-to-br from-blue-500/15 via-cyan-400/10 to-purple-500/15" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-500/15 via-cyan-400/10 to-purple-500/15" 
+          style={{ backgroundImage: thread?.header ? `url(${thread.header})` : undefined, opacity: thread?.header ? 0.2 : undefined }}
+        />
         <div className="relative z-10 p-8 md:p-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div className="flex items-center gap-5">

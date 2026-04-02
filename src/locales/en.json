@@ -45,7 +45,9 @@
 		"success_message": "Successfully created.",
 		"success_button": "Back to Communities",
 		"image_label": "Community Image",
-		"image_tip": "Tip: Choose an image that represents the community."
+		"image_tip": "Tip: Choose an image that represents the community.",
+		"header_label": "Community Header Image",
+		"header_tip": "Tip: Choose a header image that represents the community."
 	},
 	"allCommunities": {
 		"title": "Communities",

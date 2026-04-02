@@ -45,7 +45,9 @@
 		"success_message": "Sikeresen létrehozva.",
 		"success_button": "Vissza a közösségekhez",
 		"image_label": "Közösségi kép",
-		"image_tip": "Tipp: válassz egy képet, ami jól reprezentálja a közösséget."
+		"image_tip": "Tipp: válassz egy képet, ami jól reprezentálja a közösséget.",
+		"header_label": "Közösségi fejléc kép",
+		"header_tip": "Tipp: válassz egy fejléc képet, ami jól reprezentálja a közösséget."
 	},
 	"allCommunities": {
 		"title": "Közösségek",
