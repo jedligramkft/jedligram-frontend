@@ -51,7 +51,15 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
               setReplyDraft={comments.setReplyDraft}
             />
           </div>
-          <CommunitySidebar joinedUsers={community.joinedUsers} showAllMembers={community.showAllMembers} onLoadMore={community.handleLoadMoreUsernames} postsCount={community.posts.length} />
+          <CommunitySidebar
+            joinedUsers={community.joinedUsers}
+            showAllMembers={community.showAllMembers}
+            onLoadMore={community.handleLoadMoreUsernames}
+            postsCount={community.posts.length}
+            userRole={community.getCurrentUserThreadRole()}
+            currentUserId={community.getCurrentUserId()}
+            onPromoteUser={community.handlePromoteUser}
+          />
         </div>
       </div>
     </section>

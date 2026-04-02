@@ -67,3 +67,20 @@ export const ProfilePictureUpload = async (
 		throw new Error(status ? `[${status}] ${err.message}` : err.message);
 	}
 };
+
+export const UpdateUserThreadRole = async (
+	threadId: number,
+	userId: number,
+	roleId: number,
+): Promise<ResponseData> => {
+	const response = await httpClient.patch(
+		`/api/threads/${threadId}/members/${userId}`,
+		{
+			role_id: roleId,
+		},
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+}

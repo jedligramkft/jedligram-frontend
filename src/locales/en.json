@@ -154,7 +154,8 @@
 			"profile": "Profile",
 			"member": "member",
 			"stats": "Stats",
-			"posts": "Posts"
+			"posts": "Posts",
+			"promote": "Promote"
 		},
 		"community_header": {
 			"community": "Community",

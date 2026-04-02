@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { GetThreadById, GetPostsInThread, JoinThread, LeaveThread, GetThreadMembers } from "../../../api/threads";
-import { GetUserThreads } from "../../../api/users";
+import { GetUserThreads, UpdateUserThreadRole } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import { DeletePost, VoteOnPost } from "../../../api/posts";
 import type { UserData } from "../../../Interfaces/UserData";
@@ -291,6 +291,25 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
       }
     };
 
+  const handlePromoteUser = async (userId: number) => {
+    if (Number.isNaN(threadId)) return;
+
+    const confirmed = window.confirm("Biztosan moderátorrá szeretnéd tenni ezt a felhasználót?");
+    if (!confirmed) return;
+
+    try {
+      await UpdateUserThreadRole(threadId, userId, 2);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          navigateFn("/auth/login", { replace: true });
+          return;
+        }
+      }
+      alert("Nem sikerült a felhasználót előléptetni.");
+    }
+  };
+
   return {
     thread,
     posts,
@@ -299,6 +318,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     joinedUsers,
     showAllMembers,
     getCurrentUserThreadRole,
+    getCurrentUserId,
     handleNewPost,
     handleJoin,
     handleLeave,
@@ -306,5 +326,6 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     handleLoadMoreUsernames,
     handleInvite,
     handleDeletePost,
+    handlePromoteUser,
   };
 };

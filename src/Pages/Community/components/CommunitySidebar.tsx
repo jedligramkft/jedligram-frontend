@@ -7,10 +7,14 @@ type Props = {
   showAllMembers: boolean;
   onLoadMore: () => void;
   postsCount: number;
+  userRole?: number;
+  currentUserId?: number;
+  onPromoteUser?: (userId: number) => Promise<void> | void;
 };
 
-const CommunitySidebar = ({ joinedUsers: joinedUsers, showAllMembers, onLoadMore, postsCount }: Props) => {
+const CommunitySidebar = ({ joinedUsers: joinedUsers, showAllMembers, onLoadMore, postsCount, userRole, currentUserId, onPromoteUser }: Props) => {
   const { t } = useTranslation();
+  const canPromote = userRole === 1 && typeof onPromoteUser === "function";
 
   return (
     <aside className="space-y-6">
@@ -24,9 +28,17 @@ const CommunitySidebar = ({ joinedUsers: joinedUsers, showAllMembers, onLoadMore
               <div key={user.id} className="flex items-center gap-3">
                 <img src={user.image_url} alt={user.name} className="h-8 w-8 rounded-full object-cover" />
                 <span className="text-sm text-white/80">@{user.name}</span>
-                <Link to={`/users/${user.id}`} className="ml-auto rounded-xl border border-white/20 px-3 py-1 text-xs font-semibold text-white/90 transition hover:bg-white/10">
-                  {t("community.community_sidebar.profile")}
-                </Link>
+                <div className="ml-auto flex items-center gap-2">
+                  {canPromote && Number(user.id) !== Number(currentUserId) && (
+                    <button onClick={async () => {await onPromoteUser(user.id)}}
+                      className="rounded-xl border border-blue-500/30 px-3 py-1 text-xs font-semibold text-blue-400/80 transition hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-70">
+                      {t("community.community_sidebar.promote")}
+                    </button>
+                  )}
+                  <Link to={`/users/${user.id}`} className="rounded-xl border border-white/20 px-3 py-1 text-xs font-semibold text-white/90 transition hover:bg-white/10">
+                    {t("community.community_sidebar.profile")}
+                  </Link>
+                </div>
               </div>
             ))
           )}
