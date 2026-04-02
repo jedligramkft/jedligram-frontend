@@ -43,7 +43,9 @@
 		"validation_error": "Please fill in all required fields!",
 		"create_error": "Failed to create the community.",
 		"success_message": "Successfully created.",
-		"success_button": "Back to Communities"
+		"success_button": "Back to Communities",
+		"image_label": "Community Image",
+		"image_tip": "Tip: Choose an image that represents the community."
 	},
 	"allCommunities": {
 		"title": "Communities",

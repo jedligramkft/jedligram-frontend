@@ -24,7 +24,8 @@ const CommunityHeader = ({ id, thread, isJoined, onJoin, onLeave, onInvite }: Pr
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div className="flex items-center gap-5">
               <div className="shrink-0 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
-                  <span className="text-2xl font-bold text-white/60">{thread?.name.charAt(0).toUpperCase()}</span>
+                <img src={thread?.image} alt={thread?.name} className="h-full w-full rounded-2xl object-cover" />
+                {/* <span className="text-2xl font-bold text-white/60">{thread?.name.charAt(0).toUpperCase()}</span> */}
               </div>
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">{t("community.community_header.community")} {id ? `#${id}` : ""}</div>

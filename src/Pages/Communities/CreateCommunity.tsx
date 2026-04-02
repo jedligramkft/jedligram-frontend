@@ -2,7 +2,7 @@ import axios from "axios";
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CreateThread } from "../../api/threads";
+import { CreateThread, uploadThreadImage } from "../../api/threads";
 
 interface CreateCommunityProps {
     isLoggedIn: boolean;
@@ -16,6 +16,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
     const [communityName, setCommunityName] = useState("");
     const [description, setDescription] = useState("");
     const [rules, setRules] = useState("");
+    const [communityImage, setCommunityImage] = useState<File | null>(null);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -30,9 +31,17 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                 name: communityName.trim(),
                 description: description.trim(),
                 rules: rules.trim(),
+                image: "",
             });
+            const newThreadId = response.data.id;
+            
+            // Feltöltsd a képet ha van
+            if(communityImage) {
+                await uploadThreadImage(newThreadId, communityImage);
+            }
+            
             setCreated(true);
-            setCommunityId(response.data.id);
+            setCommunityId(newThreadId);
         } catch(err){
         if(axios.isAxiosError(err)){
             const message = (err.response?.data as any)?.message;
@@ -92,6 +101,12 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
                                 <label htmlFor="description" className="text-xs font-semibold uppercase tracking-wider text-white/60">{t('createCommunity.description_label')}</label>
                                 <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none transition focus:border-white/20" placeholder={t('createCommunity.description_placeholder')}/>
                                 <p className="mt-2 text-xs text-white/55">{t('createCommunity.description_tip')}</p>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="image" className="text-xs font-semibold uppercase tracking-wider text-white/60">{t('createCommunity.image_label')}</label>
+                                <input type="file" id="image" accept="image/*" onChange={(e) => setCommunityImage(e.target.files ? e.target.files[0] : null)} className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/20"/>
+                                <p className="mt-2 text-xs text-white/55">{t('createCommunity.image_tip')}</p>
                             </div>
 
                             <div className="flex items-center justify-between gap-4">

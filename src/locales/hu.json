@@ -43,7 +43,9 @@
 		"validation_error": "Kérem, töltse ki a kötelező mezőket!",
 		"create_error": "Nem sikerült létrehozni a közösséget.",
 		"success_message": "Sikeresen létrehozva.",
-		"success_button": "Vissza a közösségekhez"
+		"success_button": "Vissza a közösségekhez",
+		"image_label": "Közösségi kép",
+		"image_tip": "Tipp: válassz egy képet, ami jól reprezentálja a közösséget."
 	},
 	"allCommunities": {
 		"title": "Közösségek",
