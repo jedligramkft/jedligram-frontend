@@ -106,3 +106,23 @@ export const GetThreadMembers = async (
 		data: response.data,
 	};
 };
+
+export const uploadThreadImage = async (threadId: number, file: File): Promise<ResponseData> => {
+	const formData = new FormData();
+	formData.append("image", file, file.name);
+
+	try {
+		const response = await httpClient.post(
+			`/api/threads/${threadId}/image`,
+			formData,
+		);
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const status = err?.response?.status;
+
+		throw new Error(status ? `[${status}] ${err.message}` : err.message);
+	}
+};
