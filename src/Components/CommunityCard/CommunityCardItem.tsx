@@ -14,8 +14,11 @@ const CommunityCardItem = ({ threads }: { threads: ThreadData[] }) => {
             </div>
             <div className="flex items-start gap-4">
                 <div className="shrink-0 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
-                    <img src={threads[0]?.image} alt={threads[0]?.name} className="h-full w-full rounded-2xl object-cover" />
-                    {/* <span className="text-2xl font-bold text-white/60">{threads[0]?.name.charAt(0).toUpperCase()}</span> */}
+                    {threads[0]?.image ? (
+                        <img src={threads[0].image} alt={threads[0].name} className="h-full w-full rounded-2xl object-cover" />
+                    ) : (
+                        <span className="text-2xl font-bold text-white/60">{threads[0]?.name.charAt(0).toUpperCase() ?? "?"}</span>
+                    )}
                 </div>
                 <div className="flex-1">
                     <h3 className="text-2xl font-semibold text-white">
