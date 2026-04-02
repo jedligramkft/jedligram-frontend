@@ -4,6 +4,7 @@ import CommunitySidebar from "./components/CommunitySidebar";
 import PostList from "./components/PostList";
 import { useCommunity } from "./hooks/useCommunity";
 import { useComments } from "./hooks/useComments";
+import { useEffect } from "react";
 
 interface CommunityProps {
 	isLoggedIn: boolean;
@@ -33,34 +34,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 				/>
 				<div className="mt-8 grid gap-6 lg:grid-cols-3">
 					<div className="lg:col-span-2">
-						<PostList
-							id={id}
-							isJoined={community.isJoined}
-							onJoin={community.handleJoin}
-							posts={community.posts}
-							votingPostId={community.votingPostId}
-							onVote={community.handleVote}
-							openCommentsPostId={comments.openCommentsPostId}
-							onToggleComments={comments.handleToggleComments} // Ez azt csinálja hogy megnyitja vagy bezárja a komment szekciót egy posztnál
-							commentsByPostId={comments.commentsByPostId}
-							commentDraftByPostId={comments.commentDraftByPostId} // Ez tárolja hogy milyen szöveg van beírva a komment mezőbe posztonként
-							onSubmitComment={comments.handleSubmitComment}
-							setCommentDraft={comments.setCommentDraft}
-							replyCommentsByCommentId={
-								comments.replyCommentsByCommentId
-							}
-							openRepliesCommentId={comments.openRepliesCommentId}
-							openReplyComposerCommentId={
-								comments.openReplyComposerCommentId
-							}
-							replyDraftByCommentId={
-								comments.replyDraftByCommentId
-							}
-							onToggleReplies={comments.handleToggleReplies}
-							onReplyClick={comments.handleReplyClick}
-							onReplySubmit={comments.handleSubmitReply}
-							setReplyDraft={comments.setReplyDraft}
-						/>
+						<PostList id={id} />
 					</div>
 					<CommunitySidebar
 						joinedUsers={community.joinedUsers}

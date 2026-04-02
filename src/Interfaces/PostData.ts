@@ -1,11 +1,10 @@
 import type { UserData } from "./UserData";
 
-export interface CommentData {
+export interface PostData {
 	id: number;
 	content: string;
 	user: UserData;
 	age: string;
-	depth: string;
-	replies_count: number;
-	replies: CommentData[];
+	thread_id: number;
+	score: number;
 }
