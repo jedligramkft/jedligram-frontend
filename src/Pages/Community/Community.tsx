@@ -3,8 +3,7 @@ import CommunityHeader from "./components/CommunityHeader";
 import CommunitySidebar from "./components/CommunitySidebar";
 import PostList from "./components/PostList";
 import { useCommunity } from "./hooks/useCommunity";
-import { useComments } from "./hooks/useComments";
-import { useEffect } from "react";
+// import { useComments } from "./hooks/useComments";
 
 interface CommunityProps {
 	isLoggedIn: boolean;
@@ -16,7 +15,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 	const threadId = id ? Number(id) : NaN;
 
 	const community = useCommunity(threadId, id, isLoggedIn, navigate);
-	const comments = useComments(isLoggedIn);
+	// const comments = useComments(isLoggedIn);
 
 	return (
 		<section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">

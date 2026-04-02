@@ -4,7 +4,7 @@ import type { PostData } from "../../../Interfaces/PostData";
 import type { CommentData } from "../../../Interfaces/CommentData";
 import { GetCommentsForPost } from "../../../api/comments";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
-import { VoteOnPost } from "../../../api/vote";
+// import { VoteOnPost } from "../../../api/vote";
 import PostItem from "./PostItem";
 
 type Props = {
