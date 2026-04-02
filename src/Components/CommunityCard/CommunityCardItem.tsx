@@ -7,7 +7,11 @@ const CommunityCardItem = ({ threads }: { threads: ThreadData[] }) => {
 
   return (
     <Link to={`/communities/${threads[0]?.id}`} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur transition hover:-translate-y-1 hover:border-white/20">
-        <div className={`absolute inset-0 bg-linear-to-br opacity-0 transition duration-500 group-hover:opacity-100`}/>
+      {threads[0]?.header && (
+        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url(${threads[0].header})` }}/>
+      )}
+
+      <div className={`absolute inset-0 ${threads[0]?.header ? 'bg-black/30' : ''}`} />
         <div className="relative z-10 flex h-full flex-col gap-4">
             <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
                 <span className="px-2 py-1 rounded-full border border-white/20 bg-white/10 text-xs font-semibold text-white/80">{threads[0]?.users_count ?? "N/A"} {t('allCommunities.members')}</span>
