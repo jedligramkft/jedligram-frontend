@@ -28,10 +28,24 @@ export const DeletePost = async (postId: number): Promise<ResponseData> => {
 export const CreatePostInThread = async (
 	threadId: number,
 	content: string,
+	image: File | null = null,
 ): Promise<ResponseData> => {
-	const response = await httpClient.post(`/api/threads/${threadId}/post`, {
-		content: content,
-	});
+	const formData = new FormData();
+	formData.append("content", content);
+
+	if (image) {
+		formData.append("image", image, image.name);
+	}
+
+	const response = await httpClient.post(
+		`/api/threads/${threadId}/post`,
+		formData,
+		{
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		},
+	);
 	return {
 		status: response.status,
 		data: response.data,

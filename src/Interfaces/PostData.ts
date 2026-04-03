@@ -7,4 +7,5 @@ export interface PostData {
 	age: string;
 	thread_id: number;
 	score: number;
+	image?: string;
 }

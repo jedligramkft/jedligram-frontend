@@ -71,6 +71,13 @@ const PostItem = ({
 							</span>
 						</div>
 						{/* Comment/post text body. */}
+						{node.image && (
+							<img
+								src={node.image}
+								alt="Post image"
+								className="max-h-60 object-contain rounded-lg"
+							/>
+						)}
 						<p className="wrap-anywhere">{node.content}</p>
 						{/* Voting and action buttons row. */}
 						<div className="flex gap-4">

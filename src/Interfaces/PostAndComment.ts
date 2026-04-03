@@ -9,6 +9,7 @@ export interface PostAndCommentData {
 	//post specific
 	thread_id?: number;
 	score?: number;
+	image?: string;
 
 	//comment specific
 	depth?: string;

@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { CreatePostInThread } from "../../api/posts";
+import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
+import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 
 const CreatePost = () => {
 	const { t } = useTranslation();
@@ -29,7 +31,7 @@ const CreatePost = () => {
 
 		setCreating(true);
 		try {
-			await CreatePostInThread(Number(id), content);
+			await CreatePostInThread(Number(id), content, fileToUpload);
 			setCreated(true);
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
@@ -47,6 +49,14 @@ const CreatePost = () => {
 			navigate(`/communities/${encodeURIComponent(id ?? "")}`);
 		}
 	});
+
+	const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+
+	const onProfilePictureSelected = async (file: File) => {
+		if (!file) return;
+
+		await setFileToUpload(file);
+	};
 
 	return (
 		<section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -109,6 +119,36 @@ const CreatePost = () => {
 									onChange={(e) => setContent(e.target.value)}
 								/>
 							</div>
+
+							{(fileToUpload && (
+								<div className="mb-4 p-3 md:p-4 bg-green-600/20 border border-green-600 rounded">
+									<p className="text-xs md:text-sm text-green-300 flex flex-wrap items-center gap-2">
+										<span>Fájl kiválasztva:</span>
+										<img
+											src={URL.createObjectURL(
+												fileToUpload,
+											)}
+											alt="Preview"
+											className="h-10 w-10 object-cover rounded-full"
+										/>
+										<button
+											className="p-2 hover:bg-green-600/30 rounded transition"
+											onClick={() =>
+												setFileToUpload(null)
+											}
+										>
+											<DynamicFAIcon exportName="faX" />
+										</button>
+									</p>
+								</div>
+							)) || (
+								<DragnDrop
+									onFileSelected={onProfilePictureSelected}
+									title="Kép hozzáadása"
+									description="Húzz ide egy képet, vagy kattints ide a kiválasztáshoz"
+									maxFileSizeBytes={4096 * 1024}
+								/>
+							)}
 
 							<div className="flex items-center justify-between gap-4">
 								<p className="text-xs text-white/55">
