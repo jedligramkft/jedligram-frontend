@@ -30,6 +30,7 @@ const PostItem = ({
 }: PostItemProps) => {
 	const POST_ID = `post-${node.id}-${originalPostId}`;
 	const [commentOpen, setCommentOpen] = useState(false);
+	const [isChildrenVisible, setIsChildrenVisible] = useState(true);
 
 	return (
 		<div className="space-y-4">
@@ -39,7 +40,10 @@ const PostItem = ({
 					{hasReplies ? (
 						/* Vertical line starts under the avatar when this node has children. */
 						<div
-							className="pointer-events-none absolute bottom-0 w-0.5 bg-white/35"
+							onClick={() => {
+								setIsChildrenVisible(false);
+							}}
+							className="absolute bottom-0 w-0.5 bg-white/35 cursor-pointer hover:bg-white/75 hover:w-1"
 							style={connectorLineStyle}
 						/>
 					) : null}
@@ -100,19 +104,46 @@ const PostItem = ({
 						node.replies_count &&
 						node.replies_count > 0 ? (
 							<button
-								className="text-sm text-white/75 cursor-pointer hover:text-white transition"
+								className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
 								onClick={() => {
 									if (OnLoadMoreComments) {
 										OnLoadMoreComments();
 									}
 								}}
 							>
+								<DynamicFAIcon
+									exportName="faCirclePlus"
+									size="lg"
+									className="mr-2"
+								/>{" "}
 								{node.replies_count} rejtett komment
+								megjelenítése
 							</button>
 						) : null}
 						{/* Indented container for child replies of this node. */}
 						{hasReplies ? (
-							<div className="space-y-4 mt-4">{children}</div>
+							<>
+								{isChildrenVisible ? (
+									<div className="space-y-4 mt-4">
+										{children}
+									</div>
+								) : (
+									<button
+										onClick={() => {
+											setIsChildrenVisible(true);
+										}}
+										className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+									>
+										<DynamicFAIcon
+											exportName="faCirclePlus"
+											size="lg"
+											className="mr-2"
+										/>{" "}
+										{node.replies_count} rejtett komment
+										megjelenítése
+									</button>
+								)}
+							</>
 						) : null}
 					</div>
 				</div>
