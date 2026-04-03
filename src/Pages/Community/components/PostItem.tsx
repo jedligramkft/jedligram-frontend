@@ -14,6 +14,7 @@ type PostItemProps = {
 	avatarSizeStyle: CSSProperties;
 	connectorLineStyle: CSSProperties;
 	children?: ReactNode;
+	OnLoadMoreComments?: () => void;
 };
 
 const PostItem = ({
@@ -25,6 +26,7 @@ const PostItem = ({
 	avatarSizeStyle,
 	connectorLineStyle,
 	children,
+	OnLoadMoreComments,
 }: PostItemProps) => {
 	const POST_ID = `post-${node.id}-${originalPostId}`;
 	const [commentOpen, setCommentOpen] = useState(false);
@@ -97,9 +99,16 @@ const PostItem = ({
 						{!hasReplies &&
 						node.replies_count &&
 						node.replies_count > 0 ? (
-							<div className="text-sm text-white/75">
+							<button
+								className="text-sm text-white/75 cursor-pointer hover:text-white transition"
+								onClick={() => {
+									if (OnLoadMoreComments) {
+										OnLoadMoreComments();
+									}
+								}}
+							>
 								{node.replies_count} rejtett komment
-							</div>
+							</button>
 						) : null}
 						{/* Indented container for child replies of this node. */}
 						{hasReplies ? (
