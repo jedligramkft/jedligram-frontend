@@ -1,10 +1,9 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
-import { TextAreaComponent } from "../../../Components/InputFields/TextAreaComponent";
-import { CommentOnPostOrReplyToComment } from "../../../api/comments";
 import VoteComponent from "./PostItem/VoteComponent";
 import SharePost from "./PostItem/SharePost";
+import CommentWriter from "./PostItem/CommentWriter";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -28,22 +27,7 @@ const PostItem = ({
 	children,
 }: PostItemProps) => {
 	const POST_ID = `post-${node.id}-${originalPostId}`;
-
-	const [commentContent, setCommentContent] = useState("");
 	const [commentOpen, setCommentOpen] = useState(false);
-
-	async function HandleCommentSubmit(postId: number, content: string) {
-		if (isTopLevel) {
-			await CommentOnPostOrReplyToComment(originalPostId, content);
-		} else {
-			await CommentOnPostOrReplyToComment(
-				originalPostId,
-				content,
-				postId,
-			);
-		}
-		// TODO - ideally we would want to optimistically update the UI here instead of waiting for a refetch, but that requires some extra logic to insert the new comment into the correct place in the existing tree, so for now we'll just rely on the fact that after submitting a comment, the API will return the updated list of comments which will then be merged and rendered by the existing useEffect in PostList that watches for changes to the active thread ID.
-	}
 
 	return (
 		<div className="space-y-4">
@@ -99,38 +83,24 @@ const PostItem = ({
 							/>
 						</div>
 						{commentOpen && (
-							<div>
-								<TextAreaComponent
-									value={commentContent}
-									onChange={(e) =>
-										setCommentContent(e.target.value)
-									}
-									placeholder={`Válaszolj @${node.user.name} kommentjére...`}
-								/>
-								<div
-									className="flex gap-2 
-									*:mt-2 *:rounded-xl *:border *:border-white/20 *:px-4 *:py-2 *:text-sm *:font-semibold *:text-white/90 *:transition"
-								>
-									<button
-										onClick={() =>
-											HandleCommentSubmit(
-												node.id,
-												commentContent,
-											)
-										}
-										className="bg-blue-500/15 hover:bg-blue-500/20"
-									>
-										Elküld
-									</button>
-									<button
-										onClick={() => setCommentOpen(false)}
-										className="bg-white/5 hover:bg-white/10"
-									>
-										Mégse
-									</button>
-								</div>
-							</div>
+							<CommentWriter
+								isTopLevel={isTopLevel}
+								originalPostId={originalPostId}
+								nodeId={node.id}
+								replyToUsername={
+									node.user.name ? node.user.name : "unknown"
+								}
+								onCommentSent={() => setCommentOpen(false)}
+								onCancel={() => setCommentOpen(false)}
+							/>
 						)}
+						{!hasReplies &&
+						node.replies_count &&
+						node.replies_count > 0 ? (
+							<div className="text-sm text-white/75">
+								{node.replies_count} rejtett komment
+							</div>
+						) : null}
 						{/* Indented container for child replies of this node. */}
 						{hasReplies ? (
 							<div className="space-y-4 mt-4">{children}</div>
