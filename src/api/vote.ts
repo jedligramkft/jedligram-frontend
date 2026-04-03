@@ -13,3 +13,11 @@ export const VoteOnPost = async (
 		data: response.data,
 	};
 };
+
+export const MyVoteOnPost = async (postId: number): Promise<ResponseData> => {
+	const response = await httpClient.get(`/api/posts/${postId}/myvote`);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};

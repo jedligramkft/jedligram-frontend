@@ -1,10 +1,9 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
-import { VoteOnPost } from "../../../api/vote";
-import { InputComponent } from "../../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../../Components/InputFields/TextAreaComponent";
 import { CommentOnPostOrReplyToComment } from "../../../api/comments";
+import VoteComponent from "./PostItem/VoteComponent";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -27,22 +26,6 @@ const PostItem = ({
 	connectorLineStyle,
 	children,
 }: PostItemProps) => {
-	const [myVote, setMyVote] = useState<1 | -1 | null>(null);
-
-	async function HandleVote(postId: number, isUpvote: boolean) {
-		const response = await VoteOnPost(postId, isUpvote);
-		if (response.status === 201) {
-			if (response.data.is_upvote) {
-				setMyVote(1);
-			} else {
-				setMyVote(-1);
-			}
-		} else if (response.status === 204) {
-			setMyVote(null);
-		}
-		//TODO - We need to check if the user has actually vodted on this post before rendering the current score and vote state, otherwise the UI will optimistically update to show the new vote state but then when the component re-renders with the actual data from the API, it will overwrite that optimistic state with the real state which doesn't reflect the user's most recent action. This could be solved by either including the user's vote in the API response when fetching posts/comments, or by implementing some kind of optimistic UI update that assumes the API call will succeed and then rolls back if it fails.
-	}
-
 	const [commentContent, setCommentContent] = useState("");
 	const [commentOpen, setCommentOpen] = useState(false);
 
@@ -112,24 +95,11 @@ const PostItem = ({
 						{/* Voting and action buttons row. */}
 						<div className="flex gap-4">
 							{/* Upvote and downvote buttons */}
-							{node.score !== undefined && (
-								<div className="bg-white/10 flex items-center gap-2 px-2 py-1 rounded-xl">
-									<button
-										onClick={() => {
-											HandleVote(node.id, true);
-										}}
-									>
-										<DynamicFAIcon exportName="faAngleUp" />
-									</button>
-									<span>{node.score + (myVote || 0)}</span>
-									<button
-										onClick={() => {
-											HandleVote(node.id, false);
-										}}
-									>
-										<DynamicFAIcon exportName="faAngleDown" />
-									</button>
-								</div>
+							{node.score !== undefined && isTopLevel && (
+								<VoteComponent
+									id={node.id}
+									startScore={node.score}
+								/>
 							)}
 							<button
 								className={`hover:text-white text-sm transition-colors ${commentOpen ? "text-white" : "text-white/75"}`}
