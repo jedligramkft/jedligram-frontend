@@ -94,7 +94,7 @@ const PostItem = ({
 								<DynamicFAIcon exportName="faComment" /> Reply
 							</button>
 							<SharePost
-								postId={node.id}
+								postId={POST_ID}
 								communityId={communityId}
 							/>
 						</div>

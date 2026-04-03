@@ -138,54 +138,6 @@ const PostList = (props: Props) => {
 		load();
 	}, [props.id]);
 
-	useEffect(() => {
-		// Check if the URL contains a hash (e.g., #post-123). If not, exit early.
-		const hash = window.location.hash;
-		if (!hash) {
-			return;
-		}
-
-		// Decode the hash to get the target element ID (e.g., "post-123").
-		// This is necessary because URL fragments are percent-encoded.
-		const targetId = decodeURIComponent(hash.slice(1));
-		let attempt = 0; // Track the number of scroll attempts.
-		let timeoutId: number | undefined; // Store the timeout ID for cleanup.
-
-		// Function to attempt scrolling to the target element.
-		const scrollToTarget = () => {
-			// Find the target element by its ID.
-			const targetElement = document.getElementById(targetId);
-			if (targetElement) {
-				// If the element exists, scroll it into view smoothly and center it in the viewport.
-				targetElement.scrollIntoView({
-					behavior: "smooth",
-					block: "center",
-				});
-				return; // Stop further attempts once scrolling is successful.
-			}
-
-			// If the element is not found and the maximum attempts are reached, stop retrying.
-			if (attempt >= 20) {
-				return;
-			}
-
-			// Increment the attempt counter and retry after a short delay (100ms).
-			attempt += 1;
-			timeoutId = window.setTimeout(scrollToTarget, 100);
-		};
-
-		// Start the scrolling attempts.
-		scrollToTarget();
-
-		// Cleanup function to clear any pending timeouts when the component unmounts
-		// or when the dependency array changes.
-		return () => {
-			if (timeoutId !== undefined) {
-				window.clearTimeout(timeoutId);
-			}
-		};
-	}, [postsAndComments]);
-
 	return (
 		<div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur space-y-6">
 			<div className="flex items-center justify-between">

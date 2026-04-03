@@ -4,7 +4,7 @@ const SharePost = ({
 	postId,
 	communityId,
 }: {
-	postId: number;
+	postId: string;
 	communityId: number;
 }) => {
 	async function handleShare() {
