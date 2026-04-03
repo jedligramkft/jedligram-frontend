@@ -23,16 +23,11 @@ function App() {
 		Boolean(localStorage.getItem(authTokenName)),
 	);
 
-	// useEffect(() => {
-	// 	if (location.hash) return;
-
-	// 	window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-	// }, [location.pathname, location.search, location.hash]);
-
 	useEffect(() => {
 		// Check if the URL contains a hash (e.g., #post-123). If not, exit early.
 		const hash = location.hash;
 		if (!hash) {
+			window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 			return;
 		}
 
