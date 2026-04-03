@@ -11,6 +11,7 @@ const VoteComponent = ({
 }) => {
 	const [myVote, setMyVote] = useState<1 | -1 | null>(null); // The vote that I personally have on this post. 1=up, -1=down, null=no vote
 	const [clientVoteCount, setClientVoteCount] = useState(startScore || 0); // The current vote count for this post, as tracked by the client. This starts at the value provided by the server, but is then updated optimistically whenever I vote, so that the UI can reflect my vote immediately without a refetch.
+	const [isLoading, setIsLoading] = useState(true); // Whether we are currently loading the user's vote from the server.
 
 	/*
 	 If i have already voted, I need to change the total amount of votes fetched from the api
@@ -20,7 +21,6 @@ const VoteComponent = ({
 	*/
 	async function fetchMyVote() {
 		const response = await MyVoteOnPost(id);
-		await new Promise((resolve) => setTimeout(resolve, 5000));
 		if (response.status === 200 && response.data) {
 			if (response.data.is_upvote === true) {
 				setMyVote(1);
@@ -28,19 +28,18 @@ const VoteComponent = ({
 			} else if (response.data.is_upvote === false) {
 				setMyVote(-1);
 				setClientVoteCount(clientVoteCount + 1);
+			} else {
+				setMyVote(null);
 			}
-		}
-		if (response.status === 404) {
-			setMyVote(null);
 		}
 	}
 
 	async function HandleVote(postId: number, isUpvote: boolean) {
 		const response = await VoteOnPost(postId, isUpvote);
 		if (response.status === 201) {
-			if (response.data.is_upvote) {
+			if (response.data.is_upvote === true) {
 				setMyVote(1);
-			} else {
+			} else if (response.data.is_upvote === false) {
 				setMyVote(-1);
 			}
 		} else if (response.status === 204) {
@@ -50,7 +49,9 @@ const VoteComponent = ({
 
 	useEffect(() => {
 		async function load() {
+			setIsLoading(true);
 			await fetchMyVote();
+			setIsLoading(false);
 		}
 		load();
 	}, []);
@@ -58,27 +59,38 @@ const VoteComponent = ({
 	return (
 		// TODO style this component
 		<div className="bg-white/10 flex items-center gap-2 px-2 py-1 rounded-xl">
-			<button
-				onClick={() => {
-					HandleVote(id, true);
-				}}
-				style={{
-					backgroundColor: myVote === 1 ? "green" : "transparent",
-				}}
-			>
-				<DynamicFAIcon exportName="faAngleUp" />
-			</button>
-			<span>{clientVoteCount + (myVote || 0)}</span>
-			<button
-				onClick={() => {
-					HandleVote(id, false);
-				}}
-				style={{
-					backgroundColor: myVote === -1 ? "red" : "transparent",
-				}}
-			>
-				<DynamicFAIcon exportName="faAngleDown" />
-			</button>
+			{isLoading ? (
+				<DynamicFAIcon
+					exportName="faSpinner"
+					className="animate-spin"
+				/>
+			) : (
+				<>
+					<button
+						onClick={() => {
+							HandleVote(id, true);
+						}}
+						style={{
+							backgroundColor:
+								myVote === 1 ? "green" : "transparent",
+						}}
+					>
+						<DynamicFAIcon exportName="faAngleUp" />
+					</button>
+					<span>{clientVoteCount + (myVote || 0)}</span>
+					<button
+						onClick={() => {
+							HandleVote(id, false);
+						}}
+						style={{
+							backgroundColor:
+								myVote === -1 ? "red" : "transparent",
+						}}
+					>
+						<DynamicFAIcon exportName="faAngleDown" />
+					</button>
+				</>
+			)}
 		</div>
 	);
 };

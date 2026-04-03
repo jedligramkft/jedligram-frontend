@@ -4,6 +4,7 @@ import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import { TextAreaComponent } from "../../../Components/InputFields/TextAreaComponent";
 import { CommentOnPostOrReplyToComment } from "../../../api/comments";
 import VoteComponent from "./PostItem/VoteComponent";
+import SharePost from "./PostItem/SharePost";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -26,6 +27,8 @@ const PostItem = ({
 	connectorLineStyle,
 	children,
 }: PostItemProps) => {
+	const POST_ID = `post-${node.id}-${originalPostId}`;
+
 	const [commentContent, setCommentContent] = useState("");
 	const [commentOpen, setCommentOpen] = useState(false);
 
@@ -42,28 +45,11 @@ const PostItem = ({
 		// TODO - ideally we would want to optimistically update the UI here instead of waiting for a refetch, but that requires some extra logic to insert the new comment into the correct place in the existing tree, so for now we'll just rely on the fact that after submitting a comment, the API will return the updated list of comments which will then be merged and rendered by the existing useEffect in PostList that watches for changes to the active thread ID.
 	}
 
-	const postId = `post-${node.id}-${originalPostId}`;
-
-	async function handleShare() {
-		if (Number.isNaN(originalPostId)) return;
-
-		try {
-			const inviteUrl = new URL(
-				`/communities/${communityId}#${postId}`,
-				window.location.origin,
-			).toString();
-			await (navigator as any).share({ url: inviteUrl });
-			return;
-		} catch (err) {
-			console.error("Error sharing post:", err);
-		}
-	}
-
 	return (
 		<div className="space-y-4">
 			<article>
 				{/* Left column area: avatar and thread connector line. */}
-				<div className="relative flex items-start gap-2" id={postId}>
+				<div className="relative flex items-start gap-2" id={POST_ID}>
 					{hasReplies ? (
 						/* Vertical line starts under the avatar when this node has children. */
 						<div
@@ -107,12 +93,10 @@ const PostItem = ({
 							>
 								<DynamicFAIcon exportName="faComment" /> Reply
 							</button>
-							<button
-								className="text-white/75 hover:text-white text-sm transition-colors"
-								onClick={handleShare}
-							>
-								<DynamicFAIcon exportName="faShare" /> Share
-							</button>
+							<SharePost
+								postId={node.id}
+								communityId={communityId}
+							/>
 						</div>
 						{commentOpen && (
 							<div>

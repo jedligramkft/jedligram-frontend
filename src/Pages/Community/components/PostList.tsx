@@ -94,8 +94,8 @@ const PostList = (props: Props) => {
 			const originalPostIdForChildren =
 				depth === 0 ? node.id : originalPostId; // For top-level posts, the original post ID is the node's own ID. For replies, it is passed down from above.
 
-			if (!hasReplies) {
-				console.log(`Post/comment with ID ${node.id} has no replies.`);
+			if (!hasReplies && node.replies_count && node.replies_count > 0) {
+				node.user.name = "MÉG VAN REJTETT KOMMENT";
 			}
 
 			return (
