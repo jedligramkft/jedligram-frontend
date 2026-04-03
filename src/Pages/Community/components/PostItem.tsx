@@ -4,6 +4,7 @@ import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import VoteComponent from "./PostItem/VoteComponent";
 import SharePost from "./PostItem/SharePost";
 import CommentWriter from "./PostItem/CommentWriter";
+import { Link } from "react-router";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -58,9 +59,12 @@ const PostItem = ({
 					<div className="flex-1 space-y-3">
 						{/* Username and timestamp row. */}
 						<div className="flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap">
-							<h3 className="shrink-0 text-white/75 text-sm">
+							<Link
+								to={`/users/${node.user.id}`}
+								className="shrink-0 text-white/75 text-sm hover:text-white"
+							>
 								@{node.user.name}
-							</h3>
+							</Link>
 							<span className="shrink-0 text-white/55">·</span>
 							<span className="shrink-0 text-xs text-white/55">
 								{node.age}
