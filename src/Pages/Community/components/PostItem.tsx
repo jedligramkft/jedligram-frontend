@@ -40,6 +40,7 @@ const PostItem = ({
 		} else if (response.status === 204) {
 			setMyVote(null);
 		}
+		//TODO - We need to check if the user has actually vodted on this post before rendering the current score and vote state, otherwise the UI will optimistically update to show the new vote state but then when the component re-renders with the actual data from the API, it will overwrite that optimistic state with the real state which doesn't reflect the user's most recent action. This could be solved by either including the user's vote in the API response when fetching posts/comments, or by implementing some kind of optimistic UI update that assumes the API call will succeed and then rolls back if it fails.
 	}
 
 	const [commentContent, setCommentContent] = useState("");

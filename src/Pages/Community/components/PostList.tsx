@@ -6,9 +6,11 @@ import { GetCommentsForPost } from "../../../api/comments";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 // import { VoteOnPost } from "../../../api/vote";
 import PostItem from "./PostItem";
+import { Link } from "react-router-dom";
 
 type Props = {
 	id: string | undefined;
+	isJoined: boolean;
 };
 
 const PostList = (props: Props) => {
@@ -185,10 +187,10 @@ const PostList = (props: Props) => {
 	}, [postsAndComments]);
 
 	return (
-		<div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
-			{/* <div className="flex items-center justify-between">
+		<div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur space-y-6">
+			<div className="flex items-center justify-between">
 				<h2 className="text-xl font-semibold text-white">Posztok</h2>
-				{props.isJoined ? (
+				{props.isJoined && (
 					<Link
 						to={
 							props.id
@@ -197,23 +199,22 @@ const PostList = (props: Props) => {
 						}
 						className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
 					>
-						{t("community.post_list.create_post")}
+						{/* {t("community.post_list.create_post")} */}
+						Új poszt
 					</Link>
-				) : (
-					<button
-						onClick={props.onJoin}
-						className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
-					>
-						{t("community.post_list.join_to_post")}
-					</button>
 				)}
-			</div> */}
-			<div className="space-y-4 overflow-x-auto pb-2">
-				{/* {posts.length === 0 && (
+			</div>
+			<div
+				className={`space-y-4 overflow-x-auto ${postsAndComments.length === 0 ? "pb-2" : ""}`}
+			>
+				{postsAndComments.length === 0 && (
 					<div className="text-sm text-white/70">
-						{t("community.post_list.no_posts")}
+						{/* {t("community.post_list.no_posts")} */}
+						Nincsenek posztok. Legyél te az első, aki megoszt
+						valamit a közösségben!
 					</div>
-				)} */}
+				)}
+
 				{renderReplies(postsAndComments)}
 			</div>
 		</div>

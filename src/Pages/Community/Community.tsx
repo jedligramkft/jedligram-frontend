@@ -33,7 +33,7 @@ const Community = ({ isLoggedIn }: CommunityProps) => {
 				/>
 				<div className="mt-8 grid gap-6 lg:grid-cols-3">
 					<div className="lg:col-span-2">
-						<PostList id={id} />
+						<PostList id={id} isJoined={community.isJoined} />
 					</div>
 					<CommunitySidebar
 						joinedUsers={community.joinedUsers}
