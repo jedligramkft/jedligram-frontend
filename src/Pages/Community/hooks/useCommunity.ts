@@ -7,7 +7,7 @@ import {
 	LeaveThread,
 	GetThreadMembers,
 } from "../../../api/threads";
-import { GetUsers, GetUserThreads } from "../../../api/users";
+import { GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
 import { VoteOnPost } from "../../../api/vote";
