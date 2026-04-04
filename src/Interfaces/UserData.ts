@@ -4,6 +4,7 @@ export interface UserData {
 	username: string;
 	password: string;
 	name?: string;
+	post_karma?: 0;
 	image_url?: string;
 	bio?: string;
 }
