@@ -1,4 +1,6 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useTranslation } from "react-i18next";
+import DynamicFAIcon from "../Utils/DynamicFaIcon";
 
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
@@ -31,6 +33,7 @@ export const DragnDrop = ({
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const { t } = useTranslation();
 
 	const acceptedMimeTypes = accept.map((ext) => {
 		return ext.replace(".", "image/");
@@ -129,19 +132,23 @@ export const DragnDrop = ({
 					type="button"
 					onClick={() => fileInputRef.current?.click()}
 					disabled={isUploading}
-					className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
+					className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
 				>
+					<DynamicFAIcon
+						exportName="faCloudArrowUp"
+						className="mr-2"
+					/>
 					{isUploading ? uploadingLabel : selectButtonLabel}
 				</button>
 				<div className="*:text-xs *:text-gray-500 mt-4">
 					<p>
-						Elfogadott formátumok:{" "}
+						{t("dragNdrop.accepted_files")}:{" "}
 						{accept.includes("*")
 							? "Minden formátum"
 							: accept.join(", ")}
 					</p>
 					<p>
-						Maximum fájl méret:{" "}
+						{t("dragNdrop.max_file_size")}:{" "}
 						{maxFileSizeBytes === -1
 							? "Nincs korlátozás"
 							: `${maxFileSizeBytes / (1024 * 1024)} MB`}

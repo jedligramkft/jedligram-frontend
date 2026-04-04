@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import type { ThreadData } from "../../Interfaces/ThreadData";
+import { useTranslation } from "react-i18next";
 import { SearchThreads } from "../../api/threads";
 
 // type PostResult = {
@@ -17,6 +18,7 @@ const SearchResults = () => {
 	const [threadResults, setThreadResults] = useState<ThreadData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string>("");
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		let cancelled = false;
@@ -67,10 +69,10 @@ const SearchResults = () => {
 					<div className="flex items-start justify-between gap-4">
 						<div>
 							<h1 className="text-3xl font-black text-white">
-								Keresési találatok
+								{t("search_results.title")}
 							</h1>
 							<p className="mt-2 text-sm text-white/70">
-								Kifejezés:{" "}
+								{t("search_results.results_for")}{" "}
 								<span className="font-semibold text-white/85">
 									{q || "—"}
 								</span>
@@ -80,29 +82,30 @@ const SearchResults = () => {
 							to="/"
 							className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10"
 						>
-							Vissza
+							{t("search_results.back_btn")}
 						</Link>
 					</div>
 
 					{q && isLoading && (
 						<div className="mt-8 text-sm text-white/70">
-							Találatok betöltése…
+							{t("search_results.loading")}
 						</div>
 					)}
 
 					{q && !isLoading && !error && (
 						<div className="mt-8">
 							<h2 className="text-xl font-semibold text-white">
-								Közösségek
+								{t("search_results.communities")}
 							</h2>
 							<p className="mt-1 text-sm text-white/60">
-								Találatok: {threadResults.length}
+								{t("search_results.results")}{" "}
+								{threadResults.length}
 							</p>
 
 							<div className="mt-4 grid gap-3">
 								{threadResults.length === 0 ? (
 									<div className="text-sm text-white/60">
-										Nincs találat.
+										{t("search_results.no_results")}
 									</div>
 								) : (
 									threadResults.map((t) => (

@@ -1,97 +1,213 @@
 {
-    "navbar": {
-        "search_placeholder": "Search communities..."
-    },
-    "sidebar": {
-        "menus": {
-        "main": "Main Menu",
-        "main_buttons": {
-            "explore": "Explore",
-            "popular_communities": "Popular Communities",
-            "create_community": "Create Community",
-            "start_new_community": "Start New Community",
-            "profile": "Profile",
-            "manage_profile": "Manage Profile"
-        },
-        "recently_viewed": "Recently Viewed",
-        "joined": "Joined Communities",
-        "not_logged_in": "Log in to view",
-        "no_joined_threads": "No joined communities",
-        "login_btn": "Login",
-        "logout": "Logout"
-        }
-    },
-    "hero": {
-        "title": "Welcome to Jedligram!",
-        "description": "Discover and join communities that share your interests.",
-        "search_placeholder": "Search communities..."
-    },
-    "createCommunity": {
-        "title": "Create Community",
-        "description": "Enter the basic information. You can modify it anytime later.",
-        "back_button": "Back",
-        "name_label": "Community Name",
-        "name_placeholder": "Enter community name…",
-        "rules_label": "Rules",
-        "rules_placeholder": "Enter community rules…",
-        "description_label": "Description",
-        "description_placeholder": "Enter community description…",
-        "description_tip": "Tip: describe what the community is about and who it's for in a few sentences.",
-        "info_text": "The community will appear in the list, and others can join.",
-        "submit_button": "Create Community",
-        "disclaimer": "By clicking Create, you accept the community guidelines.",
-        "validation_error": "Please fill in all required fields!",
-        "create_error": "Failed to create the community.",
-        "success_message": "Successfully created.",
-        "success_button": "Back to Communities"
-    },
-    "allCommunities": {
-        "title": "Communities",
-        "description": "Explore topics, join conversations, and find your place.",
-        "total": "Total",
-        "community_count": "communities",
-        "create_button": "Create Community",
-        "login_button": "Sign in to create community",
-        "members": "members",
-        "default_description": "Join weekly events, share strategies, and enjoy friendly competition.",
-        "view_button": "View"
-    },
-    "createPost": {
-        "title": "New Post",
-        "description": "Share your thoughts with the community",
-        "community_label": "Community",
-        "back_button": "Back",
-        "content_label": "Content",
-        "content_placeholder": "Write your post content here…",
-        "info_text": "The post will appear in the community feed.",
-        "submit_button_loading": "Creating…",
-        "submit_button": "Create Post",
-        "success_message": "Successfully created.",
-        "success_button": "Back to Community"
-    },
-    "communities": {
-        "featured_title": "Discover",
-        "featured_heading": "Featured Communities",
-        "featured_description": "Explore the most active communities and join your favorites.",
-        "total": "Total",
-        "community_count": "communities",
-        "view_all": "All Communities",
-        "create": "Create Community",
-        "retry": "Try Again",
-        "load_error": "Failed to load communities.",
-        "active": "Active",
-        "default_description": "Join and start conversations!",
-        "members": "members",
-        "view_community": "View",
-        "more_communities": "More Communities",
-        "no_results": "No results.",
-        "no_results_description": "Check all communities or create a new one."
-    },
-    "footer": {
-        "copyright": "All rights reserved.",
-        "home": "Home",
-        "communities": "Communities",
-        "profile": "Profile",
-        "login": "Login"
-    }
+	"navbar": {
+		"search_placeholder": "Search communities..."
+	},
+	"sidebar": {
+		"menus": {
+			"main": "Main Menu",
+			"main_buttons": {
+				"explore": "Explore",
+				"popular_communities": "Popular Communities",
+				"create_community": "Create Community",
+				"start_new_community": "Start New Community",
+				"profile": "Profile",
+				"manage_profile": "Manage Profile"
+			},
+			"recently_viewed": "Recently Viewed",
+			"joined": "Joined Communities",
+			"not_logged_in": "Log in to view",
+			"no_joined_threads": "No joined communities",
+			"login_btn": "Login",
+			"logout": "Logout"
+		}
+	},
+	"hero": {
+		"title": "Welcome to Jedligram!",
+		"description": "Discover and join communities that share your interests.",
+		"search_placeholder": "Search communities..."
+	},
+	"createCommunity": {
+		"title": "Create Community",
+		"description": "Enter the basic information. You can modify it anytime later.",
+		"back_button": "Back",
+		"name_label": "Community Name",
+		"name_placeholder": "Enter community name…",
+		"rules_label": "Rules",
+		"rules_placeholder": "Enter community rules…",
+		"description_label": "Description",
+		"description_placeholder": "Enter community description…",
+		"description_tip": "Tip: describe what the community is about and who it's for in a few sentences.",
+		"info_text": "The community will appear in the list, and others can join.",
+		"submit_button": "Create Community",
+		"disclaimer": "By clicking Create, you accept the community guidelines.",
+		"validation_error": "Please fill in all required fields!",
+		"create_error": "Failed to create the community.",
+		"success_message": "Successfully created.",
+		"success_button": "Back to Communities",
+		"image_label": "Community Image",
+		"image_tip": "Tip: Choose an image that represents the community.",
+		"header_label": "Community Header Image",
+		"header_tip": "Tip: Choose a header image that represents the community."
+	},
+	"allCommunities": {
+		"title": "Communities",
+		"description": "Explore topics, join conversations, and find your place.",
+		"total": "Total",
+		"community_count": "communities",
+		"create_button": "Create Community",
+		"login_button": "Sign in to create community",
+		"members": "members",
+		"default_description": "Join weekly events, share strategies, and enjoy friendly competition.",
+		"view_button": "View"
+	},
+	"createPost": {
+		"title": "New Post",
+		"description": "Share your thoughts with the community",
+		"community_label": "Community",
+		"back_button": "Back",
+		"content_label": "Content",
+		"content_placeholder": "Write your post content here…",
+		"info_text": "The post will appear in the community feed.",
+		"submit_button_loading": "Creating…",
+		"submit_button": "Create Post",
+		"success_message": "Successfully created.",
+		"success_button": "Back to Community"
+	},
+	"communities": {
+		"featured_title": "Discover",
+		"featured_heading": "Featured Communities",
+		"featured_description": "Explore the most active communities and join your favorites.",
+		"total": "Total",
+		"community_count": "communities",
+		"view_all": "All Communities",
+		"create": "Create Community",
+		"retry": "Try Again",
+		"load_error": "Failed to load communities.",
+		"active": "Active",
+		"default_description": "Join and start conversations!",
+		"members": "members",
+		"view_community": "View",
+		"more_communities": "More Communities",
+		"no_results": "No results.",
+		"no_results_description": "Check all communities or create a new one."
+	},
+	"welcome_banner": {
+		"AllCommunitytitle": "Welcome!",
+		"AllCommunitydescription": "Discover communities, join conversations, and find your place!",
+		"CommunityTitle": "Welcome to the community!",
+		"CommunityDescription": "Explore topics, join conversations, and share your thoughts"
+	},
+	"footer": {
+		"copyright": "All rights reserved.",
+		"home": "Home",
+		"communities": "Communities",
+		"profile": "Profile",
+		"login": "Login"
+	},
+	"profile": {
+		"user_profile": {
+			"back_to_home": "Back to home page",
+			"logout": "Logout",
+			"logout_confirm_title": "Logout",
+			"logout_confirm_description": "Are you sure you want to log out?",
+			"logout_confirm_cancel": "Stay logged in",
+			"logout_confirm": "Logout",
+			"communities": "Communities",
+			"no_joined_communities": "Not joined to any communities.",
+			"user": "User",
+			"profile_picture": "Profile picture",
+			"no_bio": "No bio.",
+			"community_members": "members"
+		},
+		"edit_profile": {
+			"account_settings": "Account Settings",
+			"username_label": "Username",
+			"username_placeholder": "jedlik_user",
+			"email_label": "Email",
+			"email_placeholder": "email@example.hu",
+			"bio_label": "Bio",
+			"bio_placeholder": "Tell us about yourself...",
+			"two_fa": "Two Factor Authentication",
+			"two_fa_subtitle": "Extra security for your account",
+			"upload_profile_picture": "Upload Profile Picture",
+			"drag_picture_text": "Drag new profile picture here or click to select.",
+			"file_selected": "File selected:",
+			"remove_file": "Select another file",
+			"last_saved": "Last saved:",
+			"saving": "Saving...",
+			"save_changes": "Save Changes",
+			"save_profile_title": "Save Profile",
+			"save_profile_description": "Are you sure you want to save profile changes?",
+			"cancel": "Cancel",
+			"save": "Save",
+			"invalid_data_title": "Invalid Data!",
+			"invalid_data_description": "Email and name fields cannot be empty! Email must be in valid format!\nThe length of the fields cannot exceed the specified limit!",
+			"ok": "OK",
+			"two_fa_confirm_title": "Two Factor Authentication",
+			"two_fa_confirm_description": "Two factor authentication adds an extra layer of security to your account by requiring a second form of identification in addition to your password.",
+			"two_fa_cancel": "Cancel",
+			"two_fa_confirm": "Switch",
+			"dark_mode": "Dark Mode",
+			"dark_mode_subtitle": "Switch to dark theme for a better experience"
+		}
+	},
+	"community": {
+		"community_sidebar": {
+			"members": "Members",
+			"no_members": "No members yet",
+			"profile": "Profile",
+			"member": "member",
+			"stats": "Stats",
+			"posts": "Posts"
+		},
+		"community_header": {
+			"community": "Community",
+			"unknown_community": "Unknown Community",
+			"join": "Join",
+			"leave": "Leave",
+			"invite": "Invite",
+			"back": "Back",
+			"description": "Description",
+			"no_description": "No description.",
+			"rules": "Rules",
+			"no_rules": "No rules."
+		},
+		"comment_section": {
+			"comments": "Comments",
+			"no_comments": "No comments yet. Be the first to comment!",
+			"write_comment_placeholder": "Write your comment here…",
+			"submit_comment": "Submit"
+		},
+		"post_item": {
+			"unknown_author": "Unknown Author",
+			"open_comments": "Comments",
+			"close_comments": "Close Comments"
+		},
+		"post_list": {
+			"feed": "Feed",
+			"create_post": "Create Post",
+			"join_to_post": "Join to Post",
+			"no_posts": "No posts yet. Be the first to create a post!"
+		},
+		"reply_item": {
+			"close_replies": "Close Replies",
+			"replies": "Replies",
+			"reply": "Reply",
+			"write_reply_placeholder": "Write your reply here…",
+			"submit_reply": "Submit"
+		}
+	},
+	"search_results": {
+		"title": "Search Results",
+		"back_btn": "Back",
+		"loading": "Loading...",
+		"results_for": "Results for: ",
+		"results": "Results: ",
+		"no_results": "No results.",
+		"communities": "Communities"
+	},
+	"dragNdrop": {
+		"accepted_files": "Accepted file types",
+		"max_file_size": "Max file size"
+	}
 }

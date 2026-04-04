@@ -79,34 +79,48 @@ export const GetThreadMembers = async (
 
 export const UploadThreadImage = async (
 	threadId: number,
-	imageFile: File,
+	file: File,
 ): Promise<ResponseData> => {
 	const formData = new FormData();
-	formData.append("image", imageFile);
-	const response = await httpClient.post(
-		`/api/threads/${threadId}/image`,
-		formData,
-	);
-	return {
-		status: response.status,
-		data: response.data,
-	};
+	formData.append("image", file, file.name);
+
+	try {
+		const response = await httpClient.post(
+			`/api/threads/${threadId}/image`,
+			formData,
+		);
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const status = err?.response?.status;
+
+		throw new Error(status ? `[${status}] ${err.message}` : err.message);
+	}
 };
 
-export const UploadThreadHeader = async (
+export const UploadThreadHeaderImage = async (
 	threadId: number,
-	headerFile: File,
+	file: File,
 ): Promise<ResponseData> => {
 	const formData = new FormData();
-	formData.append("header", headerFile);
-	const response = await httpClient.post(
-		`/api/threads/${threadId}/header`,
-		formData,
-	);
-	return {
-		status: response.status,
-		data: response.data,
-	};
+	formData.append("header", file, file.name);
+
+	try {
+		const response = await httpClient.post(
+			`/api/threads/${threadId}/header`,
+			formData,
+		);
+		return {
+			status: response.status,
+			data: response.data,
+		};
+	} catch (err: any) {
+		const status = err?.response?.status;
+
+		throw new Error(status ? `[${status}] ${err.message}` : err.message);
+	}
 };
 
 export const UpdateThreadDetails = async (

@@ -5,6 +5,7 @@ import {
 	GetPostsInThread,
 	JoinThread,
 	LeaveThread,
+	GetThreadMembers,
 } from "../../../api/threads";
 import { GetUsers, GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
@@ -14,6 +15,7 @@ import { VoteOnPost } from "../../../api/vote";
 type RecentThreadItem = {
 	id: number;
 	name?: string;
+	image?: string;
 };
 
 export const useCommunity = (
@@ -61,7 +63,11 @@ export const useCommunity = (
 		}
 	};
 
-	const saveRecentThread = (threadId: number, threadName?: string) => {
+	const saveRecentThread = (
+		threadId: number,
+		threadName?: string,
+		threadImage?: string,
+	) => {
 		if (!Number.isFinite(threadId)) return;
 
 		try {
@@ -69,7 +75,11 @@ export const useCommunity = (
 			const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
 
 			const next: RecentThreadItem[] = [
-				{ id: threadId, name: threadName?.trim() || undefined },
+				{
+					id: threadId,
+					name: threadName?.trim() || undefined,
+					image: threadImage,
+				},
 				...current.filter((t) => t.id !== threadId),
 			].slice(0, 5);
 
@@ -85,7 +95,7 @@ export const useCommunity = (
 	): Promise<UserData[]> => {
 		if (Number.isNaN(threadIdValue)) return [];
 
-		const response = await GetUsers(`thread:${threadIdValue}`);
+		const response = await GetThreadMembers(threadIdValue);
 		const usersData = response.data?.users ?? response.data;
 
 		if (!Array.isArray(usersData)) return [];
@@ -204,7 +214,11 @@ export const useCommunity = (
 						? (postsData as Array<Record<string, unknown>>)
 						: [];
 					setPosts(postsArray);
-					saveRecentThread(threadId, threadData?.name);
+					saveRecentThread(
+						threadId,
+						threadData?.name,
+						threadData?.image,
+					);
 				}
 
 				try {
