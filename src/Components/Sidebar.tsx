@@ -17,6 +17,7 @@ interface SidebarProps {
 type RecentThreadItem = {
 	id: number;
 	name?: string;
+	image?: string;
 };
 
 interface SidebarCardProps {
@@ -40,8 +41,12 @@ const SidebarCard = ({
 			onClick={() => onClick?.()}
 			className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/90 transition hover:bg-white/10`}
 		>
-			<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-600 text-sm">
-				{icon}
+			<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-600 text-sm overflow-hidden">
+				{typeof icon === 'string' && icon.startsWith('http') ? (
+					<img src={icon} alt={title} className="h-full w-full object-cover" />
+				) : (
+					icon
+				)}
 			</div>
 			<div className="min-w-0">
 				<p className="truncate text-sm font-semibold">{title}</p>
@@ -75,6 +80,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							id: Number(x.id),
 							name:
 								typeof x.name === "string" ? x.name : undefined,
+							image:
+								typeof x.image === "string" ? x.image : undefined,
 						}))
 				: [];
 			setRecentThreads(cleaned.slice(0, 5));
@@ -194,7 +201,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
-											icon={`#${t.id}`}
+											icon={t.image || `#${t.id}`}
 											to={`/communities/${t.id}`}
 											onClick={async () => {
 												closeSidebar();
@@ -231,7 +238,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
-											icon={`#${t.id}`}
+											icon={t.image || `#${t.id}`}
 											to={`/communities/${t.id}`}
 											onClick={() => {
 												closeSidebar();
