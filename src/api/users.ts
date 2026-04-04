@@ -52,18 +52,12 @@ export const ProfilePictureUpload = async (
 	const formData = new FormData();
 	formData.append("image", file, file.name);
 
-	try {
-		const response = await httpClient.post(
-			"/api/users/profile-picture",
-			formData,
-		);
-		return {
-			status: response.status,
-			data: response.data,
-		};
-	} catch (err: any) {
-		const status = err?.response?.status;
-
-		throw new Error(status ? `[${status}] ${err.message}` : err.message);
-	}
+	const response = await httpClient.post(
+		"/api/users/profile-picture",
+		formData,
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
 };

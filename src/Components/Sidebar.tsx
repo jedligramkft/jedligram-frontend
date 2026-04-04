@@ -42,8 +42,12 @@ const SidebarCard = ({
 			className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/90 transition hover:bg-white/10`}
 		>
 			<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-600 text-sm overflow-hidden">
-				{typeof icon === 'string' && icon.startsWith('http') ? (
-					<img src={icon} alt={title} className="h-full w-full object-cover" />
+				{typeof icon === "string" && icon.startsWith("http") ? (
+					<img
+						src={icon}
+						alt={title}
+						className="h-full w-full object-cover"
+					/>
 				) : (
 					icon
 				)}
@@ -81,7 +85,9 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 							name:
 								typeof x.name === "string" ? x.name : undefined,
 							image:
-								typeof x.image === "string" ? x.image : undefined,
+								typeof x.image === "string"
+									? x.image
+									: undefined,
 						}))
 				: [];
 			setRecentThreads(cleaned.slice(0, 5));

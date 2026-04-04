@@ -12,6 +12,17 @@ export const GetThreads = async (): Promise<ResponseData> => {
 	};
 };
 
+export const SearchThreads = async (query: string): Promise<ResponseData> => {
+	const response = await httpClient.get("/api/threads?search=", {
+		params: { search: query },
+	});
+
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
 export const CreateThread = async (
 	newThread: ThreadData,
 ): Promise<ResponseData> => {
@@ -56,47 +67,6 @@ export const LeaveThread = async (threadId: number): Promise<ResponseData> => {
 	};
 };
 
-export const GetPostsInThread = async (
-	threadId: number,
-): Promise<ResponseData> => {
-	const response = await httpClient.get(`/api/threads/${threadId}/posts`);
-
-	return {
-		status: response.status,
-		data: response.data,
-	};
-};
-
-export const CreatePostInThread = async (
-	threadId: number,
-	content: string,
-	user: { id: number; name: string }
-): Promise<ResponseData> => {
-	const response = await httpClient.post(`/api/threads/${threadId}/post`, {
-		content: content,
-		user: {
-			id: user.id,
-			name: user.name,
-		}
-	});
-
-	return {
-		status: response.status,
-		data: response.data,
-	};
-};
-
-export const searchThreads = async (query: string): Promise<ResponseData> => {
-	const response = await httpClient.get("/api/threads?search=", {
-		params: { search: query },
-	});
-	
-	return {
-		status: response.status,
-		data: response.data,
-	};
-};
-
 export const GetThreadMembers = async (
 	threadId: number,
 ): Promise<ResponseData> => {
@@ -107,7 +77,10 @@ export const GetThreadMembers = async (
 	};
 };
 
-export const UploadThreadImage = async (threadId: number, file: File): Promise<ResponseData> => {
+export const UploadThreadImage = async (
+	threadId: number,
+	file: File,
+): Promise<ResponseData> => {
 	const formData = new FormData();
 	formData.append("image", file, file.name);
 
@@ -127,7 +100,10 @@ export const UploadThreadImage = async (threadId: number, file: File): Promise<R
 	}
 };
 
-export const UploadThreadHeaderImage = async (threadId: number, file: File): Promise<ResponseData> => {
+export const UploadThreadHeaderImage = async (
+	threadId: number,
+	file: File,
+): Promise<ResponseData> => {
 	const formData = new FormData();
 	formData.append("header", file, file.name);
 
@@ -145,4 +121,59 @@ export const UploadThreadHeaderImage = async (threadId: number, file: File): Pro
 
 		throw new Error(status ? `[${status}] ${err.message}` : err.message);
 	}
+};
+
+export const UpdateThreadDetails = async (
+	threadId: number,
+	updatedDetails: Partial<ThreadData>,
+): Promise<ResponseData> => {
+	const response = await httpClient.put(
+		`/api/threads/${threadId}`,
+		updatedDetails,
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
+export const UpdateRoleOfMemberInThread = async (
+	threadId: number,
+	userId: number,
+	newRole: number,
+): Promise<ResponseData> => {
+	const response = await httpClient.put(
+		`/api/threads/${threadId}/members/${userId}`,
+		{
+			role_id: newRole,
+		},
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
+export const BanUserFromThread = async (
+	threadId: number,
+	userId: number,
+): Promise<ResponseData> => {
+	const response = await httpClient.post(
+		`/api/threads/${threadId}/members/${userId}/ban`,
+	);
+	return {
+		status: response.status,
+		data: response.data,
+	};
+};
+
+export const GetPostsInThread = async (
+	threadId: number,
+): Promise<ResponseData> => {
+	const response = await httpClient.get(`/api/threads/${threadId}/posts`);
+
+	return {
+		status: response.status,
+		data: response.data,
+	};
 };

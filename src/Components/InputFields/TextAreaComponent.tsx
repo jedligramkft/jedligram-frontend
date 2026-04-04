@@ -2,7 +2,7 @@
 import type { ReactNode } from "react";
 
 export const TextAreaComponent = (props: {
-	label: string;
+	label?: string;
 	name?: string;
 	value: string;
 	onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -30,17 +30,19 @@ export const TextAreaComponent = (props: {
 
 	return (
 		<div>
-			<label
-				htmlFor={label}
-				className={`text-sm font-semibold text-white/70 ml-3 ${props.labelClassName || ""}`}
-			>
-				{label}
-			</label>
+			{label && (
+				<label
+					htmlFor={label}
+					className={`text-sm font-semibold text-white/70 ml-3 ${props.labelClassName || ""}`}
+				>
+					{label}
+				</label>
+			)}
 			<div className={`${absoluteChildren ? "relative" : "block"}`}>
 				<textarea
 					name={name ?? label}
 					placeholder={placeholder}
-					value={value}
+					value={value || undefined}
 					onChange={onChange}
 					rows={rows}
 					maxLength={maxLength}

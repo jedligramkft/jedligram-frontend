@@ -1,43 +1,166 @@
-import { useTranslation } from "react-i18next";
+import { useState, type CSSProperties, type ReactNode } from "react";
+import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
+import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
+import VoteComponent from "./PostItem/VoteComponent";
+import SharePost from "./PostItem/SharePost";
+import CommentWriter from "./PostItem/CommentWriter";
+import { Link } from "react-router";
 
 type PostItemProps = {
-  post: any;
-  postId: number;
-  isVoting: boolean;
-  score: number;
-  isCommentsOpen: boolean;
-  onToggleComments: (postId: number) => void;
-  onVote: (postId: number, isUpvote: boolean) => void;
-  children?: React.ReactNode;
+	node: PostAndCommentData;
+	originalPostId: number; // The ID of the original top-level post that all comments and replies are ultimately associated with, used for API calls related to commenting and voting.
+	isTopLevel: boolean; // Whether this node is a top-level post (true) or a comment reply (false), used for styling decisions.
+	communityId: number; // The ID of the community this post belongs to, used for constructing share URLs.
+	hasReplies: boolean;
+	avatarSizeStyle: CSSProperties;
+	connectorLineStyle: CSSProperties;
+	children?: ReactNode;
+	OnLoadMoreComments?: () => void;
 };
 
-const PostItem = ({ post, postId, isVoting, score, isCommentsOpen, onToggleComments, onVote, children }: PostItemProps) => {
-  const { t } = useTranslation();
+const PostItem = ({
+	node,
+	originalPostId,
+	isTopLevel,
+	communityId,
+	hasReplies,
+	avatarSizeStyle,
+	connectorLineStyle,
+	children,
+	OnLoadMoreComments,
+}: PostItemProps) => {
+	const POST_ID = `post-${node.id}-${originalPostId}`;
+	const [commentOpen, setCommentOpen] = useState(false);
+	const [isChildrenVisible, setIsChildrenVisible] = useState(true);
 
-  return (
-    <article className="rounded-2xl border border-white/10 bg-black/10 p-5 transition hover:border-white/20">
-      <div className="flex items-center justify-between text-xs text-white/55">
-        {post.user ? `@${post.user.name}` : t("community.post_item.unknown_author")}
-        <span>{post.age}</span>
-      </div>
-      <h3 className="mt-2 whitespace-pre-wrap text-sm text-white/75">{post.content || ""}</h3>
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button onClick={() => onToggleComments(postId)} className="cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">
-          {isCommentsOpen ? t("community.post_item.close_comments") : t("community.post_item.open_comments")}
-        </button>
-        <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/10 px-3 py-2">
-          <button disabled={isVoting} onClick={() => onVote(postId, true)} className="cursor-pointer rounded-lg border border-white/15 px-2 py-1 text-xs font-bold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-            ▲
-          </button>
-          <span className="min-w-6 text-center text-xs font-semibold text-white/90 tabular-nums">{score}</span>
-          <button disabled={isVoting} onClick={() => onVote(postId, false)} className="cursor-pointer rounded-lg border border-white/15 px-2 py-1 text-xs font-bold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70">
-            ▼
-          </button>
-        </div>
-      </div>
-      {children}
-    </article>
-  )
+	return (
+		<div className="space-y-4">
+			<article>
+				{/* Left column area: avatar and thread connector line. */}
+				<div className="relative flex items-start gap-2" id={POST_ID}>
+					{hasReplies ? (
+						/* Vertical line starts under the avatar when this node has children. */
+						<div
+							onClick={() => {
+								setIsChildrenVisible(false);
+							}}
+							className="absolute bottom-0 w-0.5 bg-white/35 cursor-pointer hover:bg-white/75 hover:w-1"
+							style={connectorLineStyle}
+						/>
+					) : null}
+					{/* User profile picture. */}
+					<img
+						src={node.user.image_url}
+						alt={``}
+						className="relative z-10 rounded-full object-cover"
+						style={avatarSizeStyle}
+					/>
+					{/* Main content column for this node. */}
+					<div className="flex-1 space-y-3">
+						{/* Username and timestamp row. */}
+						<div className="flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap">
+							<Link
+								to={`/users/${node.user.id}`}
+								className="shrink-0 text-white/75 text-sm hover:text-white"
+							>
+								@{node.user.name}
+							</Link>
+							<span className="shrink-0 text-white/55">·</span>
+							<span className="shrink-0 text-xs text-white/55">
+								{node.age}
+							</span>
+						</div>
+						{/* Comment/post text body. */}
+						{node.image && (
+							<img
+								src={node.image}
+								alt="Post image"
+								className="max-h-60 object-contain rounded-lg"
+							/>
+						)}
+						<p className="wrap-anywhere">{node.content}</p>
+						{/* Voting and action buttons row. */}
+						<div className="flex gap-4">
+							{/* Upvote and downvote buttons */}
+							{node.score !== undefined && isTopLevel && (
+								<VoteComponent
+									id={node.id}
+									startScore={node.score}
+								/>
+							)}
+							<button
+								className={`hover:text-white text-sm transition-colors ${commentOpen ? "text-white" : "text-white/75"}`}
+								onClick={() => setCommentOpen(true)}
+							>
+								<DynamicFAIcon exportName="faComment" /> Reply
+							</button>
+							<SharePost
+								postId={POST_ID}
+								communityId={communityId}
+							/>
+						</div>
+						{commentOpen && (
+							<CommentWriter
+								isTopLevel={isTopLevel}
+								originalPostId={originalPostId}
+								nodeId={node.id}
+								replyToUsername={
+									node.user.name ? node.user.name : "unknown"
+								}
+								onCommentSent={() => setCommentOpen(false)}
+								onCancel={() => setCommentOpen(false)}
+							/>
+						)}
+						{!hasReplies &&
+						node.replies_count &&
+						node.replies_count > 0 ? (
+							<button
+								className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+								onClick={() => {
+									if (OnLoadMoreComments) {
+										OnLoadMoreComments();
+									}
+								}}
+							>
+								<DynamicFAIcon
+									exportName="faCirclePlus"
+									size="lg"
+									className="mr-2"
+								/>{" "}
+								{node.replies_count} rejtett komment
+								megjelenítése
+							</button>
+						) : null}
+						{/* Indented container for child replies of this node. */}
+						{hasReplies ? (
+							<>
+								{isChildrenVisible ? (
+									<div className="space-y-4 mt-4">
+										{children}
+									</div>
+								) : (
+									<button
+										onClick={() => {
+											setIsChildrenVisible(true);
+										}}
+										className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+									>
+										<DynamicFAIcon
+											exportName="faCirclePlus"
+											size="lg"
+											className="mr-2"
+										/>{" "}
+										{node.replies_count} rejtett komment
+										megjelenítése
+									</button>
+								)}
+							</>
+						) : null}
+					</div>
+				</div>
+			</article>
+		</div>
+	);
 };
 
 export default PostItem;
