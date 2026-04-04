@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CapacitorNavigator from "./Components/Utils/NavigationManager";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -174,6 +175,25 @@ function App() {
 
 	return (
 		<>
+			<meta charSet="UTF-8" />
+			<meta
+				name="viewport"
+				content="width=device-width, initial-scale=1.0"
+			/>
+			<meta
+				name="description"
+				content="Jedligram - A Reddit-like platform"
+			/>
+			<meta name="title" content="Jedligram" />
+			<meta name="author" content="Jedligram Team" />
+			<meta
+				name="keywords"
+				content="reddit, forum, discussion, community, jedlik, jedligram, social media, threads, posts, comments, upvote, downvote, suli, techkinum"
+			/>
+
+			<title>Jedligram</title>
+			<link rel="icon" href="/favicon.ico" />
+
 			<CapacitorNavigator />
 			<Routes>
 				<Route element={<NavbarLayout isLoggedIn={isLoggedIn} />}>
