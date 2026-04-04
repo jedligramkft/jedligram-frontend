@@ -9,6 +9,7 @@ import type { UserData } from "../../../Interfaces/UserData";
 type RecentThreadItem = {
   id: number;
   name?: string;
+  image?: string;
 };
 
 export const useCommunity = (threadId: number, id: string | undefined, isLoggedIn: boolean, navigateFn: (path: string, options?: any) => void ) => {
@@ -51,7 +52,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
     }
   };
 
-  const saveRecentThread = (threadId: number, threadName?: string) => {
+  const saveRecentThread = (threadId: number, threadName?: string, threadImage?: string) => {
     if (!Number.isFinite(threadId)) return;
 
     try {
@@ -59,7 +60,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
       const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
 
       const next: RecentThreadItem[] = [
-        { id: threadId, name: threadName?.trim() || undefined },
+        { id: threadId, name: threadName?.trim() || undefined, image: threadImage },
         ...current.filter((t) => t.id !== threadId),
       ].slice(0, 5);
 
@@ -188,7 +189,7 @@ export const useCommunity = (threadId: number, id: string | undefined, isLoggedI
             ? (postsData as Array<Record<string, unknown>>)
             : [];
           setPosts(postsArray);
-          saveRecentThread(threadId, threadData?.name);
+          saveRecentThread(threadId, threadData?.name, threadData?.image);
         }
 
         try {
