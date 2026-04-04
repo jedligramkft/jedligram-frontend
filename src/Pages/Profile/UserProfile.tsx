@@ -176,6 +176,27 @@ const UserProfile = () => {
 							</div>
 						</div>
 
+						<hr className="text-gray-700/50" />
+
+						<div className="flex items-center justify-evenly gap-6">
+							<div className="flex flex-col items-center justify-center py-3 md:py-4">
+								<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+									{t("profile.user_profile.communities")}
+								</p>
+								<p className="mt-1 text-base md:text-lg font-bold text-white">
+									{joinedThreads.length || 0}
+								</p>
+							</div>
+							<div className="flex flex-col items-center justify-center py-3 md:py-4">
+								<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+									Karma
+								</p>
+								<p className="mt-1 text-base md:text-lg font-bold text-white">
+									{targetUser?.post_karma || 0}
+								</p>
+							</div>
+						</div>
+
 						{isMyProfile && targetUser && (
 							<EditProfile
 								targetUser={targetUser}
@@ -185,12 +206,9 @@ const UserProfile = () => {
 
 						<hr className="text-gray-700/50" />
 						<div className="flex flex-col items-center justify-center py-3 md:py-4">
-							<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-								{t("profile.user_profile.communities")}
-							</p>
-							<p className="mt-1 text-base md:text-lg font-bold text-white">
-								{joinedThreads.length || 0}
-							</p>
+							<h3 className="text-base md:text-lg font-semibold text-white/75 wrap-break-word">
+								A felhasználó közösségei
+							</h3>
 						</div>
 						<div className="flex gap-2 md:gap-2.5 flex-wrap justify-center px-2 md:px-0">
 							{joinedThreads.length === 0 && (
