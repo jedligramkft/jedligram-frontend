@@ -5,6 +5,7 @@ import VoteComponent from "./PostItem/VoteComponent";
 import SharePost from "./PostItem/SharePost";
 import CommentWriter from "./PostItem/CommentWriter";
 import { Link } from "react-router";
+import { GhostButton } from "../../../Components/Buttons";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -88,12 +89,12 @@ const PostItem = ({
 									startScore={node.score}
 								/>
 							)}
-							<button
-								className={`hover:text-white text-sm transition-colors ${commentOpen ? "text-white" : "text-white/75"}`}
+							<GhostButton
+								className={`gap-1 ${commentOpen ? "text-white" : "text-white/75"}`}
 								onClick={() => setCommentOpen(true)}
 							>
 								<DynamicFAIcon exportName="faComment" /> Reply
-							</button>
+							</GhostButton>
 							<SharePost
 								postId={POST_ID}
 								communityId={communityId}
@@ -114,8 +115,8 @@ const PostItem = ({
 						{!hasReplies &&
 						node.replies_count &&
 						node.replies_count > 0 ? (
-							<button
-								className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+							<GhostButton
+								className="p-2 pl-0"
 								onClick={() => {
 									if (OnLoadMoreComments) {
 										OnLoadMoreComments();
@@ -126,10 +127,12 @@ const PostItem = ({
 									exportName="faCirclePlus"
 									size="lg"
 									className="mr-2"
-								/>{" "}
-								{node.replies_count} rejtett komment
-								megjelenítése
-							</button>
+								/>
+								{node.replies_count
+									? `Hozzásólások `
+									: `${node.replies_count} hozzászólás `}
+								betöltése
+							</GhostButton>
 						) : null}
 						{/* Indented container for child replies of this node. */}
 						{hasReplies ? (
@@ -139,7 +142,7 @@ const PostItem = ({
 										{children}
 									</div>
 								) : (
-									<button
+									<GhostButton
 										onClick={() => {
 											setIsChildrenVisible(true);
 										}}
@@ -150,9 +153,11 @@ const PostItem = ({
 											size="lg"
 											className="mr-2"
 										/>{" "}
-										{node.replies_count} rejtett komment
+										{node.replies_count
+											? "Hozzászólások "
+											: `${node.replies_count} hozzászólás `}
 										megjelenítése
-									</button>
+									</GhostButton>
 								)}
 							</>
 						) : null}

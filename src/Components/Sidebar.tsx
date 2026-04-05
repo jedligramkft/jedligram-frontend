@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { GetUserThreads } from "../api/users";
 import type { ThreadData } from "../Interfaces/ThreadData";
 import { Logout } from "../api/auth";
+import { SecondaryButton } from "./Buttons";
 
 interface SidebarProps {
 	closeSidebar: () => void;
@@ -203,7 +204,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 										{t("sidebar.menus.recently_viewed")}
 									</p>
-									{recentThreads.map((t) => (
+									{recentThreads.slice(0, 5).map((t) => (
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
@@ -240,7 +241,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 										{t("sidebar.menus.joined")}
 									</p>
-									{joinedThreads.map((t) => (
+									{joinedThreads.slice(0, 5).map((t) => (
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
@@ -255,7 +256,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 								<hr className="w-full border-white/10" />
 							</>
 						) : (
-							<p className="text-center mt-16 px-4 text-white/40">
+							<p className="text-center my-10 px-4 text-white/40">
 								{t("sidebar.menus.no_joined_threads")}
 							</p>
 						)}
@@ -264,16 +265,16 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 
 						<div className="w-full px-3 py-2 mt-2">
 							{isLoggedIn && (
-								<button
+								<SecondaryButton
 									onClick={() => {
 										Logout().then(() => {
 											window.location.href = "/";
 										});
 									}}
-									className="w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500/20"
+									className="w-full border border-red-500/30 bg-red-500/10 px-3 py-2 text-red-400 hover:bg-red-500/20"
 								>
 									{t("sidebar.menus.logout")}
-								</button>
+								</SecondaryButton>
 							)}
 						</div>
 					</>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CommentOnPostOrReplyToComment } from "../../../../api/comments";
 import { TextAreaComponent } from "../../../../Components/InputFields/TextAreaComponent";
 import type { PostAndCommentData } from "../../../../Interfaces/PostAndComment";
+import { PrimaryButton, SecondaryButton } from "../../../../Components/Buttons";
 
 const CommentWriter = ({
 	isTopLevel,
@@ -68,24 +69,18 @@ const CommentWriter = ({
 				onChange={(e) => setCommentContent(e.target.value)}
 				placeholder={`Válaszolj @${replyToUsername} kommentjére...`}
 			/>
-			<div
-				className="flex gap-2 
-									*:mt-2 *:rounded-xl *:border *:border-white/20 *:px-4 *:py-2 *:text-sm *:font-semibold *:text-white/90 *:transition"
-			>
-				<button
+			<div className="flex gap-2 *:mt-2 *:px-4 *:py-2">
+				<PrimaryButton
 					onClick={(e) =>
 						HandleCommentSubmit(e, nodeId, commentContent)
 					}
-					className="bg-blue-500/15 hover:bg-blue-500/20 disabled:bg-blue-500/5 disabled:text-white/50 disabled:cursor-not-allowed"
+					className=""
 				>
 					Elküld
-				</button>
-				<button
-					onClick={onCancel}
-					className="bg-white/5 hover:bg-white/10"
-				>
+				</PrimaryButton>
+				<SecondaryButton onClick={onCancel} className="">
 					Mégse
-				</button>
+				</SecondaryButton>
 			</div>
 		</div>
 	);

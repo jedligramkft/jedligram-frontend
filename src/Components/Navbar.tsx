@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import DynamicFAIcon from "./Utils/DynamicFaIcon";
 import { Searchbar } from "./Searchbar/Searchbar";
 import { useTranslation } from "react-i18next";
+import { GhostButton } from "./Buttons";
 
 interface NavbarProps {
 	onToggleSidebar?: () => void;
@@ -20,36 +21,36 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 	return (
 		<nav className="bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-b border-gray-700 text-white shadow-lg sticky top-0 z-50 poppins-regular">
 			<div className="pl-3 pr-6 md:pl-6 md:pr-12 py-4 flex items-center justify-between relative">
-				<button
+				<GhostButton
 					onClick={() => {
 						onToggleSidebar?.();
 					}}
-					className="h-12 w-12 text-white flex items-center justify-center cursor-pointer"
+					className="h-12 w-12"
 				>
 					{isSidebarOpen ? (
 						<DynamicFAIcon exportName="faTimes" size="lg" />
 					) : (
 						<DynamicFAIcon exportName="faBars" size="lg" />
 					)}
-				</button>
+				</GhostButton>
 
 				<div className="flex flex-row gap-10">
 					<div className="flex bg-white/5 rounded-lg p-1">
-						<button
+						<GhostButton
 							onClick={() => handleLanguageChange("hu")}
 							className={`px-3 py-1 rounded-md transition
 							${language === "hu" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
 						>
 							HU
-						</button>
+						</GhostButton>
 
-						<button
+						<GhostButton
 							onClick={() => handleLanguageChange("en")}
 							className={`px-3 py-1 rounded-md transition
 							${language === "en" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
 						>
 							EN
-						</button>
+						</GhostButton>
 					</div>
 					<Link to="/">
 						<img

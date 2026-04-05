@@ -11,14 +11,15 @@ import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
+import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
+import { IsLoggedIn } from "../../api/auth";
 
-interface CreateCommunityProps {
-	isLoggedIn: boolean;
-}
-
-const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
+const CreateCommunity = () => {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
+
+	const isLoggedIn = IsLoggedIn();
+
 	const [created, setCreated] = useState(false);
 	const [communityId, setCommunityId] = useState<number | null>(null);
 	const [communityName, setCommunityName] = useState("");
@@ -102,13 +103,13 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 								</p>
 							</div>
 
-							<button
+							<SecondaryButton
 								type="button"
 								onClick={() => navigate("/all-communities")}
-								className="cursor-pointer h-10 rounded-xl border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10"
+								className="px-6 py-2"
 							>
 								{t("createCommunity.back_button")}
-							</button>
+							</SecondaryButton>
 						</div>
 
 						<form
@@ -169,12 +170,12 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 											alt="Preview"
 											className="h-32 w-32 object-cover rounded-lg mx-auto"
 										/>
-										<button
+										<PrimaryButton
 											type="button"
 											onClick={() =>
 												setCommunityImage(null)
 											}
-											className="mt-4 inline-flex items-center justify-center rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-red-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
+											className="mt-4 bg-red-900 px-4 py-2"
 										>
 											<DynamicFAIcon
 												exportName="faX"
@@ -183,7 +184,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 											{t(
 												"profile.edit_profile.remove_file",
 											)}
-										</button>
+										</PrimaryButton>
 									</div>
 								)) || (
 									<DragnDrop
@@ -218,12 +219,12 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 											alt="Preview"
 											className="h-32 w-32 object-cover rounded-lg mx-auto"
 										/>
-										<button
+										<PrimaryButton
 											type="button"
 											onClick={() =>
 												setCommunityHeaderImage(null)
 											}
-											className="mt-4 inline-flex items-center justify-center rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-red-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
+											className="mt-4 bg-red-900 px-4 py-2"
 										>
 											<DynamicFAIcon
 												exportName="faX"
@@ -232,7 +233,7 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 											{t(
 												"profile.edit_profile.remove_file",
 											)}
-										</button>
+										</PrimaryButton>
 									</div>
 								)) || (
 									<DragnDrop
@@ -248,19 +249,17 @@ const CreateCommunity = ({ isLoggedIn }: CreateCommunityProps) => {
 							</div>
 
 							<div className="flex items-center justify-between gap-4">
-								<p className="text-xs text-white/55">
-									{t("createCommunity.info_text")}
-								</p>
-								<button
+								<PrimaryButton
 									type="submit"
-									className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+									className="px-6 py-3"
 								>
 									{t("createCommunity.submit_button")}
-								</button>
+								</PrimaryButton>
 							</div>
 
-							<div className="pt-1 text-center text-xs text-white/50">
-								{t("createCommunity.disclaimer")}
+							<div className="pt-1 text-center text-xs text-white/50 space-y-1">
+								<p>{t("createCommunity.disclaimer")}</p>
+								<p>{t("createCommunity.info_text")}</p>
 							</div>
 						</form>
 					</div>

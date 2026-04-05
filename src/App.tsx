@@ -201,11 +201,11 @@ function App() {
 					<Route path="search" element={<SearchResults />} />
 					<Route
 						path="all-communities"
-						element={<AllCommunities isLoggedIn={isLoggedIn} />}
+						element={<AllCommunities />}
 					/>
 					<Route
 						path="create-community"
-						element={<CreateCommunity isLoggedIn={isLoggedIn} />}
+						element={<CreateCommunity />}
 					/>
 					<Route
 						path="communities/:id"

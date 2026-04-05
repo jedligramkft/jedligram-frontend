@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
 import { MyVoteOnPost, VoteOnPost } from "../../../../api/vote";
+import { GhostButton } from "../../../../Components/Buttons";
 
 const VoteComponent = ({
 	id,
@@ -58,7 +59,7 @@ const VoteComponent = ({
 
 	return (
 		// TODO style this component
-		<div className="bg-white/10 flex items-center gap-2 px-2 py-1 rounded-xl">
+		<div className="bg-white/10 flex items-center gap-2 p-1 rounded-xl">
 			{isLoading ? (
 				<DynamicFAIcon
 					exportName="faSpinner"
@@ -66,29 +67,31 @@ const VoteComponent = ({
 				/>
 			) : (
 				<>
-					<button
+					<GhostButton
 						onClick={() => {
 							HandleVote(id, true);
 						}}
+						className="h-full px-0.5 rounded-lg"
 						style={{
 							backgroundColor:
 								myVote === 1 ? "green" : "transparent",
 						}}
 					>
 						<DynamicFAIcon exportName="faAngleUp" />
-					</button>
+					</GhostButton>
 					<span>{clientVoteCount + (myVote || 0)}</span>
-					<button
+					<GhostButton
 						onClick={() => {
 							HandleVote(id, false);
 						}}
+						className="h-full px-0.5 rounded-lg"
 						style={{
 							backgroundColor:
 								myVote === -1 ? "red" : "transparent",
 						}}
 					>
 						<DynamicFAIcon exportName="faAngleDown" />
-					</button>
+					</GhostButton>
 				</>
 			)}
 		</div>

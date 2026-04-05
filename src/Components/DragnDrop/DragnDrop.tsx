@@ -1,6 +1,7 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
+import { PrimaryButton } from "../Buttons";
 
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
@@ -128,18 +129,18 @@ export const DragnDrop = ({
 				{description && (
 					<p className="mt-2 text-xs text-gray-400">{description}</p>
 				)}
-				<button
+				<PrimaryButton
 					type="button"
 					onClick={() => fileInputRef.current?.click()}
 					disabled={isUploading}
-					className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
+					className="mt-4 px-4 py-2"
 				>
 					<DynamicFAIcon
 						exportName="faCloudArrowUp"
 						className="mr-2"
 					/>
 					{isUploading ? uploadingLabel : selectButtonLabel}
-				</button>
+				</PrimaryButton>
 				<div className="*:text-xs *:text-gray-500 mt-4">
 					<p>
 						{t("dragNdrop.accepted_files")}:{" "}

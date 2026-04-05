@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Verify2FA } from "../../api/auth";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
+import { PrimaryButton } from "../../Components/Buttons";
 
 export const VerificationPage = () => {
 	const searchParams = useSearchParams();
@@ -14,23 +15,24 @@ export const VerificationPage = () => {
 	);
 
 	const [error, setError] = useState<string | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	async function handleVerification(e: React.MouseEvent<HTMLButtonElement>) {
 		e.preventDefault();
-		const button = e.currentTarget;
-		button.disabled = true;
+		if (isSubmitting) return;
+		setIsSubmitting(true);
 		setError(null);
 
 		if (!email || !verificationCode) {
 			setError("Email és ellenőrző kód megadása kötelező.");
-			button.disabled = false;
+			setIsSubmitting(false);
 			return;
 		}
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(email)) {
 			setError("Érvénytelen e-mail cím formátum.");
-			button.disabled = false;
+			setIsSubmitting(false);
 			return;
 		}
 
@@ -46,11 +48,11 @@ export const VerificationPage = () => {
 					navigate(-1);
 				}
 			}
-		} catch (err) {
+		} catch {
 			setError(`${"Hiba történt az ellenőrzés során."}`);
 		}
 
-		button.disabled = false;
+		setIsSubmitting(false);
 	}
 
 	return (
@@ -70,7 +72,8 @@ export const VerificationPage = () => {
 				</div>
 			)}
 			<form
-				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}>
+				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
+			>
 				<InputComponent
 					label="Fiók email"
 					type="email"
@@ -85,16 +88,14 @@ export const VerificationPage = () => {
 					placeholder="Írd be az ellenőrző kódot"
 					onChange={(e) => setVerificationCode(e.target.value)}
 				/>
-				<button
+				<PrimaryButton
 					type="submit"
-					onClick={(e) => {
-						handleVerification(e);
-					}}
-					className="mt-2 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700
-					active:scale-[0.98] duration-150 ease-in-out disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed disabled:opacity-50
-					">
+					onClick={handleVerification}
+					disabled={isSubmitting}
+					className="mt-2px-4 py-3"
+				>
 					Ellenőrzés
-				</button>
+				</PrimaryButton>
 			</form>
 		</section>
 	);

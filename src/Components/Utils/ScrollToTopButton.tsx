@@ -1,37 +1,54 @@
 import { useEffect, useState } from "react";
+import { PrimaryButton } from "../Buttons";
 
 const ScrollToTopButton = () => {
-  const [isVisible, setIsVisible] = useState(false);
+	const [isVisible, setIsVisible] = useState(false);
 
-  const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  };
+	const toggleVisibility = () => {
+		if (window.pageYOffset > 300) {
+			setIsVisible(true);
+		} else {
+			setIsVisible(false);
+		}
+	};
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+	const scrollToTop = () => {
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	};
 
-  useEffect(() => {
-    window.addEventListener("scroll", toggleVisibility);
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-    };
-  }, []);
+	useEffect(() => {
+		window.addEventListener("scroll", toggleVisibility);
+		return () => {
+			window.removeEventListener("scroll", toggleVisibility);
+		};
+	}, []);
 
-  return (
-    <button type="button" onClick={scrollToTop} className={`hidden md:block fixed bottom-8 right-8 z-50 rounded-full bg-blue-500 p-3 text-white keep-white shadow-lg transition-opacity hover:bg-blue-600 ${isVisible ? "opacity-100" : "opacity-0"}`} aria-label="Go to top">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-      </svg>
-    </button>
-  );
+	return (
+		<PrimaryButton
+			type="button"
+			onClick={scrollToTop}
+			className={`hidden md:block fixed bottom-8 right-8 z-50 rounded-full p-3 ${isVisible ? "opacity-100" : "opacity-0"}`}
+			aria-label="Go to top"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				className="h-6 w-6"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+			>
+				<path
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth={2}
+					d="M5 10l7-7m0 0l7 7m-7-7v18"
+				/>
+			</svg>
+		</PrimaryButton>
+	);
 };
 
 export default ScrollToTopButton;

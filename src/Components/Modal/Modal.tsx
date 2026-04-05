@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
+import { GhostButton, PrimaryButton, SecondaryButton } from "../Buttons";
 
 type ConfirmationModalProps = {
 	isOpen: boolean;
@@ -60,14 +61,14 @@ const ConfirmationModal = ({
 				className="relative w-full max-w-md rounded-2xl border border-white/15 bg-[#1f2226] p-5 text-white shadow-2xl sm:p-6"
 				onClick={(event) => event.stopPropagation()}
 			>
-				<button
+				<GhostButton
 					type="button"
 					onClick={onClose}
-					className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/5 text-white/75 transition hover:bg-white/15 hover:text-white"
+					className="absolute right-3 top-3 p-3"
 					aria-label="Bezárás"
 				>
 					<DynamicFAIcon exportName="faX" />
-				</button>
+				</GhostButton>
 
 				<h3
 					id="confirmation-modal-title"
@@ -80,19 +81,19 @@ const ConfirmationModal = ({
 				</p>
 
 				<div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-					<button
+					<SecondaryButton
 						type="button"
 						onClick={onClose}
 						disabled={isConfirmLoading}
-						className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed sm:w-auto ${cancelButtonClassName}`}
+						className={`w-full px-4 py-2 ${cancelButtonClassName}`}
 					>
 						{cancelText}
-					</button>
-					<button
+					</SecondaryButton>
+					<PrimaryButton
 						type="button"
 						onClick={onConfirm}
 						disabled={isConfirmLoading}
-						className={`w-full rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-wait sm:w-auto ${confirmButtonClassName}`}
+						className={`w-full px-4 py-2 ${confirmButtonClassName}`}
 					>
 						{isConfirmLoading ? (
 							<span className="flex items-center gap-2">
@@ -105,7 +106,7 @@ const ConfirmationModal = ({
 						) : (
 							<span>{confirmText}</span>
 						)}
-					</button>
+					</PrimaryButton>
 				</div>
 			</div>
 		</div>,

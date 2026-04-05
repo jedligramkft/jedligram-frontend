@@ -1,4 +1,5 @@
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
+import { GhostButton } from "../../../../Components/Buttons";
 
 const SharePost = ({
 	postId,
@@ -22,12 +23,9 @@ const SharePost = ({
 	}
 
 	return (
-		<button
-			className="text-white/75 hover:text-white text-sm transition-colors"
-			onClick={handleShare}
-		>
+		<GhostButton className="gap-1" onClick={handleShare}>
 			<DynamicFAIcon exportName="faShare" /> Share
-		</button>
+		</GhostButton>
 	);
 };
 

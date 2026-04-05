@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useFilteredThreads } from "./SearchEngine";
 import { getActiveTheme } from "../../theme";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
+import { PrimaryButton } from "../Buttons";
 
 interface SearchbarProps {
 	formClass?: string;
@@ -86,17 +87,17 @@ export const Searchbar = ({
 					}
 				/>
 				{hasButton && (
-					<button
+					<PrimaryButton
 						type="button"
 						onClick={handleClick}
 						className={
 							buttonClass
 								? buttonClass
-								: "absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
+								: "absolute right-2 top-1/2 -translate-y-1/2 px-4 py-3 text-base rounded-sm"
 						}
 					>
 						<DynamicFAIcon exportName="faMagnifyingGlass" />
-					</button>
+					</PrimaryButton>
 				)}
 				{/* Search results */}
 				{filteredThreads.length > 0 && (
