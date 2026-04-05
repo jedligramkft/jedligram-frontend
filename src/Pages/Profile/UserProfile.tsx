@@ -9,7 +9,7 @@ import { Logout } from "../../api/auth";
 import { EditProfile } from "./EditProfile";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import ConfirmationModal from "../../Components/Modal/Modal";
-import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
+import { DangerButton, SecondaryButton } from "../../Components/Buttons";
 
 const profileStorageKey =
 	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
@@ -164,7 +164,7 @@ const UserProfile = () => {
 									{t("profile.user_profile.back_to_home")}
 								</SecondaryButton>
 								{isMyProfile && targetUser && (
-									<PrimaryButton
+									<DangerButton
 										onClick={() =>
 											setIsLogoutConfirmationOpen(true)
 										}
@@ -172,7 +172,7 @@ const UserProfile = () => {
 									>
 										<DynamicFAIcon exportName="faSignOutAlt" />
 										{t("profile.user_profile.logout")}
-									</PrimaryButton>
+									</DangerButton>
 								)}
 							</div>
 						</div>

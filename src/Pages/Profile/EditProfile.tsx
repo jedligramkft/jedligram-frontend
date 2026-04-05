@@ -11,7 +11,7 @@ import Switch from "../../Components/InputFields/SwitchComponent";
 import { useNavigate } from "react-router-dom";
 import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
 import { getActiveTheme, toggleTheme } from "../../theme";
-import { PrimaryButton } from "../../Components/Buttons";
+import { DangerButton, PrimaryButton } from "../../Components/Buttons";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -276,17 +276,17 @@ export const EditProfile = (props: {
 									alt="Preview"
 									className="h-32 w-32 object-cover rounded-full mx-auto"
 								/>
-								<PrimaryButton
+								<DangerButton
 									type="button"
 									onClick={() => setFileToUpload(null)}
-									className="mt-4 bg-red-900 px-4 py-2"
+									className="mt-4 px-4 py-2"
 								>
 									<DynamicFAIcon
 										exportName="faX"
 										className="mr-2"
 									/>
 									{t("profile.edit_profile.remove_file")}
-								</PrimaryButton>
+								</DangerButton>
 							</div>
 						)) || (
 							<DragnDrop

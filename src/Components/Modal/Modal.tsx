@@ -25,8 +25,8 @@ const ConfirmationModal = ({
 	onConfirm,
 	onClose,
 	isConfirmLoading = false,
-	cancelButtonClassName = "border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60",
-	confirmButtonClassName = "bg-red-600 hover:bg-red-500 disabled:opacity-75",
+	cancelButtonClassName = "",
+	confirmButtonClassName = "",
 }: ConfirmationModalProps) => {
 	useEffect(() => {
 		if (!isOpen) return;
@@ -80,15 +80,7 @@ const ConfirmationModal = ({
 					{description}
 				</p>
 
-				<div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-					<SecondaryButton
-						type="button"
-						onClick={onClose}
-						disabled={isConfirmLoading}
-						className={`w-full px-4 py-2 ${cancelButtonClassName}`}
-					>
-						{cancelText}
-					</SecondaryButton>
+				<div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
 					<PrimaryButton
 						type="button"
 						onClick={onConfirm}
@@ -107,6 +99,14 @@ const ConfirmationModal = ({
 							<span>{confirmText}</span>
 						)}
 					</PrimaryButton>
+					<SecondaryButton
+						type="button"
+						onClick={onClose}
+						disabled={isConfirmLoading}
+						className={`w-full px-4 py-2 ${cancelButtonClassName}`}
+					>
+						{cancelText}
+					</SecondaryButton>
 				</div>
 			</div>
 		</div>,

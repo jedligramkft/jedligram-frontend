@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { GetUserThreads } from "../api/users";
 import type { ThreadData } from "../Interfaces/ThreadData";
 import { Logout } from "../api/auth";
-import { SecondaryButton } from "./Buttons";
+import { DangerButton } from "./Buttons";
 
 interface SidebarProps {
 	closeSidebar: () => void;
@@ -265,16 +265,16 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 
 						<div className="w-full px-3 py-2 mt-2">
 							{isLoggedIn && (
-								<SecondaryButton
+								<DangerButton
 									onClick={() => {
 										Logout().then(() => {
 											window.location.href = "/";
 										});
 									}}
-									className="w-full border border-red-500/30 bg-red-500/10 px-3 py-2 text-red-400 hover:bg-red-500/20"
+									className="w-full"
 								>
 									{t("sidebar.menus.logout")}
-								</SecondaryButton>
+								</DangerButton>
 							)}
 						</div>
 					</>

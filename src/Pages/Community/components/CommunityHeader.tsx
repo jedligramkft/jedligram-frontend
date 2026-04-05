@@ -2,7 +2,11 @@ import { Link } from "react-router-dom";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import WelcomeBanner from "../../../Components/Utils/WelcomeBanner";
 import { useTranslation } from "react-i18next";
-import { PrimaryButton, SecondaryButton } from "../../../Components/Buttons";
+import {
+	DangerButton,
+	PrimaryButton,
+	SecondaryButton,
+} from "../../../Components/Buttons";
 
 type Props = {
 	id?: string;
@@ -68,12 +72,12 @@ const CommunityHeader = ({
 						</div>
 						<div className="flex flex-wrap items-center gap-3">
 							{isJoined ? (
-								<PrimaryButton
+								<DangerButton
 									onClick={onLeave}
-									className="px-5 py-2.5 bg-red-600/60 hover:bg-red-600/80"
+									className="px-5 py-2.5"
 								>
 									{t("community.community_header.leave")}
-								</PrimaryButton>
+								</DangerButton>
 							) : (
 								<PrimaryButton
 									onClick={onJoin}

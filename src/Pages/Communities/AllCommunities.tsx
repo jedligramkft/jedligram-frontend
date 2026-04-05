@@ -65,7 +65,7 @@ const AllCommunities = () => {
 					{isLoggedIn && (
 						<PrimaryButton
 							onClick={() => navigate("/create-community")}
-							className="hover:from-blue-600 hover:to-blue-700 px-6 py-2 z-10"
+							className="px-6 py-3 z-10"
 						>
 							{t("allCommunities.create_button")}
 						</PrimaryButton>
@@ -73,7 +73,7 @@ const AllCommunities = () => {
 					{!isLoggedIn && (
 						<PrimaryButton
 							onClick={() => navigate("/auth/login")}
-							className="px-6 py-2 z-10"
+							className="px-6 py-3 z-10"
 						>
 							{t("allCommunities.login_button")}
 						</PrimaryButton>

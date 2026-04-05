@@ -11,7 +11,11 @@ import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
-import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
+import {
+	DangerButton,
+	PrimaryButton,
+	SecondaryButton,
+} from "../../Components/Buttons";
 import { IsLoggedIn } from "../../api/auth";
 
 const CreateCommunity = () => {
@@ -170,12 +174,12 @@ const CreateCommunity = () => {
 											alt="Preview"
 											className="h-32 w-32 object-cover rounded-lg mx-auto"
 										/>
-										<PrimaryButton
+										<DangerButton
 											type="button"
 											onClick={() =>
 												setCommunityImage(null)
 											}
-											className="mt-4 bg-red-900 px-4 py-2"
+											className="mt-4 px-4 py-2"
 										>
 											<DynamicFAIcon
 												exportName="faX"
@@ -184,7 +188,7 @@ const CreateCommunity = () => {
 											{t(
 												"profile.edit_profile.remove_file",
 											)}
-										</PrimaryButton>
+										</DangerButton>
 									</div>
 								)) || (
 									<DragnDrop
@@ -219,12 +223,12 @@ const CreateCommunity = () => {
 											alt="Preview"
 											className="h-32 w-32 object-cover rounded-lg mx-auto"
 										/>
-										<PrimaryButton
+										<DangerButton
 											type="button"
 											onClick={() =>
 												setCommunityHeaderImage(null)
 											}
-											className="mt-4 bg-red-900 px-4 py-2"
+											className="mt-4 px-4 py-2"
 										>
 											<DynamicFAIcon
 												exportName="faX"
@@ -233,7 +237,7 @@ const CreateCommunity = () => {
 											{t(
 												"profile.edit_profile.remove_file",
 											)}
-										</PrimaryButton>
+										</DangerButton>
 									</div>
 								)) || (
 									<DragnDrop
