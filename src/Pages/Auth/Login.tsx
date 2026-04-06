@@ -67,9 +67,7 @@ const LoginPage = () => {
 	return (
 		<section className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur space-y-2">
 			<h1 className="text-2xl font-black">{t("auth.login.title")}</h1>
-			<p className="text-sm text-white/70">
-				{t("auth.login.subtitle")}
-			</p>
+			<p className="text-sm text-white/70">{t("auth.login.subtitle")}</p>
 
 			{error && (
 				<div className="w-full rounded-xl flex items-center p-4 border border-red-500 bg-red-500/10 text-red-500 bg-linear-60 from-red-500/10 to-red-500/20">

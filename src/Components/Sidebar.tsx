@@ -6,13 +6,12 @@ import { GetThreadById } from "../api/threads";
 import { useTranslation } from "react-i18next";
 import { GetUserThreads } from "../api/users";
 import type { ThreadData } from "../Interfaces/ThreadData";
-import { Logout } from "../api/auth";
+import { IsLoggedIn, Logout } from "../api/auth";
 import { DangerButton } from "./Buttons";
 
 interface SidebarProps {
 	closeSidebar: () => void;
 	isSidebarOpen: boolean;
-	isLoggedIn: boolean;
 }
 
 type RecentThreadItem = {
@@ -61,13 +60,14 @@ const SidebarCard = ({
 	);
 };
 
-const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
+const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 	const navigate = useNavigate();
 	// const [activeCommunity, setActiveCommunity] = useState<number | null>(null);
 	const [recentThreads, setRecentThreads] = useState<RecentThreadItem[]>([]);
 	const [joinedThreads, setJoinedThreads] = useState<ThreadData[]>([]);
 
 	const { t } = useTranslation();
+	const isLoggedIn = IsLoggedIn();
 
 	const loadFromStorage = () => {
 		if (!isLoggedIn) {
@@ -106,8 +106,17 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 
 	useEffect(() => {
 		if (isLoggedIn && userId !== -1) {
+			window.addEventListener("joined-threads-changed", getJoinedThreads);
+
 			getJoinedThreads();
 		}
+
+		return () => {
+			window.removeEventListener(
+				"joined-threads-changed",
+				getJoinedThreads,
+			);
+		};
 	}, [isLoggedIn, userId]);
 
 	useEffect(() => {

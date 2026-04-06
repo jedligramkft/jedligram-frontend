@@ -111,7 +111,9 @@ const PostItem = ({
 								replyToUsername={
 									node.user.name
 										? node.user.name
-										: t("community.post_item.unknown_author")
+										: t(
+												"community.post_item.unknown_author",
+											)
 								}
 								onCommentSent={() => setCommentOpen(false)}
 								onCancel={() => setCommentOpen(false)}
@@ -155,9 +157,7 @@ const PostItem = ({
 											size="lg"
 											className="mr-2"
 										/>{" "}
-										{t(
-											"community.post_item.show_comments",
-										)}
+										{t("community.post_item.show_comments")}
 									</GhostButton>
 								)}
 							</>

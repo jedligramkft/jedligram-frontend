@@ -5,16 +5,12 @@ import PostList from "./components/PostList";
 import { useCommunity } from "./hooks/useCommunity";
 // import { useComments } from "./hooks/useComments";
 
-interface CommunityProps {
-	isLoggedIn: boolean;
-}
-
-const Community = ({ isLoggedIn }: CommunityProps) => {
+const Community = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const threadId = id ? Number(id) : NaN;
 
-	const community = useCommunity(threadId, id, isLoggedIn, navigate);
+	const community = useCommunity(threadId, id, navigate);
 	// const comments = useComments(isLoggedIn);
 
 	return (

@@ -4,10 +4,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { CreatePostInThread } from "../../api/posts";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
-import {
-	PrimaryButton,
-	SecondaryButton,
-} from "../../Components/Buttons";
+import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
 
 const CreatePost = () => {
 	const { t } = useTranslation();
