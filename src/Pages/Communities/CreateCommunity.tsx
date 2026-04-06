@@ -176,7 +176,7 @@ const CreateCommunity = () => {
 									{t("createCommunity.header_label")}
 								</label>
 								<DragnDrop
-									maxFileSizeBytes={4 * 1024 * 1024} // 5MB
+									maxFileSizeBytes={4 * 1024 * 1024}
 									description={t(
 										"createCommunity.header_tip",
 									)}

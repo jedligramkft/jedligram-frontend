@@ -16,7 +16,7 @@ const LoginPage = () => {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 
-	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (isSubmitting) return;
 		setIsSubmitting(true);
@@ -80,6 +80,7 @@ const LoginPage = () => {
 			)}
 
 			<form
+				onSubmit={handleLogin}
 				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
 			>
 				<InputComponent
@@ -127,7 +128,6 @@ const LoginPage = () => {
 
 				<PrimaryButton
 					type="submit"
-					onClick={handleLogin}
 					disabled={isSubmitting}
 					className="mt-2 px-4 py-3"
 				>

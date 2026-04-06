@@ -19,7 +19,7 @@ export const VerificationPage = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { t } = useTranslation();
 
-	async function handleVerification(e: React.MouseEvent<HTMLButtonElement>) {
+	async function handleVerification(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		if (isSubmitting) return;
 		setIsSubmitting(true);
@@ -76,6 +76,7 @@ export const VerificationPage = () => {
 				</div>
 			)}
 			<form
+				onSubmit={handleVerification}
 				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
 			>
 				<InputComponent
@@ -94,9 +95,8 @@ export const VerificationPage = () => {
 				/>
 				<PrimaryButton
 					type="submit"
-					onClick={handleVerification}
 					disabled={isSubmitting}
-					className="mt-2px-4 py-3"
+					className="mt-2 px-4 py-3"
 				>
 					{t("auth.verification.submit_button")}
 				</PrimaryButton>
