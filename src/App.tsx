@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CapacitorNavigator from "./Components/Utils/NavigationManager";
 import { Route, Routes, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import AuthLayout from "./Layouts/AuthLayout";
 import NavbarLayout from "./Layouts/MainLayout";
 import Home from "./Pages/Home/Home";

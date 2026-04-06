@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import { GetThreads } from "../../api/threads";

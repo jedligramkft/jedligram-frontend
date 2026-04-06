@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { UserData } from "../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
 import { SecondaryButton } from "../../../Components/Buttons";

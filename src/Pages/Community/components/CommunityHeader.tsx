@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import WelcomeBanner from "../../../Components/Utils/WelcomeBanner";
 import { useTranslation } from "react-i18next";
@@ -7,6 +6,7 @@ import {
 	PrimaryButton,
 	SecondaryButton,
 } from "../../../Components/Buttons";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
 	id?: string;
@@ -25,6 +25,7 @@ const CommunityHeader = ({
 	onLeave,
 	onInvite,
 }: Props) => {
+	const navigate = useNavigate();
 	const { t } = useTranslation();
 
 	return (
