@@ -11,6 +11,7 @@ import { GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
 import { VoteOnPost } from "../../../api/vote";
+import { IsLoggedIn } from "../../../api/auth";
 
 type RecentThreadItem = {
 	id: number;
@@ -21,9 +22,9 @@ type RecentThreadItem = {
 export const useCommunity = (
 	threadId: number,
 	id: string | undefined,
-	isLoggedIn: boolean,
 	navigateFn: (path: string, options?: any) => void,
 ) => {
+	const isLoggedIn = IsLoggedIn();
 	const [isJoined, setIsJoined] = useState(false);
 	const [thread, setThread] = useState<ThreadData | null>(null);
 	const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
@@ -123,6 +124,7 @@ export const useCommunity = (
 			const users = await fetchJoinedUsers(threadId);
 			setJoinedUsers(users);
 			setShowAllMembers(false);
+			window.dispatchEvent(new Event("joined-threads-changed"));
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
 				if (err.response?.status === 401) {
@@ -139,6 +141,7 @@ export const useCommunity = (
 					const users = await fetchJoinedUsers(threadId);
 					setJoinedUsers(users);
 					setShowAllMembers(false);
+					window.dispatchEvent(new Event("joined-threads-changed"));
 					return;
 				}
 
@@ -168,6 +171,8 @@ export const useCommunity = (
 					prev.filter((u) => u.id !== currentUserId),
 				);
 			}
+
+			window.dispatchEvent(new Event("joined-threads-changed"));
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
 				if (err.response?.status === 401) {

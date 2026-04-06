@@ -44,7 +44,7 @@ const SearchResults = () => {
 				const message =
 					err instanceof Error
 						? err.message
-						: "Ismeretlen hiba történt.";
+						: t("search_results.unknown_error");
 
 				setError(message);
 			} finally {

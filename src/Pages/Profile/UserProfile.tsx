@@ -9,6 +9,7 @@ import { Logout } from "../../api/auth";
 import { EditProfile } from "./EditProfile";
 import type { ThreadData } from "../../Interfaces/ThreadData";
 import ConfirmationModal from "../../Components/Modal/Modal";
+import { DangerButton, SecondaryButton } from "../../Components/Buttons";
 
 const profileStorageKey =
 	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
@@ -135,7 +136,9 @@ const UserProfile = () => {
 									{targetUser?.image_url && (
 										<img
 											src={targetUser.image_url}
-											alt="Profilkép"
+											alt={t(
+												"profile.user_profile.profile_picture",
+											)}
 											className="h-full w-full object-cover rounded-full"
 										/>
 									)}
@@ -155,23 +158,23 @@ const UserProfile = () => {
 								</p>
 							</div>
 							<div className="flex flex-col justify-between gap-4 *:px-6 *:py-3">
-								<button
+								<SecondaryButton
 									onClick={() => navigate("/")}
-									className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-gray-600/50 hover:bg-gray-600 transition whitespace-nowrap"
+									className="gap-2 px-4 py-2 whitespace-nowrap"
 								>
 									<DynamicFAIcon exportName="faHome" />
 									{t("profile.user_profile.back_to_home")}
-								</button>
+								</SecondaryButton>
 								{isMyProfile && targetUser && (
-									<button
+									<DangerButton
 										onClick={() =>
 											setIsLogoutConfirmationOpen(true)
 										}
-										className="w-full md:w-auto flex items-center justify-center gap-2 text-xs md:text-sm px-4 py-2 rounded-lg bg-red-600/50 hover:bg-red-600 transition whitespace-nowrap"
+										className="gap-2 px-4 py-2 whitespace-nowrap"
 									>
 										<DynamicFAIcon exportName="faSignOutAlt" />
 										{t("profile.user_profile.logout")}
-									</button>
+									</DangerButton>
 								)}
 							</div>
 						</div>
@@ -189,7 +192,7 @@ const UserProfile = () => {
 							</div>
 							<div className="flex flex-col items-center justify-center py-3 md:py-4">
 								<p className="text-xs font-semibold uppercase tracking-wider text-white/60">
-									Karma
+									{t("profile.user_profile.karma")}
 								</p>
 								<p className="mt-1 text-base md:text-lg font-bold text-white">
 									{targetUser?.post_karma || 0}
@@ -207,7 +210,7 @@ const UserProfile = () => {
 						<hr className="text-gray-700/50" />
 						<div className="flex flex-col items-center justify-center py-3 md:py-4">
 							<h3 className="text-base md:text-lg font-semibold text-white/75 wrap-break-word">
-								A felhasználó közösségei
+								{t("profile.user_profile.user_communities")}
 							</h3>
 						</div>
 						<div className="flex gap-2 md:gap-2.5 flex-wrap justify-center px-2 md:px-0">

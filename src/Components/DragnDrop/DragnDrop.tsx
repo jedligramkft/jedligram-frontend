@@ -1,9 +1,19 @@
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import {
+	useEffect,
+	useRef,
+	useState,
+	type ChangeEvent,
+	type DragEvent,
+} from "react";
 import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
+import { DangerButton, PrimaryButton } from "../Buttons";
+import { twMerge } from "tailwind-merge";
 
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
+	onFileRemoved: () => void | Promise<void>;
+	selectedFile: File | null;
 	isUploading?: boolean;
 	accept?: string[];
 	maxFileSizeBytes?: number;
@@ -12,6 +22,7 @@ interface DragnDropProps {
 	selectButtonLabel?: string;
 	uploadingLabel?: string;
 	className?: string;
+	previewImageClassName?: string;
 	onValidationError?: (message: string | null) => void;
 }
 
@@ -20,20 +31,52 @@ const defaultMaxFileSizeBytes = 2 * 1024 * 1024;
 
 export const DragnDrop = ({
 	onFileSelected,
+	onFileRemoved,
+	selectedFile,
 	onValidationError,
 	isUploading = false,
 	accept = defaultAccept,
 	maxFileSizeBytes = defaultMaxFileSizeBytes,
-	title = "Húzd ide a fájlt",
-	description = "Vagy kattints a gombra a fájl kiválasztásához.",
-	selectButtonLabel = "Fájl kiválasztása",
-	uploadingLabel = "Feltöltés...",
+	title,
+	description,
+	selectButtonLabel,
+	uploadingLabel,
 	className = "",
+	previewImageClassName,
 }: DragnDropProps) => {
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const { t } = useTranslation();
+	const resolvedTitle = title ?? t("dragNdrop.default_title");
+	const resolvedDescription =
+		description ?? t("dragNdrop.default_description");
+	const resolvedSelectButtonLabel =
+		selectButtonLabel ?? t("dragNdrop.select_button_label");
+	const resolvedUploadingLabel =
+		uploadingLabel ?? t("dragNdrop.uploading_label");
+
+	useEffect(() => {
+		// Check if a file is currently selected by the user.
+		// If no file is selected, ensure the preview URL state is cleared to avoid displaying outdated previews.
+		if (!selectedFile) {
+			setPreviewUrl(null); // Clear the preview URL state.
+			return; // Exit early since there is no file to process.
+		}
+
+		// Create a temporary object URL for the selected file. This URL acts as a local reference
+		// to the file, allowing it to be used as the source for the file preview in the UI.
+		const objectUrl = URL.createObjectURL(selectedFile);
+		setPreviewUrl(objectUrl); // Update the preview URL state with the generated object URL.
+
+		// Return a cleanup function to revoke the object URL when it is no longer needed.
+		// This cleanup prevents memory leaks by releasing the object URL when the component
+		// unmounts or when the selected file changes.
+		return () => {
+			URL.revokeObjectURL(objectUrl); // Revoke the object URL to free up resources.
+		};
+	}, [selectedFile]);
 
 	const acceptedMimeTypes = accept.map((ext) => {
 		return ext.replace(".", "image/");
@@ -53,11 +96,15 @@ export const DragnDrop = ({
 			!acceptedMimeTypes.includes("*") &&
 			!acceptedMimeTypes.includes(file.type)
 		) {
-			return `Csak ${acceptedMimeTypes.join(", ")} fájl tölthető fel.`;
+			return t("dragNdrop.invalid_type_error", {
+				types: acceptedMimeTypes.join(", "),
+			});
 		}
 
 		if (maxFileSizeBytes !== -1 && file.size > maxFileSizeBytes) {
-			return `A fájl mérete nem lehet nagyobb ${maxFileSizeBytes / (1024 * 1024)} MB-nál.`;
+			return t("dragNdrop.file_too_large_error", {
+				size: maxFileSizeBytes / (1024 * 1024),
+			});
 		}
 
 		return null;
@@ -108,56 +155,102 @@ export const DragnDrop = ({
 	};
 
 	return (
-		<div className={className}>
-			<input
-				ref={fileInputRef}
-				type="file"
-				accept={accept.includes("*") ? undefined : accept.join(",")}
-				className="hidden"
-				onChange={handleFileInputChange}
-			/>
-			<div
-				className={`rounded-xl border-2 border-dashed p-6 text-center transition ${isDragOver ? "border-blue-400 bg-blue-500/10" : "border-gray-500/70 bg-white/5"}`}
-				onDrop={handleDrop}
-				onDragOver={handleDragOver}
-				onDragLeave={handleDragLeave}
-			>
-				{title && (
-					<p className="text-sm font-semibold text-white">{title}</p>
+		<>
+			<div className={className}>
+				{selectedFile ? (
+					<div
+						className={`rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2`}
+					>
+						<p className="text-sm font-semibold text-green-300">
+							{t("dragNdrop.file_selected")}
+						</p>
+						{previewUrl ? (
+							<img
+								src={previewUrl}
+								alt={t("dragNdrop.preview_alt")}
+								className={twMerge(
+									`h-32 w-32 object-cover rounded-lg mx-auto`,
+									previewImageClassName,
+								)}
+							/>
+						) : null}
+						<DangerButton
+							type="button"
+							onClick={async () => {
+								await onFileRemoved();
+							}}
+							className="mt-4 px-4 py-2"
+						>
+							<DynamicFAIcon exportName="faX" className="mr-2" />
+							{t("dragNdrop.remove_file")}
+						</DangerButton>
+					</div>
+				) : (
+					<>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept={
+								accept.includes("*")
+									? undefined
+									: accept.join(",")
+							}
+							className="hidden"
+							onChange={handleFileInputChange}
+						/>
+						<div
+							className={`rounded-xl border-2 border-dashed p-6 text-center transition ${isDragOver ? "border-blue-400 bg-blue-500/10" : "border-gray-500/70 bg-white/5"}`}
+							onDrop={handleDrop}
+							onDragOver={handleDragOver}
+							onDragLeave={handleDragLeave}
+						>
+							{resolvedTitle && (
+								<p className="text-sm font-semibold text-white">
+									{resolvedTitle}
+								</p>
+							)}
+							{resolvedDescription && (
+								<p className="mt-2 text-xs text-gray-400">
+									{resolvedDescription}
+								</p>
+							)}
+							<PrimaryButton
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isUploading}
+								className="mt-4 px-4 py-2"
+							>
+								<DynamicFAIcon
+									exportName="faCloudArrowUp"
+									className="mr-2"
+								/>
+								{isUploading
+									? resolvedUploadingLabel
+									: resolvedSelectButtonLabel}
+							</PrimaryButton>
+							<div className="*:text-xs *:text-gray-500 mt-4">
+								<p>
+									{t("dragNdrop.accepted_files")}:{" "}
+									{accept.includes("*")
+										? t("dragNdrop.all_formats")
+										: accept.join(", ")}
+								</p>
+								<p>
+									{t("dragNdrop.max_file_size")}:{" "}
+									{maxFileSizeBytes === -1
+										? t("dragNdrop.no_limit")
+										: `${maxFileSizeBytes / (1024 * 1024)} MB`}
+								</p>
+							</div>
+						</div>
+						{errorMessage ? (
+							<p className="mt-2 text-sm text-red-400">
+								{errorMessage}
+							</p>
+						) : null}
+					</>
 				)}
-				{description && (
-					<p className="mt-2 text-xs text-gray-400">{description}</p>
-				)}
-				<button
-					type="button"
-					onClick={() => fileInputRef.current?.click()}
-					disabled={isUploading}
-					className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
-				>
-					<DynamicFAIcon
-						exportName="faCloudArrowUp"
-						className="mr-2"
-					/>
-					{isUploading ? uploadingLabel : selectButtonLabel}
-				</button>
-				<div className="*:text-xs *:text-gray-500 mt-4">
-					<p>
-						{t("dragNdrop.accepted_files")}:{" "}
-						{accept.includes("*")
-							? "Minden formátum"
-							: accept.join(", ")}
-					</p>
-					<p>
-						{t("dragNdrop.max_file_size")}:{" "}
-						{maxFileSizeBytes === -1
-							? "Nincs korlátozás"
-							: `${maxFileSizeBytes / (1024 * 1024)} MB`}
-					</p>
-				</div>
 			</div>
-			{errorMessage ? (
-				<p className="mt-2 text-sm text-red-400">{errorMessage}</p>
-			) : null}
-		</div>
+		</>
 	);
 };

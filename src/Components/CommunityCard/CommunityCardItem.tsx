@@ -23,7 +23,7 @@ const CommunityCardItem = ({ threads }: { threads: ThreadData[] }) => {
 			<div className="relative z-10 flex h-full flex-col gap-4">
 				<div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
 					<span className="px-2 py-1 rounded-full border border-white/20 bg-white/10 text-xs font-semibold text-white/80">
-						{threads[0]?.users_count ?? "N/A"}{" "}
+						{threads[0]?.users_count ?? t("common.not_available")}{" "}
 						{t("allCommunities.members")}
 					</span>
 				</div>

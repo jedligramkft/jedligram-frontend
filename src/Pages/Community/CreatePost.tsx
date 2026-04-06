@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { CreatePostInThread } from "../../api/posts";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
-import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
+import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
 
 const CreatePost = () => {
 	const { t } = useTranslation();
@@ -25,7 +25,7 @@ const CreatePost = () => {
 		}
 
 		if (!id) {
-			alert("Érvénytelen közösség!");
+			alert(t("createPost.invalid_community_error"));
 			return;
 		}
 
@@ -36,7 +36,7 @@ const CreatePost = () => {
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
 				const message = (err.response?.data as any)?.message;
-				alert(message ?? "Nem sikerült létrehozni a posztot.");
+				alert(message ?? t("createPost.create_error"));
 				return;
 			}
 		} finally {
@@ -85,7 +85,7 @@ const CreatePost = () => {
 								</div>
 							</div>
 
-							<button
+							<SecondaryButton
 								type="button"
 								onClick={() =>
 									navigate(
@@ -94,10 +94,10 @@ const CreatePost = () => {
 											: "/all-communities",
 									)
 								}
-								className="cursor-pointer h-10 rounded-xl border border-white/15 bg-white/5 px-4 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/10"
+								className="px-6 py-2"
 							>
 								{t("createPost.back_button")}
-							</button>
+							</SecondaryButton>
 						</div>
 						<form
 							className="mt-8 grid gap-5"
@@ -120,49 +120,33 @@ const CreatePost = () => {
 								/>
 							</div>
 
-							{(fileToUpload && (
-								<div className="mb-4 p-3 md:p-4 bg-green-600/20 border border-green-600 rounded">
-									<p className="text-xs md:text-sm text-green-300 flex flex-wrap items-center gap-2">
-										<span>Fájl kiválasztva:</span>
-										<img
-											src={URL.createObjectURL(
-												fileToUpload,
-											)}
-											alt="Preview"
-											className="h-10 w-10 object-cover rounded-full"
-										/>
-										<button
-											className="p-2 hover:bg-green-600/30 rounded transition"
-											onClick={() =>
-												setFileToUpload(null)
-											}
-										>
-											<DynamicFAIcon exportName="faX" />
-										</button>
-									</p>
-								</div>
-							)) || (
-								<DragnDrop
-									onFileSelected={onProfilePictureSelected}
-									title="Kép hozzáadása"
-									description="Húzz ide egy képet, vagy kattints ide a kiválasztáshoz"
-									maxFileSizeBytes={4096 * 1024}
-								/>
-							)}
+							<DragnDrop
+								onFileSelected={onProfilePictureSelected}
+								onFileRemoved={() => {
+									setFileToUpload(null);
+								}}
+								selectedFile={fileToUpload}
+								title={t("createPost.image_upload_title")}
+								description={t(
+									"createPost.image_upload_description",
+								)}
+								maxFileSizeBytes={4096 * 1024}
+								previewImageClassName="rounded-sm"
+							/>
 
 							<div className="flex items-center justify-between gap-4">
 								<p className="text-xs text-white/55">
 									{t("createPost.info_text")}
 								</p>
-								<button
+								<PrimaryButton
 									type="submit"
 									disabled={creating}
-									className="cursor-pointer rounded-xl bg-linear-to-r from-blue-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white keep-white shadow-md transition hover:from-blue-600 hover:to-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+									className="px-6 py-3"
 								>
 									{creating
 										? t("createPost.submit_button_loading")
 										: t("createPost.submit_button")}
-								</button>
+								</PrimaryButton>
 							</div>
 						</form>
 					</div>

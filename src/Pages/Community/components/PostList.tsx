@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
 	GetCommentsForPost,
 	GetReplyCommentsForComment,
@@ -216,6 +217,7 @@ function attachRepliesToCommentById(
  * - Preserve expanded "load more" state during refreshes.
  */
 const PostList = ({ id, isJoined }: Props) => {
+	const { t } = useTranslation();
 	const [postsAndComments, setPostsAndComments] = useState<
 		PostAndCommentData[]
 	>([]);
@@ -498,7 +500,9 @@ const PostList = ({ id, isJoined }: Props) => {
 	return (
 		<div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur space-y-6">
 			<div className="flex items-center justify-between">
-				<h2 className="text-xl font-semibold text-white">Posztok</h2>
+				<h2 className="text-xl font-semibold text-white">
+					{t("community.post_list.title")}
+				</h2>
 				{isJoined && (
 					<Link
 						to={
@@ -508,8 +512,7 @@ const PostList = ({ id, isJoined }: Props) => {
 						}
 						className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
 					>
-						{/* {t("community.post_list.create_post")} */}
-						Új poszt
+						{t("community.post_list.create_post")}
 					</Link>
 				)}
 			</div>
@@ -518,9 +521,7 @@ const PostList = ({ id, isJoined }: Props) => {
 			>
 				{postsAndComments.length === 0 && (
 					<div className="text-sm text-white/70">
-						{/* {t("community.post_list.no_posts")} */}
-						Nincsenek posztok. Legyél te az első, aki megoszt
-						valamit a közösségben!
+						{t("community.post_list.no_posts")}
 					</div>
 				)}
 

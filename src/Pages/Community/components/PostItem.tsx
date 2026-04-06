@@ -1,10 +1,12 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import VoteComponent from "./PostItem/VoteComponent";
 import SharePost from "./PostItem/SharePost";
 import CommentWriter from "./PostItem/CommentWriter";
 import { Link } from "react-router";
+import { GhostButton } from "../../../Components/Buttons";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -29,6 +31,7 @@ const PostItem = ({
 	children,
 	OnLoadMoreComments,
 }: PostItemProps) => {
+	const { t } = useTranslation();
 	const POST_ID = `post-${node.id}-${originalPostId}`;
 	const [commentOpen, setCommentOpen] = useState(false);
 	const [isChildrenVisible, setIsChildrenVisible] = useState(true);
@@ -74,7 +77,7 @@ const PostItem = ({
 						{node.image && (
 							<img
 								src={node.image}
-								alt="Post image"
+								alt={t("community.post_item.post_image_alt")}
 								className="max-h-60 object-contain rounded-lg"
 							/>
 						)}
@@ -88,12 +91,13 @@ const PostItem = ({
 									startScore={node.score}
 								/>
 							)}
-							<button
-								className={`hover:text-white text-sm transition-colors ${commentOpen ? "text-white" : "text-white/75"}`}
+							<GhostButton
+								className={`gap-1 ${commentOpen ? "text-white" : "text-white/75"}`}
 								onClick={() => setCommentOpen(true)}
 							>
-								<DynamicFAIcon exportName="faComment" /> Reply
-							</button>
+								<DynamicFAIcon exportName="faComment" />{" "}
+								{t("community.post_item.reply")}
+							</GhostButton>
 							<SharePost
 								postId={POST_ID}
 								communityId={communityId}
@@ -105,7 +109,11 @@ const PostItem = ({
 								originalPostId={originalPostId}
 								nodeId={node.id}
 								replyToUsername={
-									node.user.name ? node.user.name : "unknown"
+									node.user.name
+										? node.user.name
+										: t(
+												"community.post_item.unknown_author",
+											)
 								}
 								onCommentSent={() => setCommentOpen(false)}
 								onCancel={() => setCommentOpen(false)}
@@ -114,8 +122,8 @@ const PostItem = ({
 						{!hasReplies &&
 						node.replies_count &&
 						node.replies_count > 0 ? (
-							<button
-								className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+							<GhostButton
+								className="p-2 pl-0 whitespace-nowrap"
 								onClick={() => {
 									if (OnLoadMoreComments) {
 										OnLoadMoreComments();
@@ -126,10 +134,9 @@ const PostItem = ({
 									exportName="faCirclePlus"
 									size="lg"
 									className="mr-2"
-								/>{" "}
-								{node.replies_count} rejtett komment
-								megjelenítése
-							</button>
+								/>
+								{t("community.post_item.load_comments")}
+							</GhostButton>
 						) : null}
 						{/* Indented container for child replies of this node. */}
 						{hasReplies ? (
@@ -139,20 +146,19 @@ const PostItem = ({
 										{children}
 									</div>
 								) : (
-									<button
+									<GhostButton
 										onClick={() => {
 											setIsChildrenVisible(true);
 										}}
-										className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+										className="p-2 pl-0 whitespace-nowrap"
 									>
 										<DynamicFAIcon
 											exportName="faCirclePlus"
 											size="lg"
 											className="mr-2"
 										/>{" "}
-										{node.replies_count} rejtett komment
-										megjelenítése
-									</button>
+										{t("community.post_item.show_comments")}
+									</GhostButton>
 								)}
 							</>
 						) : null}

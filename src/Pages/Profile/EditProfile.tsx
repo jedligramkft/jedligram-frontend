@@ -11,6 +11,7 @@ import Switch from "../../Components/InputFields/SwitchComponent";
 import { useNavigate } from "react-router-dom";
 import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
 import { getActiveTheme, toggleTheme } from "../../theme";
+import { PrimaryButton } from "../../Components/Buttons";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -85,43 +86,53 @@ export const EditProfile = (props: {
 			return;
 		}
 
-		//profil adatainak frissítése
-		try {
-			const response = await UpdateUserProfile(editedUser);
-			if (response.status === 200) {
-				console.log("Profil sikeresen frissítve:", response.data);
-			} else {
-				console.warn("Nem sikerült frissíteni a profilt:", response);
+		let userToSave = editedUser;
+
+		if (editedUser != props.targetUser) {
+			try {
+				const response = await UpdateUserProfile(userToSave);
+				if (response.status === 200) {
+					console.log("Profil sikeresen frissítve:", response.data);
+					setEditedUser(userToSave);
+				} else {
+					console.warn(
+						"Nem sikerült frissíteni a profilt:",
+						response,
+					);
+					setIsSavingChanges(false);
+					setHasError(true);
+					return;
+				}
+			} catch (error) {
+				console.error("Hiba történt a profil frissítésekor:", error);
 				setIsSavingChanges(false);
 				setHasError(true);
 				return;
 			}
-		} catch (error) {
-			console.error("Hiba történt a profil frissítésekor:", error);
-			setIsSavingChanges(false);
-			setHasError(true);
-			return;
 		}
 
 		//fájl feltöltés
 		if (fileToUpload) {
 			try {
 				const response = await ProfilePictureUpload(fileToUpload);
-				setEditedUser({
-					...editedUser,
-					image_url: response.data.imageUrl,
-				});
+				const uploadedImageUrl = response.data.user.image_url;
+
+				userToSave = {
+					...userToSave,
+					image_url: uploadedImageUrl,
+				};
+				setEditedUser(userToSave);
 			} catch (err) {
 				const message =
 					err instanceof Error
 						? err.message
-						: "Nem sikerült feltölteni a profilképet.";
-				alert(`Hiba: ${message}`);
+						: t("profile.edit_profile.upload_failed_error");
+				alert(message);
 			}
 			setFileToUpload(null);
 		}
 
-		await props.saveCallback(editedUser);
+		await props.saveCallback(userToSave);
 		await localStorage.setItem(
 			"lastSavedAt",
 			new Date().toISOString().split(".")[0].replace("T", " "),
@@ -265,50 +276,29 @@ export const EditProfile = (props: {
 						/>
 					</div>
 					<div className="md:col-span-2">
-						{(fileToUpload && (
-							<div className="rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2">
-								<p className="text-sm font-semibold text-green-300">
-									{t("profile.edit_profile.file_selected")}
-								</p>
-								<img
-									src={URL.createObjectURL(fileToUpload)}
-									alt="Preview"
-									className="h-32 w-32 object-cover rounded-full mx-auto"
-								/>
-								<button
-									type="button"
-									onClick={() => setFileToUpload(null)}
-									className="mt-4 inline-flex items-center justify-center rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-red-800 disabled:bg-gray-500 disabled:cursor-not-allowed"
-								>
-									<DynamicFAIcon
-										exportName="faX"
-										className="mr-2"
-									/>
-									{t("profile.edit_profile.remove_file")}
-								</button>
-							</div>
-						)) || (
-							<DragnDrop
-								onFileSelected={onProfilePictureSelected}
-								title={t(
-									"profile.edit_profile.upload_profile_picture",
-								)}
-								description={t(
-									"profile.edit_profile.drag_picture_text",
-								)}
-							/>
-						)}
+						<DragnDrop
+							onFileSelected={onProfilePictureSelected}
+							onFileRemoved={() => setFileToUpload(null)}
+							selectedFile={fileToUpload}
+							title={t(
+								"profile.edit_profile.upload_profile_picture",
+							)}
+							description={t(
+								"profile.edit_profile.drag_picture_text",
+							)}
+						/>
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
 						{t("profile.edit_profile.last_saved")}{" "}
-						{localStorage.getItem("lastSavedAt") || "N/A"}
+						{localStorage.getItem("lastSavedAt") ||
+							t("common.not_available")}
 					</p>
 				</div>
 				<div className="mt-6 md:mt-8 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
-					<button
+					<PrimaryButton
 						onClick={() => setIsSaveConfirmationOpen(true)}
 						disabled={isSavingChanges}
-						className="w-full md:w-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-wait"
+						className="gap-2 px-6 py-3"
 					>
 						{isSavingChanges ? (
 							<DynamicFAIcon
@@ -323,7 +313,7 @@ export const EditProfile = (props: {
 								? t("profile.edit_profile.saving")
 								: t("profile.edit_profile.save_changes")}
 						</span>
-					</button>
+					</PrimaryButton>
 				</div>
 			</div>
 
@@ -334,8 +324,6 @@ export const EditProfile = (props: {
 				description={t("profile.edit_profile.save_profile_description")}
 				cancelText={t("profile.edit_profile.cancel")}
 				confirmText={t("profile.edit_profile.save")}
-				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
-				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => setIsSaveConfirmationOpen(false)}
 				onConfirm={async () => {
 					setIsSaveConfirmationOpen(false);
@@ -352,7 +340,6 @@ export const EditProfile = (props: {
 				cancelText=""
 				confirmText={t("profile.edit_profile.ok")}
 				cancelButtonClassName="hidden"
-				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => setHasError(false)}
 				onConfirm={async () => {
 					setHasError(false);
@@ -369,8 +356,6 @@ export const EditProfile = (props: {
 				)}
 				cancelText={t("profile.edit_profile.two_fa_cancel")}
 				confirmText={t("profile.edit_profile.two_fa_confirm")}
-				cancelButtonClassName="border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60"
-				confirmButtonClassName="bg-blue-600 hover:bg-blue-500 disabled:opacity-75"
 				onClose={() => {
 					setIsSwitching2FA(false);
 					setIsVerificationEnabled((prev) => !prev);

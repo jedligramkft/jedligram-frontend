@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CommentOnPostOrReplyToComment } from "../../../../api/comments";
 import { TextAreaComponent } from "../../../../Components/InputFields/TextAreaComponent";
 import type { PostAndCommentData } from "../../../../Interfaces/PostAndComment";
+import { PrimaryButton, SecondaryButton } from "../../../../Components/Buttons";
 
 const CommentWriter = ({
 	isTopLevel,
@@ -18,6 +20,7 @@ const CommentWriter = ({
 	onCommentSent: () => void;
 	onCancel: () => void;
 }) => {
+	const { t } = useTranslation();
 	const [commentContent, setCommentContent] = useState("");
 
 	async function HandleCommentSubmit(
@@ -58,7 +61,6 @@ const CommentWriter = ({
 		btn.disabled = false; // Re-enable the submit button after the request completes.
 		setCommentContent("");
 		onCommentSent();
-		// TODO - ideally we would want to optimistically update the UI here instead of waiting for a refetch, but that requires some extra logic to insert the new comment into the correct place in the existing tree, so for now we'll just rely on the fact that after submitting a comment, the API will return the updated list of comments which will then be merged and rendered by the existing useEffect in PostList that watches for changes to the active thread ID.
 	}
 
 	return (
@@ -66,26 +68,22 @@ const CommentWriter = ({
 			<TextAreaComponent
 				value={commentContent}
 				onChange={(e) => setCommentContent(e.target.value)}
-				placeholder={`Válaszolj @${replyToUsername} kommentjére...`}
+				placeholder={t("community.comment_writer.reply_placeholder", {
+					username: replyToUsername,
+				})}
 			/>
-			<div
-				className="flex gap-2 
-									*:mt-2 *:rounded-xl *:border *:border-white/20 *:px-4 *:py-2 *:text-sm *:font-semibold *:text-white/90 *:transition"
-			>
-				<button
+			<div className="flex gap-2 *:mt-2 *:px-4 *:py-2">
+				<PrimaryButton
 					onClick={(e) =>
 						HandleCommentSubmit(e, nodeId, commentContent)
 					}
-					className="bg-blue-500/15 hover:bg-blue-500/20 disabled:bg-blue-500/5 disabled:text-white/50 disabled:cursor-not-allowed"
+					className=""
 				>
-					Elküld
-				</button>
-				<button
-					onClick={onCancel}
-					className="bg-white/5 hover:bg-white/10"
-				>
-					Mégse
-				</button>
+					{t("community.comment_writer.send_button")}
+				</PrimaryButton>
+				<SecondaryButton onClick={onCancel} className="">
+					{t("community.comment_writer.cancel_button")}
+				</SecondaryButton>
 			</div>
 		</div>
 	);

@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
+import { GhostButton, PrimaryButton, SecondaryButton } from "../Buttons";
 
 type ConfirmationModalProps = {
 	isOpen: boolean;
@@ -24,9 +26,11 @@ const ConfirmationModal = ({
 	onConfirm,
 	onClose,
 	isConfirmLoading = false,
-	cancelButtonClassName = "border border-white/20 bg-transparent text-white/90 hover:bg-white/10 disabled:opacity-60",
-	confirmButtonClassName = "bg-red-600 hover:bg-red-500 disabled:opacity-75",
+	cancelButtonClassName = "",
+	confirmButtonClassName = "",
 }: ConfirmationModalProps) => {
+	const { t } = useTranslation();
+
 	useEffect(() => {
 		if (!isOpen) return;
 
@@ -60,14 +64,14 @@ const ConfirmationModal = ({
 				className="relative w-full max-w-md rounded-2xl border border-white/15 bg-[#1f2226] p-5 text-white shadow-2xl sm:p-6"
 				onClick={(event) => event.stopPropagation()}
 			>
-				<button
+				<GhostButton
 					type="button"
 					onClick={onClose}
-					className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/5 text-white/75 transition hover:bg-white/15 hover:text-white"
-					aria-label="Bezárás"
+					className="absolute right-3 top-3 p-3"
+					aria-label={t("modal.close_aria_label")}
 				>
 					<DynamicFAIcon exportName="faX" />
-				</button>
+				</GhostButton>
 
 				<h3
 					id="confirmation-modal-title"
@@ -79,20 +83,12 @@ const ConfirmationModal = ({
 					{description}
 				</p>
 
-				<div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-					<button
-						type="button"
-						onClick={onClose}
-						disabled={isConfirmLoading}
-						className={`w-full rounded-lg px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed sm:w-auto ${cancelButtonClassName}`}
-					>
-						{cancelText}
-					</button>
-					<button
+				<div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+					<PrimaryButton
 						type="button"
 						onClick={onConfirm}
 						disabled={isConfirmLoading}
-						className={`w-full rounded-lg px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-wait sm:w-auto ${confirmButtonClassName}`}
+						className={`w-full px-4 py-2 ${confirmButtonClassName}`}
 					>
 						{isConfirmLoading ? (
 							<span className="flex items-center gap-2">
@@ -100,12 +96,20 @@ const ConfirmationModal = ({
 									exportName="faSpinner"
 									className="animate-spin"
 								/>
-								Folyamatban...
+								{t("modal.in_progress")}
 							</span>
 						) : (
 							<span>{confirmText}</span>
 						)}
-					</button>
+					</PrimaryButton>
+					<SecondaryButton
+						type="button"
+						onClick={onClose}
+						disabled={isConfirmLoading}
+						className={`w-full px-4 py-2 ${cancelButtonClassName}`}
+					>
+						{cancelText}
+					</SecondaryButton>
 				</div>
 			</div>
 		</div>,

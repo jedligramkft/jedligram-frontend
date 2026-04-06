@@ -6,12 +6,12 @@ import { GetThreadById } from "../api/threads";
 import { useTranslation } from "react-i18next";
 import { GetUserThreads } from "../api/users";
 import type { ThreadData } from "../Interfaces/ThreadData";
-import { Logout } from "../api/auth";
+import { IsLoggedIn, Logout } from "../api/auth";
+import { DangerButton } from "./Buttons";
 
 interface SidebarProps {
 	closeSidebar: () => void;
 	isSidebarOpen: boolean;
-	isLoggedIn: boolean;
 }
 
 type RecentThreadItem = {
@@ -60,13 +60,14 @@ const SidebarCard = ({
 	);
 };
 
-const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
+const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 	const navigate = useNavigate();
 	// const [activeCommunity, setActiveCommunity] = useState<number | null>(null);
 	const [recentThreads, setRecentThreads] = useState<RecentThreadItem[]>([]);
 	const [joinedThreads, setJoinedThreads] = useState<ThreadData[]>([]);
 
 	const { t } = useTranslation();
+	const isLoggedIn = IsLoggedIn();
 
 	const loadFromStorage = () => {
 		if (!isLoggedIn) {
@@ -105,8 +106,17 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 
 	useEffect(() => {
 		if (isLoggedIn && userId !== -1) {
+			window.addEventListener("joined-threads-changed", getJoinedThreads);
+
 			getJoinedThreads();
 		}
+
+		return () => {
+			window.removeEventListener(
+				"joined-threads-changed",
+				getJoinedThreads,
+			);
+		};
 	}, [isLoggedIn, userId]);
 
 	useEffect(() => {
@@ -203,7 +213,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 										{t("sidebar.menus.recently_viewed")}
 									</p>
-									{recentThreads.map((t) => (
+									{recentThreads.slice(0, 5).map((t) => (
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
@@ -240,7 +250,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 										{t("sidebar.menus.joined")}
 									</p>
-									{joinedThreads.map((t) => (
+									{joinedThreads.slice(0, 5).map((t) => (
 										<SidebarCard
 											key={t.id}
 											title={t.name ? t.name : `#${t.id}`}
@@ -255,7 +265,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 								<hr className="w-full border-white/10" />
 							</>
 						) : (
-							<p className="text-center mt-16 px-4 text-white/40">
+							<p className="text-center my-10 px-4 text-white/40">
 								{t("sidebar.menus.no_joined_threads")}
 							</p>
 						)}
@@ -264,16 +274,16 @@ const Sidebar = ({ closeSidebar, isSidebarOpen, isLoggedIn }: SidebarProps) => {
 
 						<div className="w-full px-3 py-2 mt-2">
 							{isLoggedIn && (
-								<button
+								<DangerButton
 									onClick={() => {
 										Logout().then(() => {
 											window.location.href = "/";
 										});
 									}}
-									className="w-full rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500/20"
+									className="w-full"
 								>
 									{t("sidebar.menus.logout")}
-								</button>
+								</DangerButton>
 							)}
 						</div>
 					</>
