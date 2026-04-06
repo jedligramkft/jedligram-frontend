@@ -238,7 +238,7 @@ export default App;
 	/* 
 	TODO
 		- DONE Drag-and-drop UI to handle uploaded file preview,
-		- Footer-ben a linkek kicserélése
+		- DONE Footer-ben a linkek kicserélése
 		- Scrollbar
 		- Gomb animációk
 		- Fordítás

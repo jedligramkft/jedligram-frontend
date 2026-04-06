@@ -1,25 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-interface FooterProps {
-	isLoggedIn?: boolean;
-}
-
-const Footer = ({ isLoggedIn }: FooterProps) => {
-	const [userId, setUserId] = useState<number | null>(null);
+const Footer = () => {
 	const { t } = useTranslation();
-
-	useEffect(() => {
-		const profileRaw = localStorage.getItem("jedligram_profile");
-		try {
-			const parsedProfile = JSON.parse(profileRaw || "{}");
-			setUserId(parsedProfile?.id ?? null);
-		} catch {
-			setUserId(null);
-		}
-	}, [isLoggedIn]);
-
 
 	const currentYear = new Date().getFullYear();
 	const logoUrl = new URL("/Images/jedligram_logo.png", import.meta.url).href;
@@ -30,8 +13,52 @@ const Footer = ({ isLoggedIn }: FooterProps) => {
 			<div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]" />
 			<div className="absolute inset-0 bg-black/25" />
 
-			<div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-10 text-sm text-white/70 md:px-12">
-				<div className="grid items-center gap-8 text-center md:grid-cols-3 md:text-left">
+			<div className="w-full h-full flex items-center justify-evenly *:w-1/6 py-10">
+				<div
+					className="flex flex-col items-start justify-center
+					*:text-white/60 *:hover:text-white *:transition"
+				>
+					<Link to="/" className="">
+						{t("footer.home")}
+					</Link>
+					<Link
+						to="https://github.com/jedligramkft"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{t("footer.github")}
+					</Link>
+					<Link
+						to="mailto:jedligram@gmail.com"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{t("footer.contact")}
+					</Link>
+					<Link
+						to="https://www.jedlik.eu"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{t("footer.jedlik")}
+					</Link>
+				</div>
+				<div className="flex items-center justify-center md:justify-center">
+					<span>
+						&copy; {currentYear} Jedligram. {t("footer.copyright")}
+					</span>
+				</div>
+				<div className="flex items-center justify-center">
+					<img
+						src={logoUrl}
+						alt="Jedligram logo"
+						className="h-14 w-14 opacity-90 brightness-200"
+						loading="lazy"
+					/>
+				</div>
+			</div>
+			{/* <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-10 text-sm text-white/70 md:px-12">
+				<div className="flex items-center justify-between gap-8 text-center bg-blue-500">
 					<div className="flex items-center justify-center md:justify-start">
 						<img
 							src={logoUrl}
@@ -41,28 +68,42 @@ const Footer = ({ isLoggedIn }: FooterProps) => {
 						/>
 					</div>
 					<div className="flex items-center justify-center md:justify-center">
-						<span>&copy; {currentYear} Jedligram. {t('footer.copyright')}</span>
+						<span>
+							&copy; {currentYear} Jedligram.{" "}
+							{t("footer.copyright")}
+						</span>
 					</div>
-					<div className="flex items-center justify-center gap-4 md:justify-end">
-						<Link to="/" className="text-white/70 hover:text-white transition">
-							{t('footer.home')}
+					<div className="grid grid-cols-2 gap-2 h-full text-center">
+						<Link
+							to="/"
+							className="text-white/70 hover:text-white transition"
+						>
+							{t("footer.home")}
 						</Link>
-						<Link to="/all-communities" className="text-white/70 hover:text-white transition">
-							{t('footer.communities')}
+						<Link
+							to="https://github.com/jedligramkft"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{t("footer.github")}
 						</Link>
-						{isLoggedIn && userId !== null && (
-							<Link to={`/users/${userId}`} className="text-white/70 hover:text-white transition">
-								{t('footer.profile')}
-							</Link>
-						)}
-						{!isLoggedIn && (
-							<Link to="/auth/login" className="text-white/70 hover:text-white transition">
-								{t('footer.login')}
-							</Link>
-						)}
+						<Link
+							to="mailto:jedligram@gmail.com"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{t("footer.contact")}
+						</Link>
+						<Link
+							to="https://www.jedlik.eu"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{t("footer.jedlik")}
+						</Link>
 					</div>
 				</div>
-			</div>
+			</div> */}
 		</footer>
 	);
 };

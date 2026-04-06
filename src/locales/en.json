@@ -100,9 +100,9 @@
 	"footer": {
 		"copyright": "All rights reserved.",
 		"home": "Home",
-		"communities": "Communities",
-		"profile": "Profile",
-		"login": "Login"
+		"github": "GitHub",
+		"contact": "Contact",
+		"jedlik": "Jedlik Homepage"
 	},
 	"profile": {
 		"user_profile": {

@@ -100,9 +100,9 @@
 	"footer": {
 		"copyright": "Minden jog fenntartva.",
 		"home": "Főoldal",
-		"communities": "Közösségek",
-		"profile": "Profil",
-		"login": "Bejelentkezés"
+		"github": "GitHub",
+		"contact": "Kapcsolat",
+		"jedlik": "Jedlik főoldal"
 	},
 	"profile": {
 		"user_profile": {
