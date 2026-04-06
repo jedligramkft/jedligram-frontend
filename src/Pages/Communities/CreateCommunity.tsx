@@ -164,6 +164,7 @@ const CreateCommunity = () => {
 									onFileRemoved={() =>
 										setCommunityImage(null)
 									}
+									selectedFile={communityImage}
 								/>
 							</div>
 
@@ -185,6 +186,7 @@ const CreateCommunity = () => {
 									onFileRemoved={() =>
 										setCommunityHeaderImage(null)
 									}
+									selectedFile={communityHeaderImage}
 								/>
 							</div>
 

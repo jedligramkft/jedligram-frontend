@@ -59,7 +59,6 @@ const CommentWriter = ({
 		btn.disabled = false; // Re-enable the submit button after the request completes.
 		setCommentContent("");
 		onCommentSent();
-		// TODO - ideally we would want to optimistically update the UI here instead of waiting for a refetch, but that requires some extra logic to insert the new comment into the correct place in the existing tree, so for now we'll just rely on the fact that after submitting a comment, the API will return the updated list of comments which will then be merged and rendered by the existing useEffect in PostList that watches for changes to the active thread ID.
 	}
 
 	return (

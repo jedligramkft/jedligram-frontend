@@ -58,7 +58,6 @@ const VoteComponent = ({
 	}, []);
 
 	return (
-		// TODO style this component
 		<div className="bg-white/10 flex items-center gap-2 p-1 rounded-xl">
 			{isLoading ? (
 				<DynamicFAIcon

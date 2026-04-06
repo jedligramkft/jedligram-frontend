@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge";
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
 	onFileRemoved: () => void | Promise<void>;
+	selectedFile: File | null;
 	isUploading?: boolean;
 	accept?: string[];
 	maxFileSizeBytes?: number;
@@ -25,6 +26,7 @@ const defaultMaxFileSizeBytes = 2 * 1024 * 1024;
 export const DragnDrop = ({
 	onFileSelected,
 	onFileRemoved,
+	selectedFile,
 	onValidationError,
 	isUploading = false,
 	accept = defaultAccept,
@@ -38,7 +40,6 @@ export const DragnDrop = ({
 }: DragnDropProps) => {
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const { t } = useTranslation();
 
@@ -80,7 +81,6 @@ export const DragnDrop = ({
 
 		setValidationError(null);
 		await onFileSelected(file);
-		setSelectedFile(file);
 	};
 
 	// Handle native file input and clear it so selecting the same file works again.
@@ -137,7 +137,6 @@ export const DragnDrop = ({
 							type="button"
 							onClick={async () => {
 								await onFileRemoved();
-								setSelectedFile(null);
 							}}
 							className="mt-4 px-4 py-2"
 						>

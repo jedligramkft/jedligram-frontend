@@ -130,6 +130,7 @@ const CreatePost = () => {
 								onFileRemoved={() => {
 									setFileToUpload(null);
 								}}
+								selectedFile={fileToUpload}
 								title="Kép hozzáadása"
 								description="Húzz ide egy képet, vagy kattints ide a kiválasztáshoz"
 								maxFileSizeBytes={4096 * 1024}

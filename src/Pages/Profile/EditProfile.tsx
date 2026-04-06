@@ -86,32 +86,42 @@ export const EditProfile = (props: {
 			return;
 		}
 
-		//profil adatainak frissítése
-		try {
-			const response = await UpdateUserProfile(editedUser);
-			if (response.status === 200) {
-				console.log("Profil sikeresen frissítve:", response.data);
-			} else {
-				console.warn("Nem sikerült frissíteni a profilt:", response);
+		let userToSave = editedUser;
+
+		if (editedUser != props.targetUser) {
+			try {
+				const response = await UpdateUserProfile(userToSave);
+				if (response.status === 200) {
+					console.log("Profil sikeresen frissítve:", response.data);
+					setEditedUser(userToSave);
+				} else {
+					console.warn(
+						"Nem sikerült frissíteni a profilt:",
+						response,
+					);
+					setIsSavingChanges(false);
+					setHasError(true);
+					return;
+				}
+			} catch (error) {
+				console.error("Hiba történt a profil frissítésekor:", error);
 				setIsSavingChanges(false);
 				setHasError(true);
 				return;
 			}
-		} catch (error) {
-			console.error("Hiba történt a profil frissítésekor:", error);
-			setIsSavingChanges(false);
-			setHasError(true);
-			return;
 		}
 
 		//fájl feltöltés
 		if (fileToUpload) {
 			try {
 				const response = await ProfilePictureUpload(fileToUpload);
-				setEditedUser({
-					...editedUser,
-					image_url: response.data.imageUrl,
-				});
+				const uploadedImageUrl = response.data.user.image_url;
+
+				userToSave = {
+					...userToSave,
+					image_url: uploadedImageUrl,
+				};
+				setEditedUser(userToSave);
 			} catch (err) {
 				const message =
 					err instanceof Error
@@ -122,7 +132,7 @@ export const EditProfile = (props: {
 			setFileToUpload(null);
 		}
 
-		await props.saveCallback(editedUser);
+		await props.saveCallback(userToSave);
 		await localStorage.setItem(
 			"lastSavedAt",
 			new Date().toISOString().split(".")[0].replace("T", " "),
@@ -269,6 +279,7 @@ export const EditProfile = (props: {
 						<DragnDrop
 							onFileSelected={onProfilePictureSelected}
 							onFileRemoved={() => setFileToUpload(null)}
+							selectedFile={fileToUpload}
 							title={t(
 								"profile.edit_profile.upload_profile_picture",
 							)}
