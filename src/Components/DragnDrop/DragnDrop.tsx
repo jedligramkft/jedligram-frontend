@@ -1,7 +1,7 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
-import { DangerButton, PrimaryButton, SecondaryButton } from "../Buttons";
+import { DangerButton, PrimaryButton } from "../Buttons";
 import { twMerge } from "tailwind-merge";
 
 interface DragnDropProps {
@@ -31,10 +31,10 @@ export const DragnDrop = ({
 	isUploading = false,
 	accept = defaultAccept,
 	maxFileSizeBytes = defaultMaxFileSizeBytes,
-	title = "Húzd ide a fájlt",
-	description = "Vagy kattints a gombra a fájl kiválasztásához.",
-	selectButtonLabel = "Fájl kiválasztása",
-	uploadingLabel = "Feltöltés...",
+	title,
+	description,
+	selectButtonLabel,
+	uploadingLabel,
 	className = "",
 	previewImageClassName,
 }: DragnDropProps) => {
@@ -42,6 +42,13 @@ export const DragnDrop = ({
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const { t } = useTranslation();
+	const resolvedTitle = title ?? t("dragNdrop.default_title");
+	const resolvedDescription =
+		description ?? t("dragNdrop.default_description");
+	const resolvedSelectButtonLabel =
+		selectButtonLabel ?? t("dragNdrop.select_button_label");
+	const resolvedUploadingLabel =
+		uploadingLabel ?? t("dragNdrop.uploading_label");
 
 	const acceptedMimeTypes = accept.map((ext) => {
 		return ext.replace(".", "image/");
@@ -61,11 +68,15 @@ export const DragnDrop = ({
 			!acceptedMimeTypes.includes("*") &&
 			!acceptedMimeTypes.includes(file.type)
 		) {
-			return `Csak ${acceptedMimeTypes.join(", ")} fájl tölthető fel.`;
+			return t("dragNdrop.invalid_type_error", {
+				types: acceptedMimeTypes.join(", "),
+			});
 		}
 
 		if (maxFileSizeBytes !== -1 && file.size > maxFileSizeBytes) {
-			return `A fájl mérete nem lehet nagyobb ${maxFileSizeBytes / (1024 * 1024)} MB-nál.`;
+			return t("dragNdrop.file_too_large_error", {
+				size: maxFileSizeBytes / (1024 * 1024),
+			});
 		}
 
 		return null;
@@ -127,7 +138,7 @@ export const DragnDrop = ({
 						</p>
 						<img
 							src={URL.createObjectURL(selectedFile)}
-							alt="Preview"
+							alt={t("dragNdrop.preview_alt")}
 							className={twMerge(
 								`h-32 w-32 object-cover rounded-lg mx-auto`,
 								previewImageClassName,
@@ -163,14 +174,14 @@ export const DragnDrop = ({
 							onDragOver={handleDragOver}
 							onDragLeave={handleDragLeave}
 						>
-							{title && (
+							{resolvedTitle && (
 								<p className="text-sm font-semibold text-white">
-									{title}
+									{resolvedTitle}
 								</p>
 							)}
-							{description && (
+							{resolvedDescription && (
 								<p className="mt-2 text-xs text-gray-400">
-									{description}
+									{resolvedDescription}
 								</p>
 							)}
 							<PrimaryButton
@@ -184,20 +195,20 @@ export const DragnDrop = ({
 									className="mr-2"
 								/>
 								{isUploading
-									? uploadingLabel
-									: selectButtonLabel}
+									? resolvedUploadingLabel
+									: resolvedSelectButtonLabel}
 							</PrimaryButton>
 							<div className="*:text-xs *:text-gray-500 mt-4">
 								<p>
 									{t("dragNdrop.accepted_files")}:{" "}
 									{accept.includes("*")
-										? "Minden formátum"
+										? t("dragNdrop.all_formats")
 										: accept.join(", ")}
 								</p>
 								<p>
 									{t("dragNdrop.max_file_size")}:{" "}
 									{maxFileSizeBytes === -1
-										? "Nincs korlátozás"
+										? t("dragNdrop.no_limit")
 										: `${maxFileSizeBytes / (1024 * 1024)} MB`}
 								</p>
 							</div>

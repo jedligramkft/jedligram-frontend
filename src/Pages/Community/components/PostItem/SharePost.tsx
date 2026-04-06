@@ -1,4 +1,5 @@
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
+import { useTranslation } from "react-i18next";
 import { GhostButton } from "../../../../Components/Buttons";
 
 const SharePost = ({
@@ -8,6 +9,8 @@ const SharePost = ({
 	postId: string;
 	communityId: number;
 }) => {
+	const { t } = useTranslation();
+
 	async function handleShare() {
 		try {
 			const inviteUrl = new URL(
@@ -24,7 +27,8 @@ const SharePost = ({
 
 	return (
 		<GhostButton className="gap-1" onClick={handleShare}>
-			<DynamicFAIcon exportName="faShare" /> Share
+			<DynamicFAIcon exportName="faShare" />
+			{t("community.post_item.share")}
 		</GhostButton>
 	);
 };

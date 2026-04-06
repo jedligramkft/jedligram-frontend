@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
 
@@ -37,6 +38,8 @@ const Switch: React.FC<SwitchProps> = ({
 	checked,
 	onChange,
 }) => {
+	const { t } = useTranslation();
+
 	// Support both controlled and uncontrolled usage from parent components.
 	// When `checked` is provided the parent controls the visual state and
 	// this component will only notify changes via `onChange` (it won't
@@ -112,7 +115,7 @@ const Switch: React.FC<SwitchProps> = ({
 					type="button"
 					role="switch"
 					aria-checked={isChecked}
-					aria-label={title ?? "Toggle switch"}
+					aria-label={title ?? t("switch.toggle_aria_label")}
 					className={`relative flex h-8 w-14 cursor-pointer items-center rounded-full border border-neutral-500 bg-neutral-700 p-1 transition-colors duration-200 ${buttonClass ?? ""}`}
 					style={{
 						backgroundColor: isChecked

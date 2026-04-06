@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CommentOnPostOrReplyToComment } from "../../../../api/comments";
 import { TextAreaComponent } from "../../../../Components/InputFields/TextAreaComponent";
 import type { PostAndCommentData } from "../../../../Interfaces/PostAndComment";
@@ -19,6 +20,7 @@ const CommentWriter = ({
 	onCommentSent: () => void;
 	onCancel: () => void;
 }) => {
+	const { t } = useTranslation();
 	const [commentContent, setCommentContent] = useState("");
 
 	async function HandleCommentSubmit(
@@ -66,7 +68,9 @@ const CommentWriter = ({
 			<TextAreaComponent
 				value={commentContent}
 				onChange={(e) => setCommentContent(e.target.value)}
-				placeholder={`Válaszolj @${replyToUsername} kommentjére...`}
+				placeholder={t("community.comment_writer.reply_placeholder", {
+					username: replyToUsername,
+				})}
 			/>
 			<div className="flex gap-2 *:mt-2 *:px-4 *:py-2">
 				<PrimaryButton
@@ -75,10 +79,10 @@ const CommentWriter = ({
 					}
 					className=""
 				>
-					Elküld
+					{t("community.comment_writer.send_button")}
 				</PrimaryButton>
 				<SecondaryButton onClick={onCancel} className="">
-					Mégse
+					{t("community.comment_writer.cancel_button")}
 				</SecondaryButton>
 			</div>
 		</div>

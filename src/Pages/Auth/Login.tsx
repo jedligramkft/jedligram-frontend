@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Login } from "../../api/auth";
 import type { UserData } from "../../Interfaces/UserData";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
@@ -13,6 +14,7 @@ const LoginPage = () => {
 	const [isPasswordVisible, setPasswordVisible] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -28,7 +30,7 @@ const LoginPage = () => {
 		};
 
 		if (!username || !password) {
-			setError("Felhasználónév és jelszó megadása kötelező.");
+			setError(t("auth.login.empty_fields_error"));
 			setIsSubmitting(false);
 			return;
 		}
@@ -47,20 +49,16 @@ const LoginPage = () => {
 		} catch (error) {
 			console.log(error);
 			if (!(error instanceof Error)) {
-				setError(
-					"Hiba történt a bejelentkezés során. Kérlek próbáld újra.",
-				);
+				setError(t("auth.login.generic_error"));
 				return;
 			}
 
 			if (error.message.includes("401")) {
-				setError("Érvénytelen felhasználónév vagy jelszó.");
+				setError(t("auth.login.invalid_credentials_error"));
 				return;
 			}
 
-			setError(
-				"Hiba történt a bejelentkezés során. Kérlek próbáld újra.",
-			);
+			setError(t("auth.login.generic_error"));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -68,9 +66,9 @@ const LoginPage = () => {
 
 	return (
 		<section className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur space-y-2">
-			<h1 className="text-2xl font-black">Bejelentkezés</h1>
+			<h1 className="text-2xl font-black">{t("auth.login.title")}</h1>
 			<p className="text-sm text-white/70">
-				Lépj be a Jedligram fiókodba.
+				{t("auth.login.subtitle")}
 			</p>
 
 			{error && (
@@ -87,18 +85,18 @@ const LoginPage = () => {
 				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
 			>
 				<InputComponent
-					label="Jedlikes bejelentkezés"
+					label={t("auth.login.username_label")}
 					type="text"
 					value={username}
-					placeholder="Vezetéknév.Keresztnév"
+					placeholder={t("auth.login.username_placeholder")}
 					onChange={(e) => setUsername(e.target.value)}
 				/>
 
 				<InputComponent
-					label="Jelszó"
+					label={t("auth.login.password_label")}
 					type={isPasswordVisible ? "text" : "password"}
 					value={password}
-					placeholder="Jelszó"
+					placeholder={t("auth.login.password_placeholder")}
 					onChange={(e) => setPassword(e.target.value)}
 					absoluteChildren={
 						<>
@@ -135,7 +133,7 @@ const LoginPage = () => {
 					disabled={isSubmitting}
 					className="mt-2 px-4 py-3"
 				>
-					Bejelentkezés
+					{t("auth.login.submit_button")}
 				</PrimaryButton>
 			</form>
 		</section>

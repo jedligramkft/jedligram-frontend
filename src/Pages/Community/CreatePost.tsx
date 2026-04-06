@@ -4,9 +4,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { CreatePostInThread } from "../../api/posts";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
-import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import {
-	GhostButton,
 	PrimaryButton,
 	SecondaryButton,
 } from "../../Components/Buttons";
@@ -30,7 +28,7 @@ const CreatePost = () => {
 		}
 
 		if (!id) {
-			alert("Érvénytelen közösség!");
+			alert(t("createPost.invalid_community_error"));
 			return;
 		}
 
@@ -41,7 +39,7 @@ const CreatePost = () => {
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
 				const message = (err.response?.data as any)?.message;
-				alert(message ?? "Nem sikerült létrehozni a posztot.");
+				alert(message ?? t("createPost.create_error"));
 				return;
 			}
 		} finally {
@@ -131,8 +129,10 @@ const CreatePost = () => {
 									setFileToUpload(null);
 								}}
 								selectedFile={fileToUpload}
-								title="Kép hozzáadása"
-								description="Húzz ide egy képet, vagy kattints ide a kiválasztáshoz"
+								title={t("createPost.image_upload_title")}
+								description={t(
+									"createPost.image_upload_description",
+								)}
 								maxFileSizeBytes={4096 * 1024}
 								previewImageClassName="rounded-sm"
 							/>

@@ -10,7 +10,7 @@ const Hero = () => {
 				<div className="absolute inset-0 bg-black opacity-20 z-0"></div>
 				<img
 					src="/Images/hero-background.jpg"
-					alt="Hero Image"
+					alt={t("hero.image_alt")}
 					className="absolute w-full h-full object-cover z-0 shadow-2xl"
 				/>
 				<div className="text-center relative z-10 px-4">

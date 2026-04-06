@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import VoteComponent from "./PostItem/VoteComponent";
@@ -30,6 +31,7 @@ const PostItem = ({
 	children,
 	OnLoadMoreComments,
 }: PostItemProps) => {
+	const { t } = useTranslation();
 	const POST_ID = `post-${node.id}-${originalPostId}`;
 	const [commentOpen, setCommentOpen] = useState(false);
 	const [isChildrenVisible, setIsChildrenVisible] = useState(true);
@@ -75,7 +77,7 @@ const PostItem = ({
 						{node.image && (
 							<img
 								src={node.image}
-								alt="Post image"
+								alt={t("community.post_item.post_image_alt")}
 								className="max-h-60 object-contain rounded-lg"
 							/>
 						)}
@@ -93,7 +95,8 @@ const PostItem = ({
 								className={`gap-1 ${commentOpen ? "text-white" : "text-white/75"}`}
 								onClick={() => setCommentOpen(true)}
 							>
-								<DynamicFAIcon exportName="faComment" /> Reply
+								<DynamicFAIcon exportName="faComment" />{" "}
+								{t("community.post_item.reply")}
 							</GhostButton>
 							<SharePost
 								postId={POST_ID}
@@ -106,7 +109,9 @@ const PostItem = ({
 								originalPostId={originalPostId}
 								nodeId={node.id}
 								replyToUsername={
-									node.user.name ? node.user.name : "unknown"
+									node.user.name
+										? node.user.name
+										: t("community.post_item.unknown_author")
 								}
 								onCommentSent={() => setCommentOpen(false)}
 								onCancel={() => setCommentOpen(false)}
@@ -128,7 +133,7 @@ const PostItem = ({
 									size="lg"
 									className="mr-2"
 								/>
-								Hozzásólások betöltése
+								{t("community.post_item.load_comments")}
 							</GhostButton>
 						) : null}
 						{/* Indented container for child replies of this node. */}
@@ -150,7 +155,9 @@ const PostItem = ({
 											size="lg"
 											className="mr-2"
 										/>{" "}
-										Hozzászólások megjelenítése
+										{t(
+											"community.post_item.show_comments",
+										)}
 									</GhostButton>
 								)}
 							</>

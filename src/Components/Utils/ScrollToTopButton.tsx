@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PrimaryButton } from "../Buttons";
 
 const ScrollToTopButton = () => {
 	const [isVisible, setIsVisible] = useState(false);
+	const { t } = useTranslation();
 
 	const toggleVisibility = () => {
 		if (window.pageYOffset > 300) {
@@ -31,7 +33,7 @@ const ScrollToTopButton = () => {
 			type="button"
 			onClick={scrollToTop}
 			className={`hidden md:block fixed bottom-8 right-8 z-50 rounded-full p-3 ${isVisible ? "opacity-100" : "opacity-0"}`}
-			aria-label="Go to top"
+			aria-label={t("scroll_to_top.aria_label")}
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

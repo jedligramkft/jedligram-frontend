@@ -2,6 +2,13 @@
 	"navbar": {
 		"search_placeholder": "Keress közösségeket..."
 	},
+	"searchbar": {
+		"default_placeholder": "Keress közösséget..."
+	},
+	"common": {
+		"brand_logo_alt": "Jedligram logó",
+		"not_available": "N/A"
+	},
 	"sidebar": {
 		"menus": {
 			"main": "Főmenü",
@@ -24,7 +31,34 @@
 	"hero": {
 		"title": "Üdvözlünk a Jedligram oldalán!",
 		"description": "Fedezd fel a közösségeket, csatlakozz beszélgetésekhez, és oszd meg a gondolataidat!",
-		"search_placeholder": "Keress közösségeket..."
+		"search_placeholder": "Keress közösségeket...",
+		"image_alt": "Fő kép"
+	},
+	"auth": {
+		"login": {
+			"title": "Bejelentkezés",
+			"subtitle": "Lépj be a Jedligram fiókodba.",
+			"username_label": "Jedlikes bejelentkezés",
+			"username_placeholder": "Vezetéknév.Keresztnév",
+			"password_label": "Jelszó",
+			"password_placeholder": "Jelszó",
+			"submit_button": "Bejelentkezés",
+			"empty_fields_error": "Felhasználónév és jelszó megadása kötelező.",
+			"invalid_credentials_error": "Érvénytelen felhasználónév vagy jelszó.",
+			"generic_error": "Hiba történt a bejelentkezés során. Kérlek próbáld újra."
+		},
+		"verification": {
+			"title": "Kétfaktoros azonosítás",
+			"subtitle": "Kérjük, ellenőrizd az emailedet a visszaigazoló kódért.",
+			"email_label": "Fiók email",
+			"email_placeholder": "Írd be az email címed",
+			"code_label": "Ellenőrző kód",
+			"code_placeholder": "Írd be az ellenőrző kódot",
+			"submit_button": "Ellenőrzés",
+			"empty_fields_error": "Email és ellenőrző kód megadása kötelező.",
+			"invalid_email_error": "Érvénytelen e-mail cím formátum.",
+			"generic_error": "Hiba történt az ellenőrzés során."
+		}
 	},
 	"createCommunity": {
 		"title": "Közösség létrehozása",
@@ -67,9 +101,13 @@
 		"back_button": "Vissza",
 		"content_label": "Tartalom",
 		"content_placeholder": "Írd le részletesen…",
+		"image_upload_title": "Kép hozzáadása",
+		"image_upload_description": "Húzz ide egy képet, vagy kattints ide a kiválasztáshoz",
 		"info_text": "A poszt a közösség feedjében jelenik meg.",
 		"submit_button_loading": "Létrehozás…",
 		"submit_button": "Poszt létrehozása",
+		"invalid_community_error": "Érvénytelen közösség!",
+		"create_error": "Nem sikerült létrehozni a posztot.",
 		"success_message": "Sikeresen létrehozva.",
 		"success_button": "Vissza a közösségbe"
 	},
@@ -117,7 +155,9 @@
 			"user": "Felhasználó",
 			"profile_picture": "Profilkép",
 			"no_bio": "Nincs bemutatkozás.",
-			"community_members": "tag"
+			"community_members": "tag",
+			"karma": "Karma",
+			"user_communities": "A felhasználó közösségei"
 		},
 		"edit_profile": {
 			"account_settings": "Fiók beállítások",
@@ -148,7 +188,8 @@
 			"two_fa_cancel": "Mégse",
 			"two_fa_confirm": "Váltás",
 			"dark_mode": "Sötét mód",
-			"dark_mode_subtitle": "Sötét témára váltás a jobb élmény érdekében"
+			"dark_mode_subtitle": "Sötét témára váltás a jobb élmény érdekében",
+			"upload_failed_error": "Nem sikerült feltölteni a profilképet."
 		}
 	},
 	"community": {
@@ -181,10 +222,16 @@
 		"post_item": {
 			"unknown_author": "Ismeretlen szerző",
 			"open_comments": "Kommentek",
-			"close_comments": "Hozzászólások bezárása"
+			"close_comments": "Hozzászólások bezárása",
+			"reply": "Válasz",
+			"load_comments": "Hozzászólások betöltése",
+			"show_comments": "Hozzászólások megjelenítése",
+			"share": "Megosztás",
+			"post_image_alt": "Posztkép"
 		},
 		"post_list": {
-			"feed": "Feed",
+			"title": "Posztok",
+			"feed": "Hírfolyam",
 			"create_post": "Poszt létrehozása",
 			"join_to_post": "Csatlakozz a posztoláshoz",
 			"no_posts": "Nincsenek posztok még. Legyél te az első, aki posztol!"
@@ -195,6 +242,16 @@
 			"reply": "Válasz",
 			"write_reply_placeholder": "Írd ide a válaszodat…",
 			"submit_reply": "Küldés"
+		},
+		"comment_writer": {
+			"reply_placeholder": "Válaszolj @{{username}} kommentjére...",
+			"send_button": "Elküld",
+			"cancel_button": "Mégse"
+		},
+		"deleted": {
+			"title": "Ez a közösség már nem elérhető",
+			"description": "Ez a közösség törlésre került, és már nem érhető el. Lehetséges, hogy a közösség tulajdonosa vagy egy adminisztrátor törölte.",
+			"back_button": "Vissza a közösségekhez"
 		}
 	},
 	"search_results": {
@@ -204,10 +261,30 @@
 		"results_for": "Eredmények erre: ",
 		"results": "Eredmények: ",
 		"no_results": "Nincs találat.",
-		"communities": "Közösségek"
+		"communities": "Közösségek",
+		"unknown_error": "Ismeretlen hiba történt."
 	},
 	"dragNdrop": {
 		"accepted_files": "Elfogadott fájltípusok",
-		"max_file_size": "Max fájlméret"
+		"max_file_size": "Max fájlméret",
+		"default_title": "Húzd ide a fájlt",
+		"default_description": "Vagy kattints a gombra a fájl kiválasztásához.",
+		"select_button_label": "Fájl kiválasztása",
+		"uploading_label": "Feltöltés...",
+		"invalid_type_error": "Csak {{types}} fájl tölthető fel.",
+		"file_too_large_error": "A fájl mérete nem lehet nagyobb {{size}} MB-nál.",
+		"all_formats": "Minden formátum",
+		"no_limit": "Nincs korlátozás",
+		"preview_alt": "Előnézet"
+	},
+	"modal": {
+		"close_aria_label": "Bezárás",
+		"in_progress": "Folyamatban..."
+	},
+	"scroll_to_top": {
+		"aria_label": "Ugrás az oldal tetejére"
+	},
+	"switch": {
+		"toggle_aria_label": "Kapcsoló váltása"
 	}
 }

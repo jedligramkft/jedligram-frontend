@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Verify2FA } from "../../api/auth";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
@@ -16,6 +17,7 @@ export const VerificationPage = () => {
 
 	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const { t } = useTranslation();
 
 	async function handleVerification(e: React.MouseEvent<HTMLButtonElement>) {
 		e.preventDefault();
@@ -24,14 +26,14 @@ export const VerificationPage = () => {
 		setError(null);
 
 		if (!email || !verificationCode) {
-			setError("Email és ellenőrző kód megadása kötelező.");
+			setError(t("auth.verification.empty_fields_error"));
 			setIsSubmitting(false);
 			return;
 		}
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(email)) {
-			setError("Érvénytelen e-mail cím formátum.");
+			setError(t("auth.verification.invalid_email_error"));
 			setIsSubmitting(false);
 			return;
 		}
@@ -49,7 +51,7 @@ export const VerificationPage = () => {
 				}
 			}
 		} catch {
-			setError(`${"Hiba történt az ellenőrzés során."}`);
+			setError(t("auth.verification.generic_error"));
 		}
 
 		setIsSubmitting(false);
@@ -57,9 +59,11 @@ export const VerificationPage = () => {
 
 	return (
 		<section className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur space-y-2">
-			<h1 className="text-2xl font-black">Kétfaktoros azonosítás</h1>
+			<h1 className="text-2xl font-black">
+				{t("auth.verification.title")}
+			</h1>
 			<p className="text-sm text-white/70">
-				Kérjük, ellenőrizze email-jét a visszaigazolási kódért.
+				{t("auth.verification.subtitle")}
 			</p>
 
 			{error && (
@@ -75,17 +79,17 @@ export const VerificationPage = () => {
 				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
 			>
 				<InputComponent
-					label="Fiók email"
+					label={t("auth.verification.email_label")}
 					type="email"
 					value={email}
-					placeholder="Írd be az email címed"
+					placeholder={t("auth.verification.email_placeholder")}
 					onChange={(e) => setEmail(e.target.value)}
 				/>
 				<InputComponent
-					label="Ellenőrző kód"
+					label={t("auth.verification.code_label")}
 					type="text"
 					value={verificationCode}
-					placeholder="Írd be az ellenőrző kódot"
+					placeholder={t("auth.verification.code_placeholder")}
 					onChange={(e) => setVerificationCode(e.target.value)}
 				/>
 				<PrimaryButton
@@ -94,7 +98,7 @@ export const VerificationPage = () => {
 					disabled={isSubmitting}
 					className="mt-2px-4 py-3"
 				>
-					Ellenőrzés
+					{t("auth.verification.submit_button")}
 				</PrimaryButton>
 			</form>
 		</section>

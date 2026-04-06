@@ -126,8 +126,8 @@ export const EditProfile = (props: {
 				const message =
 					err instanceof Error
 						? err.message
-						: "Nem sikerült feltölteni a profilképet.";
-				alert(`Hiba: ${message}`);
+						: t("profile.edit_profile.upload_failed_error");
+				alert(message);
 			}
 			setFileToUpload(null);
 		}
@@ -290,7 +290,8 @@ export const EditProfile = (props: {
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
 						{t("profile.edit_profile.last_saved")}{" "}
-						{localStorage.getItem("lastSavedAt") || "N/A"}
+						{localStorage.getItem("lastSavedAt") ||
+							t("common.not_available")}
 					</p>
 				</div>
 				<div className="mt-6 md:mt-8 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">

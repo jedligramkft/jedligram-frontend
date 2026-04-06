@@ -10,7 +10,7 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
-	const { i18n } = useTranslation();
+	const { i18n, t } = useTranslation();
 	const language = i18n.language;
 
 	const handleLanguageChange = (lang: string) => {
@@ -55,7 +55,7 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 					<Link to="/">
 						<img
 							src="/Images/jedligram_logo.png"
-							alt="Jedligram logo"
+							alt={t("common.brand_logo_alt")}
 							className="h-12 w-12 opacity-90 brightness-200"
 						/>
 					</Link>
@@ -63,7 +63,7 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 
 				<Searchbar
 					formClass="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2"
-					searchbarPlaceholder={i18n.t("navbar.search_placeholder")}
+					searchbarPlaceholder={t("navbar.search_placeholder")}
 					searchbarClass="w-72 lg:w-96 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
 					hasButton={false}
 				/>

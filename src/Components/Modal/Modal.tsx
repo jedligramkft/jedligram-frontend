@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
 import { GhostButton, PrimaryButton, SecondaryButton } from "../Buttons";
 
@@ -28,6 +29,8 @@ const ConfirmationModal = ({
 	cancelButtonClassName = "",
 	confirmButtonClassName = "",
 }: ConfirmationModalProps) => {
+	const { t } = useTranslation();
+
 	useEffect(() => {
 		if (!isOpen) return;
 
@@ -65,7 +68,7 @@ const ConfirmationModal = ({
 					type="button"
 					onClick={onClose}
 					className="absolute right-3 top-3 p-3"
-					aria-label="Bezárás"
+					aria-label={t("modal.close_aria_label")}
 				>
 					<DynamicFAIcon exportName="faX" />
 				</GhostButton>
@@ -93,7 +96,7 @@ const ConfirmationModal = ({
 									exportName="faSpinner"
 									className="animate-spin"
 								/>
-								Folyamatban...
+								{t("modal.in_progress")}
 							</span>
 						) : (
 							<span>{confirmText}</span>

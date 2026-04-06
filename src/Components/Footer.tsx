@@ -51,7 +51,7 @@ const Footer = () => {
 				<div className="flex items-center justify-center">
 					<img
 						src={logoUrl}
-						alt="Jedligram logo"
+						alt={t("common.brand_logo_alt")}
 						className="h-14 w-14 opacity-90 brightness-200"
 						loading="lazy"
 					/>

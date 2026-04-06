@@ -2,6 +2,13 @@
 	"navbar": {
 		"search_placeholder": "Search communities..."
 	},
+	"searchbar": {
+		"default_placeholder": "Search communities..."
+	},
+	"common": {
+		"brand_logo_alt": "Jedligram logo",
+		"not_available": "N/A"
+	},
 	"sidebar": {
 		"menus": {
 			"main": "Main Menu",
@@ -24,7 +31,34 @@
 	"hero": {
 		"title": "Welcome to Jedligram!",
 		"description": "Discover and join communities that share your interests.",
-		"search_placeholder": "Search communities..."
+		"search_placeholder": "Search communities...",
+		"image_alt": "Hero image"
+	},
+	"auth": {
+		"login": {
+			"title": "Login",
+			"subtitle": "Sign in to your Jedligram account.",
+			"username_label": "Jedlik Username",
+			"username_placeholder": "LastName.FirstName",
+			"password_label": "Password",
+			"password_placeholder": "Password",
+			"submit_button": "Login",
+			"empty_fields_error": "Username and password are required.",
+			"invalid_credentials_error": "Invalid username or password.",
+			"generic_error": "An error occurred during login. Please try again."
+		},
+		"verification": {
+			"title": "Two-Factor Authentication",
+			"subtitle": "Please check your email for the verification code.",
+			"email_label": "Account Email",
+			"email_placeholder": "Enter your email address",
+			"code_label": "Verification Code",
+			"code_placeholder": "Enter the verification code",
+			"submit_button": "Verify",
+			"empty_fields_error": "Email and verification code are required.",
+			"invalid_email_error": "Invalid email format.",
+			"generic_error": "An error occurred during verification."
+		}
 	},
 	"createCommunity": {
 		"title": "Create Community",
@@ -67,9 +101,13 @@
 		"back_button": "Back",
 		"content_label": "Content",
 		"content_placeholder": "Write your post content here…",
+		"image_upload_title": "Add image",
+		"image_upload_description": "Drag an image here, or click to select one",
 		"info_text": "The post will appear in the community feed.",
 		"submit_button_loading": "Creating…",
 		"submit_button": "Create Post",
+		"invalid_community_error": "Invalid community!",
+		"create_error": "Failed to create the post.",
 		"success_message": "Successfully created.",
 		"success_button": "Back to Community"
 	},
@@ -117,7 +155,9 @@
 			"user": "User",
 			"profile_picture": "Profile picture",
 			"no_bio": "No bio.",
-			"community_members": "members"
+			"community_members": "members",
+			"karma": "Karma",
+			"user_communities": "User communities"
 		},
 		"edit_profile": {
 			"account_settings": "Account Settings",
@@ -148,7 +188,8 @@
 			"two_fa_cancel": "Cancel",
 			"two_fa_confirm": "Switch",
 			"dark_mode": "Dark Mode",
-			"dark_mode_subtitle": "Switch to dark theme for a better experience"
+			"dark_mode_subtitle": "Switch to dark theme for a better experience",
+			"upload_failed_error": "Failed to upload profile picture."
 		}
 	},
 	"community": {
@@ -181,9 +222,15 @@
 		"post_item": {
 			"unknown_author": "Unknown Author",
 			"open_comments": "Comments",
-			"close_comments": "Close Comments"
+			"close_comments": "Close Comments",
+			"reply": "Reply",
+			"load_comments": "Load comments",
+			"show_comments": "Show comments",
+			"share": "Share",
+			"post_image_alt": "Post image"
 		},
 		"post_list": {
+			"title": "Posts",
 			"feed": "Feed",
 			"create_post": "Create Post",
 			"join_to_post": "Join to Post",
@@ -195,6 +242,16 @@
 			"reply": "Reply",
 			"write_reply_placeholder": "Write your reply here…",
 			"submit_reply": "Submit"
+		},
+		"comment_writer": {
+			"reply_placeholder": "Reply to @{{username}}'s comment...",
+			"send_button": "Send",
+			"cancel_button": "Cancel"
+		},
+		"deleted": {
+			"title": "This community is no longer available",
+			"description": "This community has been deleted and is no longer accessible. It may have been removed by the community owner or an administrator.",
+			"back_button": "Back to communities"
 		}
 	},
 	"search_results": {
@@ -204,10 +261,30 @@
 		"results_for": "Results for: ",
 		"results": "Results: ",
 		"no_results": "No results.",
-		"communities": "Communities"
+		"communities": "Communities",
+		"unknown_error": "An unknown error occurred."
 	},
 	"dragNdrop": {
 		"accepted_files": "Accepted file types",
-		"max_file_size": "Max file size"
+		"max_file_size": "Max file size",
+		"default_title": "Drop file here",
+		"default_description": "Or click the button to choose a file.",
+		"select_button_label": "Choose file",
+		"uploading_label": "Uploading...",
+		"invalid_type_error": "Only {{types}} files can be uploaded.",
+		"file_too_large_error": "File size cannot be larger than {{size}} MB.",
+		"all_formats": "All formats",
+		"no_limit": "No limit",
+		"preview_alt": "Preview"
+	},
+	"modal": {
+		"close_aria_label": "Close",
+		"in_progress": "In progress..."
+	},
+	"scroll_to_top": {
+		"aria_label": "Go to top"
+	},
+	"switch": {
+		"toggle_aria_label": "Toggle switch"
 	}
 }
