@@ -116,7 +116,7 @@ const PostItem = ({
 						node.replies_count &&
 						node.replies_count > 0 ? (
 							<GhostButton
-								className="p-2 pl-0"
+								className="p-2 pl-0 whitespace-nowrap"
 								onClick={() => {
 									if (OnLoadMoreComments) {
 										OnLoadMoreComments();
@@ -128,10 +128,7 @@ const PostItem = ({
 									size="lg"
 									className="mr-2"
 								/>
-								{node.replies_count
-									? `Hozzásólások `
-									: `${node.replies_count} hozzászólás `}
-								betöltése
+								Hozzásólások betöltése
 							</GhostButton>
 						) : null}
 						{/* Indented container for child replies of this node. */}
@@ -146,17 +143,14 @@ const PostItem = ({
 										onClick={() => {
 											setIsChildrenVisible(true);
 										}}
-										className="text-sm text-white/75 cursor-pointer hover:text-white transition p-2 pl-0 flex items-center justify-center"
+										className="p-2 pl-0 whitespace-nowrap"
 									>
 										<DynamicFAIcon
 											exportName="faCirclePlus"
 											size="lg"
 											className="mr-2"
 										/>{" "}
-										{node.replies_count
-											? "Hozzászólások "
-											: `${node.replies_count} hozzászólás `}
-										megjelenítése
+										Hozzászólások megjelenítése
 									</GhostButton>
 								)}
 							</>

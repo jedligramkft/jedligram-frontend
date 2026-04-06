@@ -125,35 +125,16 @@ const CreatePost = () => {
 								/>
 							</div>
 
-							{(fileToUpload && (
-								<div className="mb-4 p-3 md:p-4 bg-green-600/20 border border-green-600 rounded">
-									<p className="text-xs md:text-sm text-green-300 flex flex-wrap items-center gap-2">
-										<span>Fájl kiválasztva:</span>
-										<img
-											src={URL.createObjectURL(
-												fileToUpload,
-											)}
-											alt="Preview"
-											className="h-10 w-10 object-cover rounded-full"
-										/>
-										<SecondaryButton
-											className="p-2 hover:bg-green-600/30 rounded transition"
-											onClick={() =>
-												setFileToUpload(null)
-											}
-										>
-											<DynamicFAIcon exportName="faX" />
-										</SecondaryButton>
-									</p>
-								</div>
-							)) || (
-								<DragnDrop
-									onFileSelected={onProfilePictureSelected}
-									title="Kép hozzáadása"
-									description="Húzz ide egy képet, vagy kattints ide a kiválasztáshoz"
-									maxFileSizeBytes={4096 * 1024}
-								/>
-							)}
+							<DragnDrop
+								onFileSelected={onProfilePictureSelected}
+								onFileRemoved={() => {
+									setFileToUpload(null);
+								}}
+								title="Kép hozzáadása"
+								description="Húzz ide egy képet, vagy kattints ide a kiválasztáshoz"
+								maxFileSizeBytes={4096 * 1024}
+								previewImageClassName="rounded-sm"
+							/>
 
 							<div className="flex items-center justify-between gap-4">
 								<p className="text-xs text-white/55">

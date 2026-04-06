@@ -11,7 +11,7 @@ import Switch from "../../Components/InputFields/SwitchComponent";
 import { useNavigate } from "react-router-dom";
 import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
 import { getActiveTheme, toggleTheme } from "../../theme";
-import { DangerButton, PrimaryButton } from "../../Components/Buttons";
+import { PrimaryButton } from "../../Components/Buttons";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -266,39 +266,16 @@ export const EditProfile = (props: {
 						/>
 					</div>
 					<div className="md:col-span-2">
-						{(fileToUpload && (
-							<div className="rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2">
-								<p className="text-sm font-semibold text-green-300">
-									{t("profile.edit_profile.file_selected")}
-								</p>
-								<img
-									src={URL.createObjectURL(fileToUpload)}
-									alt="Preview"
-									className="h-32 w-32 object-cover rounded-full mx-auto"
-								/>
-								<DangerButton
-									type="button"
-									onClick={() => setFileToUpload(null)}
-									className="mt-4 px-4 py-2"
-								>
-									<DynamicFAIcon
-										exportName="faX"
-										className="mr-2"
-									/>
-									{t("profile.edit_profile.remove_file")}
-								</DangerButton>
-							</div>
-						)) || (
-							<DragnDrop
-								onFileSelected={onProfilePictureSelected}
-								title={t(
-									"profile.edit_profile.upload_profile_picture",
-								)}
-								description={t(
-									"profile.edit_profile.drag_picture_text",
-								)}
-							/>
-						)}
+						<DragnDrop
+							onFileSelected={onProfilePictureSelected}
+							onFileRemoved={() => setFileToUpload(null)}
+							title={t(
+								"profile.edit_profile.upload_profile_picture",
+							)}
+							description={t(
+								"profile.edit_profile.drag_picture_text",
+							)}
+						/>
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
 						{t("profile.edit_profile.last_saved")}{" "}

@@ -10,12 +10,7 @@ import {
 import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponent";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
-import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
-import {
-	DangerButton,
-	PrimaryButton,
-	SecondaryButton,
-} from "../../Components/Buttons";
+import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
 import { IsLoggedIn } from "../../api/auth";
 
 const CreateCommunity = () => {
@@ -160,46 +155,16 @@ const CreateCommunity = () => {
 								>
 									{t("createCommunity.image_label")}
 								</label>
-								{(communityImage && (
-									<div className="rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2">
-										<p className="text-sm font-semibold text-green-300">
-											{t(
-												"profile.edit_profile.file_selected",
-											)}
-										</p>
-										<img
-											src={URL.createObjectURL(
-												communityImage,
-											)}
-											alt="Preview"
-											className="h-32 w-32 object-cover rounded-lg mx-auto"
-										/>
-										<DangerButton
-											type="button"
-											onClick={() =>
-												setCommunityImage(null)
-											}
-											className="mt-4 px-4 py-2"
-										>
-											<DynamicFAIcon
-												exportName="faX"
-												className="mr-2"
-											/>
-											{t(
-												"profile.edit_profile.remove_file",
-											)}
-										</DangerButton>
-									</div>
-								)) || (
-									<DragnDrop
-										description={t(
-											"createCommunity.image_tip",
-										)}
-										onFileSelected={(file) => {
-											setCommunityImage(file);
-										}}
-									/>
-								)}
+
+								<DragnDrop
+									description={t("createCommunity.image_tip")}
+									onFileSelected={(file) => {
+										setCommunityImage(file);
+									}}
+									onFileRemoved={() =>
+										setCommunityImage(null)
+									}
+								/>
 							</div>
 
 							<div className="flex flex-col gap-2">
@@ -209,47 +174,18 @@ const CreateCommunity = () => {
 								>
 									{t("createCommunity.header_label")}
 								</label>
-								{(communityHeaderImage && (
-									<div className="rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2">
-										<p className="text-sm font-semibold text-green-300">
-											{t(
-												"profile.edit_profile.file_selected",
-											)}
-										</p>
-										<img
-											src={URL.createObjectURL(
-												communityHeaderImage,
-											)}
-											alt="Preview"
-											className="h-32 w-32 object-cover rounded-lg mx-auto"
-										/>
-										<DangerButton
-											type="button"
-											onClick={() =>
-												setCommunityHeaderImage(null)
-											}
-											className="mt-4 px-4 py-2"
-										>
-											<DynamicFAIcon
-												exportName="faX"
-												className="mr-2"
-											/>
-											{t(
-												"profile.edit_profile.remove_file",
-											)}
-										</DangerButton>
-									</div>
-								)) || (
-									<DragnDrop
-										maxFileSizeBytes={4 * 1024 * 1024} // 5MB
-										description={t(
-											"createCommunity.header_tip",
-										)}
-										onFileSelected={(file) => {
-											setCommunityHeaderImage(file);
-										}}
-									/>
-								)}
+								<DragnDrop
+									maxFileSizeBytes={4 * 1024 * 1024} // 5MB
+									description={t(
+										"createCommunity.header_tip",
+									)}
+									onFileSelected={(file) => {
+										setCommunityHeaderImage(file);
+									}}
+									onFileRemoved={() =>
+										setCommunityHeaderImage(null)
+									}
+								/>
 							</div>
 
 							<div className="flex items-center justify-between gap-4">
