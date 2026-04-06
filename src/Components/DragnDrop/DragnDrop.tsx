@@ -1,4 +1,10 @@
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import {
+	useEffect,
+	useRef,
+	useState,
+	type ChangeEvent,
+	type DragEvent,
+} from "react";
 import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
 import { DangerButton, PrimaryButton } from "../Buttons";
@@ -40,6 +46,7 @@ export const DragnDrop = ({
 }: DragnDropProps) => {
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const { t } = useTranslation();
 	const resolvedTitle = title ?? t("dragNdrop.default_title");
@@ -49,6 +56,27 @@ export const DragnDrop = ({
 		selectButtonLabel ?? t("dragNdrop.select_button_label");
 	const resolvedUploadingLabel =
 		uploadingLabel ?? t("dragNdrop.uploading_label");
+
+	useEffect(() => {
+		// Check if a file is currently selected by the user.
+		// If no file is selected, ensure the preview URL state is cleared to avoid displaying outdated previews.
+		if (!selectedFile) {
+			setPreviewUrl(null); // Clear the preview URL state.
+			return; // Exit early since there is no file to process.
+		}
+
+		// Create a temporary object URL for the selected file. This URL acts as a local reference
+		// to the file, allowing it to be used as the source for the file preview in the UI.
+		const objectUrl = URL.createObjectURL(selectedFile);
+		setPreviewUrl(objectUrl); // Update the preview URL state with the generated object URL.
+
+		// Return a cleanup function to revoke the object URL when it is no longer needed.
+		// This cleanup prevents memory leaks by releasing the object URL when the component
+		// unmounts or when the selected file changes.
+		return () => {
+			URL.revokeObjectURL(objectUrl); // Revoke the object URL to free up resources.
+		};
+	}, [selectedFile]);
 
 	const acceptedMimeTypes = accept.map((ext) => {
 		return ext.replace(".", "image/");
@@ -134,16 +162,18 @@ export const DragnDrop = ({
 						className={`rounded-xl border-2 border-dashed p-6 text-center transition border-green-500/70 bg-green-500/5 space-y-2`}
 					>
 						<p className="text-sm font-semibold text-green-300">
-							{t("profile.edit_profile.file_selected")}
+							{t("dragNdrop.file_selected")}
 						</p>
-						<img
-							src={URL.createObjectURL(selectedFile)}
-							alt={t("dragNdrop.preview_alt")}
-							className={twMerge(
-								`h-32 w-32 object-cover rounded-lg mx-auto`,
-								previewImageClassName,
-							)}
-						/>
+						{previewUrl ? (
+							<img
+								src={previewUrl}
+								alt={t("dragNdrop.preview_alt")}
+								className={twMerge(
+									`h-32 w-32 object-cover rounded-lg mx-auto`,
+									previewImageClassName,
+								)}
+							/>
+						) : null}
 						<DangerButton
 							type="button"
 							onClick={async () => {
@@ -152,7 +182,7 @@ export const DragnDrop = ({
 							className="mt-4 px-4 py-2"
 						>
 							<DynamicFAIcon exportName="faX" className="mr-2" />
-							{t("profile.edit_profile.remove_file")}
+							{t("dragNdrop.remove_file")}
 						</DangerButton>
 					</div>
 				) : (
