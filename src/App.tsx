@@ -132,17 +132,3 @@ function App() {
 }
 
 export default App;
-
-{
-	/* 
-	TODO
-		- DONE Drag-and-drop UI to handle uploaded file preview,
-		- DONE Footer-ben a linkek kicserélése
-		- Scrollbar
-		- DONE Gomb animációk
-		- DONE Fordítás
-		- DONE App.tsx isLoggedin eltüntetése
-		- intercetptor nézze a 401-et és dobja be a login ablakot
-		- Interceptor kezelheti az errorokat és dobhat egy toastot
-	*/
-}
