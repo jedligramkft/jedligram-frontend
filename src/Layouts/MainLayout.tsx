@@ -24,7 +24,7 @@ const MainLayout = ({ isLoggedIn }: MainLayoutProps) => {
 				isLoggedIn={isLoggedIn}
 			/>
 			<Outlet />
-			<Footer isLoggedIn={isLoggedIn} />
+			<Footer />
 			<ScrollToTopButton />
 		</>
 	);
