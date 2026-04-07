@@ -19,6 +19,9 @@ type RecentThreadItem = {
 	image?: string;
 };
 
+const profileStorageKey =
+	import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY ?? "jedligram_profile";
+
 export const useCommunity = (
 	threadId: number,
 	id: string | undefined,
@@ -32,12 +35,11 @@ export const useCommunity = (
 	const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
 	const [showAllMembers, setShowAllMembers] = useState(false);
 
-	const profileKey = "jedligram_profile";
 	const recentThreadsStorageKey = "jedligram_recent_threads";
 
 	const readProfile = (): any => {
 		try {
-			const raw = localStorage.getItem(profileKey);
+			const raw = localStorage.getItem(profileStorageKey);
 			return raw ? JSON.parse(raw) : {};
 		} catch {
 			return {};
