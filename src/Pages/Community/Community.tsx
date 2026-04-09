@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import CommunityHeader from "./components/CommunityHeader";
-import CommunitySidebar from "./components/CommunitySidebar";
+import CommunitySidebar from "./components/Sidebar/CommunitySidebar";
 import PostList from "./components/PostList";
 import { useCommunity } from "./hooks/useCommunity";
 // import { useComments } from "./hooks/useComments";
@@ -32,6 +32,7 @@ const Community = () => {
 						<PostList id={id} isJoined={community.isJoined} />
 					</div>
 					<CommunitySidebar
+						id={Number(id)}
 						joinedUsers={community.joinedUsers}
 						showAllMembers={community.showAllMembers}
 						onLoadMore={community.handleLoadMoreUsernames}
