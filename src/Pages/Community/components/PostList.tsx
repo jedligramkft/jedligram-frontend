@@ -14,6 +14,7 @@ import PostItem from "./PostItem";
 type Props = {
 	id: string | undefined;
 	isJoined: boolean;
+	myRank: number | null;
 };
 
 // Approximate conversion map so relative age labels can be sorted consistently.
@@ -216,7 +217,7 @@ function attachRepliesToCommentById(
  * - Support loading deeper replies on demand.
  * - Preserve expanded "load more" state during refreshes.
  */
-const PostList = ({ id, isJoined }: Props) => {
+const PostList = ({ id, isJoined, myRank }: Props) => {
 	const { t } = useTranslation();
 	const [postsAndComments, setPostsAndComments] = useState<
 		PostAndCommentData[]
@@ -429,6 +430,7 @@ const PostList = ({ id, isJoined }: Props) => {
 					OnLoadMoreComments={() => {
 						void loadMoreCommentsForComment(node.id);
 					}}
+					myRank={myRank}
 				>
 					{hasReplies
 						? renderReplies(replies, depth + 1, rootPostId)

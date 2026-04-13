@@ -23,16 +23,16 @@ const RoleColorMapping: Record<number, string> = {
 	4: "bg-gray-500",
 };
 
-const profileKey = import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY;
-
 const MembersList = ({
 	joinedMembers,
 	isLoadingMembers,
 	threadId,
+	myRank,
 }: {
 	joinedMembers: UserData[];
 	isLoadingMembers: boolean;
 	threadId: number;
+	myRank: number | null;
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -40,32 +40,19 @@ const MembersList = ({
 	const [shouldDisplayAllMembers, setShouldDisplayAllMembers] =
 		useState(false);
 
-	const [amIAdmin, setAmIAdmin] = useState(false);
-
 	//TODO: A thread lekérésnél adja vissza a usernek a roleját
 	//TODO: A rangadás után updatelni a listát, hogy látszódjon a változás új apikérés nélkül
 	//TODO: Felnyíló menü a profil gomt helyettm ahol átnavigálhatok a profilra, bannolhatok, vagy rangot állíthatok
 
 	useEffect(() => {
-		async function load() {
-			const rawProfile = localStorage.getItem(profileKey);
-			if (!rawProfile) return;
-			const myProfile = joinedMembers.find(
-				(member) => member.id === JSON.parse(rawProfile).id,
-			);
-
-			if (!myProfile) return;
-			const isAdmin = myProfile.role_id === 1; // Check if the user is an admin
-			setAmIAdmin(isAdmin);
-		}
-		load();
-	}, [joinedMembers]);
+		console.log(myRank);
+	}, []);
 
 	async function handleRoleChange(userId: number, newRoleId: number) {
 		if (newRoleId < 1 || newRoleId > 4) return; // Invalid role, do nothing
 		if (newRoleId === 4) {
 			const confirmBan = window.confirm(
-				t("community.community_sidebar.confirm_ban"),
+				"Biztosan ki szeretnéd bannolni ezt a felhasználót? Ez a művelet visszavonhatatlan.",
 			);
 			if (!confirmBan) return;
 
@@ -124,40 +111,48 @@ const MembersList = ({
 										{RoleMapping[user.role_id!]}
 									</sup>
 								</span>
-								{amIAdmin && user.role_id! != 1 && (
-									<span className="flex gap-2 items-center justify-center *:hover:scale-150 *:cursor-pointer *:px-2">
-										{user.role_id! > 2 && (
-											<GhostButton
-												onClick={() =>
-													handleRoleChange(
-														user.id,
-														user.role_id! - 1,
-													)
-												}
-											>
-												<DynamicFAIcon
-													exportName="faCaretUp"
-													className="text-green-500"
-												/>
-											</GhostButton>
-										)}
-										{user.role_id! <= 3 && (
-											<GhostButton
-												onClick={() =>
-													handleRoleChange(
-														user.id,
-														user.role_id! + 1,
-													)
-												}
-											>
-												<DynamicFAIcon
-													exportName="faCaretDown"
-													className="text-red-500"
-												/>
-											</GhostButton>
-										)}
-									</span>
-								)}
+								{/* Only admin can change roles but not the roles of an admin */}
+								{myRank &&
+									myRank === 1 &&
+									user.role_id! != 1 && (
+										<span className="flex gap-2 items-center justify-center *:hover:scale-150 *:cursor-pointer *:px-2">
+											{user.role_id! > 2 && (
+												<GhostButton
+													onClick={() =>
+														handleRoleChange(
+															user.id,
+															user.role_id! - 1,
+														)
+													}
+												>
+													<DynamicFAIcon
+														exportName="faCaretUp"
+														className="text-green-500"
+													/>
+												</GhostButton>
+											)}
+											{user.role_id! <= 3 && (
+												<GhostButton
+													onClick={() =>
+														handleRoleChange(
+															user.id,
+															user.role_id! + 1,
+														)
+													}
+												>
+													<DynamicFAIcon
+														exportName="faCaretDown"
+														className="text-red-500"
+													/>
+												</GhostButton>
+											)}
+										</span>
+									)}
+
+								{myRank &&
+									myRank <= 2 &&
+									user.role_id! > myRank && <span>BAN</span>}
+
 								<SecondaryButton
 									onClick={() =>
 										navigate(`/users/${user.id}`)

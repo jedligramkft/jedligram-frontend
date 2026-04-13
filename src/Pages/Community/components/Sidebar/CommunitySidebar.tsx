@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
-import { SecondaryButton } from "../../../../Components/Buttons";
 import { useEffect, useState } from "react";
 import { GetThreadMembers } from "../../../../api/threads";
 import MembersList from "./MembersList";
@@ -12,6 +11,7 @@ type Props = {
 	showAllMembers: boolean;
 	onLoadMore: () => void;
 	postsCount: number;
+	myRank: number | null;
 };
 
 const profileStorageKey =
@@ -20,6 +20,7 @@ const profileStorageKey =
 const CommunitySidebar = ({
 	// joinedUsers: joinedUsers,
 	id,
+	myRank,
 	// showAllMembers,
 	// onLoadMore,
 	postsCount,
@@ -78,6 +79,7 @@ const CommunitySidebar = ({
 						joinedMembers={joinedMembers}
 						isLoadingMembers={isLoadingMembers}
 						threadId={id}
+						myRank={myRank}
 					/>
 				</div>
 			</div>
