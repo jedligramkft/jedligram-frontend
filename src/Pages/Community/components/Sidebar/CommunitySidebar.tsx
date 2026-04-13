@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { SecondaryButton } from "../../../../Components/Buttons";
 import { useEffect, useState } from "react";
 import { GetThreadMembers } from "../../../../api/threads";
-import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
 import MembersList from "./MembersList";
 
 type Props = {
@@ -78,6 +77,7 @@ const CommunitySidebar = ({
 					<MembersList
 						joinedMembers={joinedMembers}
 						isLoadingMembers={isLoadingMembers}
+						threadId={id}
 					/>
 				</div>
 			</div>

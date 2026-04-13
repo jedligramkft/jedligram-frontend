@@ -142,7 +142,7 @@ export const UpdateRoleOfMemberInThread = async (
 	userId: number,
 	newRole: number,
 ): Promise<ResponseData> => {
-	const response = await httpClient.put(
+	const response = await httpClient.patch(
 		`/api/threads/${threadId}/members/${userId}`,
 		{
 			role_id: newRole,
@@ -158,8 +158,11 @@ export const BanUserFromThread = async (
 	threadId: number,
 	userId: number,
 ): Promise<ResponseData> => {
-	const response = await httpClient.post(
+	const response = await httpClient.patch(
 		`/api/threads/${threadId}/members/${userId}/ban`,
+		{
+			role_id: 4, // 4 is the role ID for banned users
+		},
 	);
 	return {
 		status: response.status,

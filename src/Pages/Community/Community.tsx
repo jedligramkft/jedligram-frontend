@@ -29,7 +29,7 @@ const Community = () => {
 				/>
 				<div className="mt-8 grid gap-6 lg:grid-cols-3">
 					<div className="lg:col-span-2">
-						<PostList id={id} isJoined={community.isJoined} />
+						{/* <PostList id={id} isJoined={community.isJoined} /> */}
 					</div>
 					<CommunitySidebar
 						id={Number(id)}
