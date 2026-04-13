@@ -13,9 +13,9 @@ const Footer = () => {
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_40%)]" />
 			<div className="pointer-events-none absolute inset-0 bg-black/25" />
 
-			<div className="relative z-10 w-full h-full flex items-center justify-evenly *:w-1/6 py-10">
+			<div className="relative z-10 w-full h-full flex flex-col md:flex-row gap-10 items-center justify-evenly *:w-full md:*:w-1/6 py-10">
 				<div
-					className="flex flex-col items-start justify-center
+					className="flex flex-col md:items-start items-center justify-center gap-4 md:gap-1
 					*:text-white/60 *:hover:text-white *:transition"
 				>
 					<Link to="/" className="">
