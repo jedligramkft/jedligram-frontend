@@ -123,8 +123,8 @@ const PostItem = ({
 								postId={POST_ID}
 								communityId={communityId}
 							/>
-							{myRank &&
-								myRank <= 2 &&
+
+							{((myRank && myRank <= 2) || node.is_mine) &&
 								node.content !== "[removed]" && (
 									<DangerButton
 										className="gap-2 ml-auto text-xs"

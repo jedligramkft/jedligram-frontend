@@ -8,4 +8,5 @@ export interface PostData {
 	thread_id: number;
 	score: number;
 	image?: string;
+	is_mine: boolean;
 }

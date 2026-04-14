@@ -23,6 +23,9 @@ const RoleColorMapping: Record<number, string> = {
 	4: "bg-gray-500",
 };
 
+const profileStorageKey =
+	import.meta.env.VITE_PROFILE_STORAGE_KEY || "jedligram_profile";
+
 const MembersList = ({
 	joinedMembers,
 	isLoadingMembers,
@@ -40,26 +43,117 @@ const MembersList = ({
 	const [shouldDisplayAllMembers, setShouldDisplayAllMembers] =
 		useState(false);
 
+	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
+
+	const [localJoinedMembers, setLocalJoinedMembers] = useState<UserData[]>(
+		[],
+	);
+
+	useEffect(() => {
+		setLocalJoinedMembers(joinedMembers);
+	}, [joinedMembers]);
+
 	//TODO: A thread lekérésnél adja vissza a usernek a roleját
 	//TODO: A rangadás után updatelni a listát, hogy látszódjon a változás új apikérés nélkül
 	//TODO: Felnyíló menü a profil gomt helyettm ahol átnavigálhatok a profilra, bannolhatok, vagy rangot állíthatok
 
-	useEffect(() => {
-		console.log(myRank);
-	}, []);
+	async function handleRoleChange(
+		e: React.MouseEvent<HTMLButtonElement>,
+		userId: number,
+		newRoleId: number,
+	) {
+		const button = e.currentTarget;
+		button.disabled = true;
 
-	async function handleRoleChange(userId: number, newRoleId: number) {
-		if (newRoleId < 1 || newRoleId > 4) return; // Invalid role, do nothing
-		if (newRoleId === 4) {
+		try {
+			if (newRoleId < 1 || newRoleId > 4) throw new Error("Invalid role"); // Invalid role, do nothing
+
+			const response = await UpdateRoleOfMemberInThread(
+				threadId,
+				userId,
+				newRoleId,
+			);
+			if (response.status === 200) {
+				// Update the local state to reflect the role change
+				setLocalJoinedMembers((prevMembers) =>
+					prevMembers.map((member) =>
+						member.id === userId
+							? { ...member, role_id: newRoleId }
+							: member,
+					),
+				);
+			}
+		} catch (error) {
+			console.error("Failed to update role:", error);
+		} finally {
+			button.disabled = false;
+		}
+	}
+
+	async function handleBanUser(
+		e: React.MouseEvent<HTMLButtonElement>,
+		userId: number,
+	) {
+		const button = e.currentTarget;
+		button.disabled = true;
+
+		try {
 			const confirmBan = window.confirm(
 				"Biztosan ki szeretnéd bannolni ezt a felhasználót? Ez a művelet visszavonhatatlan.",
 			);
-			if (!confirmBan) return;
+			if (!confirmBan) throw new Error("Ban cancelled by user");
 
-			await BanUserFromThread(threadId, userId);
-			return;
+			const response = await BanUserFromThread(threadId, userId);
+			if (response.status === 200) {
+				// Update the local state to reflect the ban
+				setLocalJoinedMembers((prevMembers) =>
+					prevMembers.map((member) =>
+						member.id === userId
+							? { ...member, role_id: 4 } // Set role to Banned
+							: member,
+					),
+				);
+			}
+		} catch (error) {
+			console.error("Failed to ban user:", error);
+		} finally {
+			button.disabled = false;
 		}
-		await UpdateRoleOfMemberInThread(threadId, userId, newRoleId);
+	}
+
+	async function handleUnbanUser(
+		e: React.MouseEvent<HTMLButtonElement>,
+		userId: number,
+	) {
+		const button = e.currentTarget;
+		button.disabled = true;
+
+		try {
+			const confirmUnban = window.confirm(
+				"Biztosan vissza szeretnéd vonni a bannolást ettől a felhasználótól?",
+			);
+			if (!confirmUnban) throw new Error("Unban cancelled by user");
+
+			const response = await UpdateRoleOfMemberInThread(
+				threadId,
+				userId,
+				3,
+			); // Set role to Member
+			if (response.status === 200) {
+				// Update the local state to reflect the unban
+				setLocalJoinedMembers((prevMembers) =>
+					prevMembers.map((member) =>
+						member.id === userId
+							? { ...member, role_id: 3 } // Set role to Member
+							: member,
+					),
+				);
+			}
+		} catch (error) {
+			console.error("Failed to unban user:", error);
+		} finally {
+			button.disabled = false;
+		}
 	}
 
 	return (
@@ -82,14 +176,14 @@ const MembersList = ({
 				</>
 			) : (
 				<>
-					{joinedMembers.length === 0 ? (
+					{localJoinedMembers.length === 0 ? (
 						<div className="text-sm text-white/70">
 							{t("community.community_sidebar.no_members")}
 						</div>
 					) : (
 						(shouldDisplayAllMembers
-							? joinedMembers
-							: joinedMembers.slice(0, 5)
+							? localJoinedMembers
+							: localJoinedMembers.slice(0, 5)
 						).map((user) => (
 							// Card for each member
 							<div
@@ -111,47 +205,75 @@ const MembersList = ({
 										{RoleMapping[user.role_id!]}
 									</sup>
 								</span>
-								{/* Only admin can change roles but not the roles of an admin */}
-								{myRank &&
-									myRank === 1 &&
-									user.role_id! != 1 && (
+								{myRank && //Van rangom
+									myRank === 1 && ( //Admin vagyok
 										<span className="flex gap-2 items-center justify-center *:hover:scale-150 *:cursor-pointer *:px-2">
-											{user.role_id! > 2 && (
-												<GhostButton
-													onClick={() =>
-														handleRoleChange(
-															user.id,
-															user.role_id! - 1,
-														)
-													}
-												>
-													<DynamicFAIcon
-														exportName="faCaretUp"
-														className="text-green-500"
-													/>
-												</GhostButton>
-											)}
-											{user.role_id! <= 3 && (
-												<GhostButton
-													onClick={() =>
-														handleRoleChange(
-															user.id,
-															user.role_id! + 1,
-														)
-													}
-												>
-													<DynamicFAIcon
-														exportName="faCaretDown"
-														className="text-red-500"
-													/>
-												</GhostButton>
-											)}
+											{user.role_id! !== 1 &&
+												user.role_id! !== 4 && ( //A user rangja kisebb mint admin
+													<GhostButton
+														onClick={(e) =>
+															handleRoleChange(
+																e,
+																user.id,
+																user.role_id! -
+																	1,
+															)
+														}
+													>
+														<DynamicFAIcon
+															exportName="faCaretUp"
+															className="text-green-500"
+														/>
+													</GhostButton>
+												)}
+											{user.role_id! <= 2 &&
+												user.id !== myId && (
+													<GhostButton
+														onClick={(e) =>
+															handleRoleChange(
+																e,
+																user.id,
+																user.role_id! +
+																	1,
+															)
+														}
+													>
+														<DynamicFAIcon
+															exportName="faCaretDown"
+															className="text-red-500"
+														/>
+													</GhostButton>
+												)}
 										</span>
 									)}
 
-								{myRank &&
-									myRank <= 2 &&
-									user.role_id! > myRank && <span>BAN</span>}
+								{myRank && //Van rangom
+									myRank <= 2 && //Admin vagy moderátor vagyok
+									user.role_id! !== 4 && //A user nincs bannolva
+									user.role_id! > myRank && //A user rangja alacsonyabb mint az enyém
+									user.id !== myId && ( //Nem én vagyok
+										<GhostButton
+											className="text-red-400 hover:text-red-500 hover:font-bold transition-all cursor-pointer hover:scale-125 hover:animate-bounce"
+											onClick={(e) => {
+												handleBanUser(e, user.id);
+											}}
+										>
+											BAN
+										</GhostButton>
+									)}
+								{myRank && //Van rangom
+									myRank === 1 && //Admin
+									user.role_id! === 4 && //A user bannolva van
+									user.id !== myId && ( //Nem én vagyok
+										<GhostButton
+											className="text-green-400 hover:text-green-500 hover:font-bold transition-all cursor-pointer hover:scale-125 hover:animate-bounce"
+											onClick={(e) => {
+												handleUnbanUser(e, user.id);
+											}}
+										>
+											UNBAN
+										</GhostButton>
+									)}
 
 								<SecondaryButton
 									onClick={() =>
@@ -164,16 +286,17 @@ const MembersList = ({
 							</div>
 						))
 					)}
-					{joinedMembers.length > 5 && !shouldDisplayAllMembers && (
-						// Button to show all members if there are more than 5
-						<SecondaryButton
-							onClick={() => setShouldDisplayAllMembers(true)}
-							className="px-4 py-2"
-						>
-							+{joinedMembers.length - 5}{" "}
-							{t("community.community_sidebar.member")}
-						</SecondaryButton>
-					)}
+					{localJoinedMembers.length > 5 &&
+						!shouldDisplayAllMembers && (
+							// Button to show all members if there are more than 5
+							<SecondaryButton
+								onClick={() => setShouldDisplayAllMembers(true)}
+								className="px-4 py-2"
+							>
+								+{localJoinedMembers.length - 5}{" "}
+								{t("community.community_sidebar.member")}
+							</SecondaryButton>
+						)}
 				</>
 			)}
 		</>
