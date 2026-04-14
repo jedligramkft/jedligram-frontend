@@ -8,4 +8,5 @@ export interface CommentData {
 	depth: string;
 	replies_count: number;
 	replies: CommentData[];
+	is_mine: boolean;
 }

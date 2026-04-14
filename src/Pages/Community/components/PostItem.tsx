@@ -6,7 +6,9 @@ import VoteComponent from "./PostItem/VoteComponent";
 import SharePost from "./PostItem/SharePost";
 import CommentWriter from "./PostItem/CommentWriter";
 import { Link } from "react-router";
-import { GhostButton } from "../../../Components/Buttons";
+import { DangerButton, GhostButton } from "../../../Components/Buttons";
+import { DeletePost } from "../../../api/posts";
+import { DeleteComment } from "../../../api/comments";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -16,6 +18,7 @@ type PostItemProps = {
 	hasReplies: boolean;
 	avatarSizeStyle: CSSProperties;
 	connectorLineStyle: CSSProperties;
+	myRank: number | null;
 	children?: ReactNode;
 	OnLoadMoreComments?: () => void;
 };
@@ -28,6 +31,7 @@ const PostItem = ({
 	hasReplies,
 	avatarSizeStyle,
 	connectorLineStyle,
+	myRank,
 	children,
 	OnLoadMoreComments,
 }: PostItemProps) => {
@@ -35,6 +39,23 @@ const PostItem = ({
 	const POST_ID = `post-${node.id}-${originalPostId}`;
 	const [commentOpen, setCommentOpen] = useState(false);
 	const [isChildrenVisible, setIsChildrenVisible] = useState(true);
+
+	async function handleDelete() {
+		//TODO disable the button until the deletion is complete to prevent multiple clicks
+		if (
+			window.confirm(
+				"Biztosan törölni szeretnéd ezt a posztot? Ez a művelet nem visszavonható.",
+			)
+		) {
+			if (isTopLevel) {
+				await DeletePost(originalPostId);
+			} else {
+				console.log(node.id);
+				console.log(originalPostId);
+				await DeleteComment(originalPostId, node.id);
+			}
+		}
+	}
 
 	return (
 		<div className="space-y-4">
@@ -91,7 +112,21 @@ const PostItem = ({
 								<DynamicFAIcon exportName="faComment" />{" "}
 								{t("community.post_item.reply")}
 							</GhostButton>
-							<SharePost postId={POST_ID} communityId={communityId} />
+							<SharePost
+								postId={POST_ID}
+								communityId={communityId}
+							/>
+
+							{((myRank && myRank <= 2) || node.is_mine) &&
+								node.content !== "[removed]" && (
+									<DangerButton
+										className="gap-2 ml-auto text-xs"
+										onClick={handleDelete}
+									>
+										<DynamicFAIcon exportName="faTrash" />
+										Törlés
+									</DangerButton>
+								)}
 						</div>
 						{commentOpen && (
 							<CommentWriter

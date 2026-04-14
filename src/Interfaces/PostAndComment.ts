@@ -5,6 +5,7 @@ export interface PostAndCommentData {
 	content: string;
 	age: string;
 	user: UserData;
+	is_mine: boolean;
 
 	//post specific
 	thread_id?: number;

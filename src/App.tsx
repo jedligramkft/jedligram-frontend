@@ -54,7 +54,7 @@ function App() {
 			}
 
 			// If the element is not found and the maximum attempts are reached, stop retrying.
-			if (attempt >= 20) {
+			if (attempt >= 2000) {
 				return;
 			}
 
