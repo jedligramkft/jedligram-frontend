@@ -64,7 +64,7 @@ const CommunitySidebar = ({
 
 		load();
 		//TODO: paginated endpoint for members and load more on button click instead of loading all at once
-	}, []);
+	}, [id]);
 
 	return (
 		<aside className="relative z-40 space-y-6 overflow-visible">
