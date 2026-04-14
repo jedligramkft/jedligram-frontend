@@ -61,6 +61,9 @@ const SidebarCard = ({
 };
 
 const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
+	const profileStorageKey =
+		import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY ?? "jedligram_profile";
+
 	const navigate = useNavigate();
 	// const [activeCommunity, setActiveCommunity] = useState<number | null>(null);
 	const [recentThreads, setRecentThreads] = useState<RecentThreadItem[]>([]);
@@ -123,8 +126,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 		loadFromStorage();
 
 		setUserId(
-			JSON.parse(localStorage.getItem("jedligram_profile") || "null")
-				?.id ?? -1,
+			JSON.parse(localStorage.getItem(profileStorageKey) || "null")?.id ??
+				-1,
 		);
 
 		const onJoined = () => loadFromStorage();

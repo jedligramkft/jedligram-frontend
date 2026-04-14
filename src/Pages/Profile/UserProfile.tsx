@@ -12,7 +12,7 @@ import ConfirmationModal from "../../Components/Modal/Modal";
 import { DangerButton, SecondaryButton } from "../../Components/Buttons";
 
 const profileStorageKey =
-	import.meta.env.VITE_PROFILE_STORAGE_KEY ?? "jedligram_profile";
+	import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY ?? "jedligram_profile";
 const authTokenName = import.meta.env.VITE_AUTH_TOKEN_NAME ?? "jedligram_token";
 
 const UserProfile = () => {
