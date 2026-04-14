@@ -64,14 +64,11 @@ const PostItem = ({
 						<div className="flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap">
 							<Link
 								to={`/users/${node.user.id}`}
-								className="shrink-0 text-white/75 text-sm hover:text-white"
-							>
+								className="shrink-0 text-white/75 text-sm hover:text-white">
 								@{node.user.name}
 							</Link>
 							<span className="shrink-0 text-white/55">·</span>
-							<span className="shrink-0 text-xs text-white/55">
-								{node.age}
-							</span>
+							<span className="shrink-0 text-xs text-white/55">{node.age}</span>
 						</div>
 						{/* Comment/post text body. */}
 						{node.image && (
@@ -81,27 +78,20 @@ const PostItem = ({
 								className="max-h-60 object-contain rounded-lg"
 							/>
 						)}
-						<p className="wrap-anywhere">{node.content}</p>
+						<p className="wrap-anywhere whitespace-pre-wrap">{node.content}</p>
 						{/* Voting and action buttons row. */}
 						<div className="flex gap-4">
 							{/* Upvote and downvote buttons */}
 							{node.score !== undefined && isTopLevel && (
-								<VoteComponent
-									id={node.id}
-									startScore={node.score}
-								/>
+								<VoteComponent id={node.id} startScore={node.score} />
 							)}
 							<GhostButton
 								className={`gap-1 ${commentOpen ? "text-white" : "text-white/75"}`}
-								onClick={() => setCommentOpen(true)}
-							>
+								onClick={() => setCommentOpen(true)}>
 								<DynamicFAIcon exportName="faComment" />{" "}
 								{t("community.post_item.reply")}
 							</GhostButton>
-							<SharePost
-								postId={POST_ID}
-								communityId={communityId}
-							/>
+							<SharePost postId={POST_ID} communityId={communityId} />
 						</div>
 						{commentOpen && (
 							<CommentWriter
@@ -111,25 +101,20 @@ const PostItem = ({
 								replyToUsername={
 									node.user.name
 										? node.user.name
-										: t(
-												"community.post_item.unknown_author",
-											)
+										: t("community.post_item.unknown_author")
 								}
 								onCommentSent={() => setCommentOpen(false)}
 								onCancel={() => setCommentOpen(false)}
 							/>
 						)}
-						{!hasReplies &&
-						node.replies_count &&
-						node.replies_count > 0 ? (
+						{!hasReplies && node.replies_count && node.replies_count > 0 ? (
 							<GhostButton
 								className="p-2 pl-0 whitespace-nowrap"
 								onClick={() => {
 									if (OnLoadMoreComments) {
 										OnLoadMoreComments();
 									}
-								}}
-							>
+								}}>
 								<DynamicFAIcon
 									exportName="faCirclePlus"
 									size="lg"
@@ -142,16 +127,13 @@ const PostItem = ({
 						{hasReplies ? (
 							<>
 								{isChildrenVisible ? (
-									<div className="space-y-4 mt-4">
-										{children}
-									</div>
+									<div className="space-y-4 mt-4">{children}</div>
 								) : (
 									<GhostButton
 										onClick={() => {
 											setIsChildrenVisible(true);
 										}}
-										className="p-2 pl-0 whitespace-nowrap"
-									>
+										className="p-2 pl-0 whitespace-nowrap">
 										<DynamicFAIcon
 											exportName="faCirclePlus"
 											size="lg"
