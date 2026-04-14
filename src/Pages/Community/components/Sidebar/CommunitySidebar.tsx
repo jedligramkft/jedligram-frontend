@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -25,7 +24,6 @@ const CommunitySidebar = ({
 	// onLoadMore,
 	postsCount,
 }: Props) => {
-	const navigate = useNavigate();
 	const { t } = useTranslation();
 
 	const [isLoadingMembers, setIsLoadingMembers] = useState(true);
