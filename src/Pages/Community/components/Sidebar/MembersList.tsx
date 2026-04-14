@@ -39,6 +39,9 @@ const MembersList = ({
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(
+		null,
+	);
 
 	const [shouldDisplayAllMembers, setShouldDisplayAllMembers] =
 		useState(false);
@@ -54,7 +57,6 @@ const MembersList = ({
 	}, [joinedMembers]);
 
 	//TODO: A thread lekérésnél adja vissza a usernek a roleját
-	//TODO: A rangadás után updatelni a listát, hogy látszódjon a változás új apikérés nélkül
 	//TODO: Felnyíló menü a profil gomt helyettm ahol átnavigálhatok a profilra, bannolhatok, vagy rangot állíthatok
 
 	async function handleRoleChange(
@@ -87,6 +89,7 @@ const MembersList = ({
 			console.error("Failed to update role:", error);
 		} finally {
 			button.disabled = false;
+			setIsActionListOpen(null);
 		}
 	}
 
@@ -118,6 +121,7 @@ const MembersList = ({
 			console.error("Failed to ban user:", error);
 		} finally {
 			button.disabled = false;
+			setIsActionListOpen(null);
 		}
 	}
 
@@ -153,6 +157,7 @@ const MembersList = ({
 			console.error("Failed to unban user:", error);
 		} finally {
 			button.disabled = false;
+			setIsActionListOpen(null);
 		}
 	}
 
@@ -188,8 +193,107 @@ const MembersList = ({
 							// Card for each member
 							<div
 								key={user.id}
-								className="flex items-center gap-3"
+								className="relative flex items-center gap-3 overflow-visible"
 							>
+								{isActionListOpen === user.id && (
+									<div className="absolute right-5 bottom-full z-9999 mt-2 flex min-w-56 flex-col items-start justify-center gap-1 rounded-lg rounded-br-none bg-neutral-700 p-2 shadow-md border border-neutral-600 *:w-full *:text-sm">
+										<GhostButton
+											onClick={() =>
+												navigate(`/users/${user.id}`)
+											}
+											className="px-3 py-1.5"
+										>
+											Profil megtekintése
+										</GhostButton>
+
+										{/* PROMOTE és DEMOTE gombok */}
+										{myRank &&
+											myRank === 1 && //Admin vagyok
+											user.role_id! !== 1 && // A user nem admin
+											user.role_id! !== 4 && ( //A user rangja kisebb mint admin
+												<>
+													<hr className="text-gray-400/20" />
+													<GhostButton
+														onClick={(e) =>
+															handleRoleChange(
+																e,
+																user.id,
+																user.role_id! -
+																	1,
+															)
+														}
+														className="px-3 py-1.5"
+													>
+														Előléptetés
+													</GhostButton>
+												</>
+											)}
+
+										{myRank &&
+											user.role_id! <= 2 &&
+											user.role_id! > myRank &&
+											user.id !== myId && (
+												<>
+													<hr className="text-gray-400/20" />
+													<GhostButton
+														onClick={(e) =>
+															handleRoleChange(
+																e,
+																user.id,
+																user.role_id! +
+																	1,
+															)
+														}
+														className="px-3 py-1.5"
+													>
+														Lefokozás
+													</GhostButton>
+												</>
+											)}
+
+										{/* BAN és UNBAN gombok */}
+
+										{myRank && //Van rangom
+											myRank <= 2 && //Admin vagy moderátor vagyok
+											user.role_id! !== 4 && //A user nincs bannolva
+											user.role_id! > myRank && //A user rangja alacsonyabb mint az enyém
+											user.id !== myId && ( //Nem én vagyok
+												<>
+													<hr className="text-gray-400/20" />
+													<GhostButton
+														className="text-red-400 hover:text-red-500 hover:font-bold transition-all px-3 py-1.5"
+														onClick={(e) =>
+															handleBanUser(
+																e,
+																user.id,
+															)
+														}
+													>
+														Kitiltás
+													</GhostButton>
+												</>
+											)}
+										{myRank && //Van rangom
+											myRank === 1 && //Admin
+											user.role_id! === 4 && //A user bannolva van
+											user.id !== myId && ( //Nem én vagyok
+												<>
+													<hr className="text-gray-400/20" />
+													<GhostButton
+														className="text-green-400 hover:text-green-500 hover:font-bold transition-all px-3 py-1.5"
+														onClick={(e) =>
+															handleUnbanUser(
+																e,
+																user.id,
+															)
+														}
+													>
+														Kitiltás feloldása
+													</GhostButton>
+												</>
+											)}
+									</div>
+								)}
 								<img
 									src={user.image_url}
 									alt={user.name}
@@ -205,7 +309,7 @@ const MembersList = ({
 										{RoleMapping[user.role_id!]}
 									</sup>
 								</span>
-								{myRank && //Van rangom
+								{/* {myRank && //Van rangom
 									myRank === 1 && ( //Admin vagyok
 										<span className="flex gap-2 items-center justify-center *:hover:scale-150 *:cursor-pointer *:px-2">
 											{user.role_id! !== 1 &&
@@ -247,42 +351,19 @@ const MembersList = ({
 										</span>
 									)}
 
-								{myRank && //Van rangom
-									myRank <= 2 && //Admin vagy moderátor vagyok
-									user.role_id! !== 4 && //A user nincs bannolva
-									user.role_id! > myRank && //A user rangja alacsonyabb mint az enyém
-									user.id !== myId && ( //Nem én vagyok
-										<GhostButton
-											className="text-red-400 hover:text-red-500 hover:font-bold transition-all cursor-pointer hover:scale-125 hover:animate-bounce"
-											onClick={(e) => {
-												handleBanUser(e, user.id);
-											}}
-										>
-											BAN
-										</GhostButton>
-									)}
-								{myRank && //Van rangom
-									myRank === 1 && //Admin
-									user.role_id! === 4 && //A user bannolva van
-									user.id !== myId && ( //Nem én vagyok
-										<GhostButton
-											className="text-green-400 hover:text-green-500 hover:font-bold transition-all cursor-pointer hover:scale-125 hover:animate-bounce"
-											onClick={(e) => {
-												handleUnbanUser(e, user.id);
-											}}
-										>
-											UNBAN
-										</GhostButton>
-									)}
-
-								<SecondaryButton
-									onClick={() =>
-										navigate(`/users/${user.id}`)
-									}
-									className="ml-auto text-xs px-3 py-1.5"
+								*/}
+								<GhostButton
+									className="ml-auto px-3 py-2"
+									onClick={() => {
+										if (isActionListOpen === user.id) {
+											setIsActionListOpen(null);
+										} else {
+											setIsActionListOpen(user.id);
+										}
+									}}
 								>
-									{t("community.community_sidebar.profile")}
-								</SecondaryButton>
+									<DynamicFAIcon exportName="faEllipsisVertical" />
+								</GhostButton>
 							</div>
 						))
 					)}

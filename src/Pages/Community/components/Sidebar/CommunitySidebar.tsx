@@ -69,12 +69,12 @@ const CommunitySidebar = ({
 	}, []);
 
 	return (
-		<aside className="space-y-6">
-			<div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
+		<aside className="relative z-40 space-y-6 overflow-visible">
+			<div className="relative z-30 overflow-visible rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
 				<h2 className="text-xl font-semibold text-white">
 					{t("community.community_sidebar.members")}
 				</h2>
-				<div className="mt-4 space-y-3">
+				<div className="mt-4 space-y-3 overflow-visible">
 					<MembersList
 						joinedMembers={joinedMembers}
 						isLoadingMembers={isLoadingMembers}
@@ -83,7 +83,7 @@ const CommunitySidebar = ({
 					/>
 				</div>
 			</div>
-			<div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
+			<div className="relative z-10 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
 				<h2 className="text-xl font-semibold text-white">
 					{t("community.community_sidebar.stats")}
 				</h2>
