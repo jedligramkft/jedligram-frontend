@@ -13,5 +13,24 @@
       "users_count": 189
     }
   ],
-  "searchQueries": ["javascript", "react", "typescript"]
+  "searchQueries": ["javascript", "react", "typescript"],
+  "apiMocks": {
+    "threadsSearchResults": [
+      {
+        "id": 101,
+        "name": "React Community",
+        "category": "frontend",
+        "description": "Mockolt találatok Cypress intercepttel",
+        "rules": "Be nice"
+      }
+    ],
+    "loginSuccess": {
+      "access_token": "cypress-test-token",
+      "user": {
+        "id": 1,
+        "username": "testuser",
+        "email": "testuser@example.com"
+      }
+    }
+  }
 }
