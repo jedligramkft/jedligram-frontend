@@ -196,7 +196,7 @@ const MembersList = ({
 								className="relative flex items-center gap-3 overflow-visible"
 							>
 								{isActionListOpen === user.id && (
-									<div className="absolute right-5 bottom-full z-9999 mt-2 flex min-w-56 flex-col items-start justify-center gap-1 rounded-lg rounded-br-none bg-neutral-700 p-2 shadow-md border border-neutral-600 *:w-full *:text-sm">
+									<div className="absolute right-5 bottom-full z-99 mt-2 flex min-w-56 flex-col items-start justify-center gap-1 rounded-lg rounded-br-none bg-neutral-700 p-2 shadow-md border border-neutral-600 *:w-full *:text-sm">
 										<GhostButton
 											onClick={() =>
 												navigate(`/users/${user.id}`)
