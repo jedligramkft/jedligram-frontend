@@ -39,15 +39,10 @@ const SidebarCard = ({
 		<Link
 			to={to}
 			onClick={() => onClick?.()}
-			className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/90 transition hover:bg-white/10`}
-		>
+			className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/90 transition hover:bg-white/10`}>
 			<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-600 text-sm overflow-hidden">
 				{typeof icon === "string" && icon.startsWith("http") ? (
-					<img
-						src={icon}
-						alt={title}
-						className="h-full w-full object-cover"
-					/>
+					<img src={icon} alt={title} className="h-full w-full object-cover" />
 				) : (
 					icon
 				)}
@@ -86,12 +81,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 						.filter((x) => x && typeof x === "object")
 						.map((x) => ({
 							id: Number(x.id),
-							name:
-								typeof x.name === "string" ? x.name : undefined,
-							image:
-								typeof x.image === "string"
-									? x.image
-									: undefined,
+							name: typeof x.name === "string" ? x.name : undefined,
+							image: typeof x.image === "string" ? x.image : undefined,
 						}))
 				: [];
 			setRecentThreads(cleaned.slice(0, 5));
@@ -115,10 +106,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 		}
 
 		return () => {
-			window.removeEventListener(
-				"joined-threads-changed",
-				getJoinedThreads,
-			);
+			window.removeEventListener("joined-threads-changed", getJoinedThreads);
 		};
 	}, [isLoggedIn, userId]);
 
@@ -126,8 +114,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 		loadFromStorage();
 
 		setUserId(
-			JSON.parse(localStorage.getItem(profileStorageKey) || "null")?.id ??
-				-1,
+			JSON.parse(localStorage.getItem(profileStorageKey) || "null")?.id ?? -1,
 		);
 
 		const onJoined = () => loadFromStorage();
@@ -145,17 +132,14 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 	return (
 		<>
 			<div
-				className={`fixed top-0 left-0 h-screen w-48 md:w-60 z-40 flex flex-col pt-20 pb-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-r border-gray-700 overflow-y-auto overflow-x-hidden sidebar-scroll ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-			>
+				className={`fixed top-0 left-0 h-screen w-48 md:w-60 z-60 flex flex-col pt-20 pb-4 items-center transform transition-transform duration-300 ease-in-out bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-r border-gray-700 overflow-y-auto overflow-x-hidden sidebar-scroll ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
 				<div className="my-4 w-full px-3 space-y-2">
 					<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
 						{t("sidebar.menus.main")}
 					</p>
 					<SidebarCard
 						title={t("sidebar.menus.main_buttons.explore")}
-						subtitle={t(
-							"sidebar.menus.main_buttons.popular_communities",
-						)}
+						subtitle={t("sidebar.menus.main_buttons.popular_communities")}
 						icon={<PopularIcon />}
 						to="/all-communities"
 						onClick={() => {
@@ -165,18 +149,9 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 					{isLoggedIn && (
 						<>
 							<SidebarCard
-								title={t(
-									"sidebar.menus.main_buttons.create_community",
-								)}
-								subtitle={t(
-									"sidebar.menus.main_buttons.start_new_community",
-								)}
-								icon={
-									<DynamicFAIcon
-										exportName="faPlus"
-										size="lg"
-									/>
-								}
+								title={t("sidebar.menus.main_buttons.create_community")}
+								subtitle={t("sidebar.menus.main_buttons.start_new_community")}
+								icon={<DynamicFAIcon exportName="faPlus" size="lg" />}
 								to="/create-community"
 								onClick={() => {
 									closeSidebar();
@@ -184,15 +159,8 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 							/>
 							<SidebarCard
 								title={t("sidebar.menus.main_buttons.profile")}
-								subtitle={t(
-									"sidebar.menus.main_buttons.manage_profile",
-								)}
-								icon={
-									<DynamicFAIcon
-										exportName="faUser"
-										size="lg"
-									/>
-								}
+								subtitle={t("sidebar.menus.main_buttons.manage_profile")}
+								icon={<DynamicFAIcon exportName="faUser" size="lg" />}
 								to={
 									isLoggedIn && userId !== -1
 										? `/users/${userId}`
@@ -225,19 +193,12 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 											onClick={async () => {
 												closeSidebar();
 												try {
-													const res =
-														await GetThreadById(
-															t.id,
-														);
+													const res = await GetThreadById(t.id);
 													if (res.status === 200) {
-														navigate(
-															`/communities/${t.id}`,
-														);
+														navigate(`/communities/${t.id}`);
 													}
 												} catch {
-													navigate(
-														`/deleted-community`,
-													);
+													navigate(`/deleted-community`);
 												}
 											}}
 										/>
@@ -283,8 +244,7 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 											window.location.href = "/";
 										});
 									}}
-									className="w-full"
-								>
+									className="w-full">
 									{t("sidebar.menus.logout")}
 								</DangerButton>
 							)}
@@ -294,13 +254,10 @@ const Sidebar = ({ closeSidebar, isSidebarOpen }: SidebarProps) => {
 
 				{!isLoggedIn && (
 					<div className="text-center space-y-4 mt-16 px-4">
-						<p className="text-white/40">
-							{t("sidebar.menus.not_logged_in")}
-						</p>
+						<p className="text-white/40">{t("sidebar.menus.not_logged_in")}</p>
 						<Link
 							to="/auth/login"
-							className="keep-white text-white rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition"
-						>
+							className="keep-white text-white rounded-2xl bg-blue-500 px-6 py-2 font-semibold hover:bg-blue-600 transition">
 							{t("sidebar.menus.login_btn")}
 						</Link>
 					</div>

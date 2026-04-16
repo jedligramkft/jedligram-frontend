@@ -19,14 +19,13 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 	};
 
 	return (
-		<nav className="bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-b border-gray-700 text-white shadow-lg sticky top-0 z-50 poppins-regular">
+		<nav className="bg-linear-to-r from-[#1a1d23] to-[#2a2d31] border-b border-gray-700 text-white shadow-lg sticky top-0 z-70 poppins-regular">
 			<div className="pl-3 pr-6 md:pl-6 md:pr-12 py-4 flex items-center justify-between relative">
 				<GhostButton
 					onClick={() => {
 						onToggleSidebar?.();
 					}}
-					className="h-12 w-12"
-				>
+					className="h-12 w-12">
 					{isSidebarOpen ? (
 						<DynamicFAIcon exportName="faTimes" size="lg" />
 					) : (
@@ -39,16 +38,14 @@ const Navbar = ({ onToggleSidebar, isSidebarOpen }: NavbarProps) => {
 						<GhostButton
 							onClick={() => handleLanguageChange("hu")}
 							className={`px-3 py-1 rounded-md transition
-							${language === "hu" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
-						>
+							${language === "hu" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}>
 							HU
 						</GhostButton>
 
 						<GhostButton
 							onClick={() => handleLanguageChange("en")}
 							className={`px-3 py-1 rounded-md transition
-							${language === "en" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}
-						>
+							${language === "en" ? "bg-blue-500 text-white" : "hover:bg-white/10"}`}>
 							EN
 						</GhostButton>
 					</div>
