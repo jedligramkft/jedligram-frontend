@@ -72,7 +72,7 @@ export const EditProfile = (props: {
 		}
 
 		// ékezet lehet és space is
-		const usernameRegex = /^[a-zA-Z0-9_áéíÁÉÍöÖüÜ\s]+$/;
+		const usernameRegex = /^[a-zA-Z0-9_áéíÁÉÍöÖőŐüÜűŰ\s]+$/;
 		if (!usernameRegex.test(editedUser.name!)) {
 			setHasError(true);
 			setIsSavingChanges(false);
@@ -95,10 +95,7 @@ export const EditProfile = (props: {
 					console.log("Profil sikeresen frissítve:", response.data);
 					setEditedUser(userToSave);
 				} else {
-					console.warn(
-						"Nem sikerült frissíteni a profilt:",
-						response,
-					);
+					console.warn("Nem sikerült frissíteni a profilt:", response);
 					setIsSavingChanges(false);
 					setHasError(true);
 					return;
@@ -186,17 +183,12 @@ export const EditProfile = (props: {
 							name="profile_display_name"
 							autoComplete="off"
 							ignorePasswordManager
-							placeholder={t(
-								"profile.edit_profile.username_placeholder",
-							)}
+							placeholder={t("profile.edit_profile.username_placeholder")}
 							value={editedUser?.name ?? ""}
 							onChange={(e) =>
 								setEditedUser({
 									...editedUser,
-									name: e.target.value.slice(
-										0,
-										NAME_MAX_LENGTH,
-									),
+									name: e.target.value.slice(0, NAME_MAX_LENGTH),
 								} as UserData)
 							}
 							maxLength={NAME_MAX_LENGTH}
@@ -208,18 +200,13 @@ export const EditProfile = (props: {
 							name="profile_contact_email"
 							autoComplete="off"
 							ignorePasswordManager
-							placeholder={t(
-								"profile.edit_profile.email_placeholder",
-							)}
+							placeholder={t("profile.edit_profile.email_placeholder")}
 							value={editedUser?.email ?? ""}
 							disabled={isVerificationEnabled} // Email mező letiltása, ha 2FA engedélyezve van
 							onChange={(e) =>
 								setEditedUser({
 									...editedUser,
-									email: e.target.value.slice(
-										0,
-										EMAIL_MAX_LENGTH,
-									),
+									email: e.target.value.slice(0, EMAIL_MAX_LENGTH),
 								} as UserData)
 							}
 							type={"email"}
@@ -232,17 +219,12 @@ export const EditProfile = (props: {
 							name="profile_bio"
 							autoComplete="off"
 							ignorePasswordManager
-							placeholder={t(
-								"profile.edit_profile.bio_placeholder",
-							)}
+							placeholder={t("profile.edit_profile.bio_placeholder")}
 							value={editedUser?.bio ?? ""}
 							onChange={(e) => {
 								setEditedUser({
 									...editedUser,
-									bio: e.target.value.slice(
-										0,
-										BIO_MAX_LENGTH,
-									),
+									bio: e.target.value.slice(0, BIO_MAX_LENGTH),
 								} as UserData);
 							}}
 							rows={3}
@@ -264,9 +246,7 @@ export const EditProfile = (props: {
 						/>
 						<Switch
 							title={t("profile.edit_profile.dark_mode")}
-							subtitle={t(
-								"profile.edit_profile.dark_mode_subtitle",
-							)}
+							subtitle={t("profile.edit_profile.dark_mode_subtitle")}
 							icon={activeTheme === "dark" ? "faSun" : "faMoon"}
 							containerClass="w-full rounded-lg p-3 md:p-4 border border-white/10 bg-white/5 text-white"
 							onChange={() => {
@@ -280,31 +260,22 @@ export const EditProfile = (props: {
 							onFileSelected={onProfilePictureSelected}
 							onFileRemoved={() => setFileToUpload(null)}
 							selectedFile={fileToUpload}
-							title={t(
-								"profile.edit_profile.upload_profile_picture",
-							)}
-							description={t(
-								"profile.edit_profile.drag_picture_text",
-							)}
+							title={t("profile.edit_profile.upload_profile_picture")}
+							description={t("profile.edit_profile.drag_picture_text")}
 						/>
 					</div>
 					<p className="text-xs text-gray-500 mt-1">
 						{t("profile.edit_profile.last_saved")}{" "}
-						{localStorage.getItem("lastSavedAt") ||
-							t("common.not_available")}
+						{localStorage.getItem("lastSavedAt") || t("common.not_available")}
 					</p>
 				</div>
 				<div className="mt-6 md:mt-8 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
 					<PrimaryButton
 						onClick={() => setIsSaveConfirmationOpen(true)}
 						disabled={isSavingChanges}
-						className="gap-2 px-6 py-3"
-					>
+						className="gap-2 px-6 py-3">
 						{isSavingChanges ? (
-							<DynamicFAIcon
-								exportName="faSpinner"
-								className="animate-spin"
-							/>
+							<DynamicFAIcon exportName="faSpinner" className="animate-spin" />
 						) : (
 							<DynamicFAIcon exportName="faSave" />
 						)}
@@ -351,9 +322,7 @@ export const EditProfile = (props: {
 			<ConfirmationModal
 				isOpen={isSwitching2FA}
 				title={t("profile.edit_profile.two_fa_confirm_title")}
-				description={t(
-					"profile.edit_profile.two_fa_confirm_description",
-				)}
+				description={t("profile.edit_profile.two_fa_confirm_description")}
 				cancelText={t("profile.edit_profile.two_fa_cancel")}
 				confirmText={t("profile.edit_profile.two_fa_confirm")}
 				onClose={() => {
