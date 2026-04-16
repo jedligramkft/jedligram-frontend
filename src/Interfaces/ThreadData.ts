@@ -7,4 +7,5 @@ export interface ThreadData {
 	users_count?: number;
 	image?: string;
 	header?: string;
+	my_role?: number;
 }

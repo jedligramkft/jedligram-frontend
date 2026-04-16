@@ -6,6 +6,7 @@ export interface PostAndCommentData {
 	age: string;
 	user: UserData;
 	is_mine: boolean;
+	my_vote: boolean | null; // true = upvoted, false = downvoted, null = no vote
 
 	//post specific
 	thread_id?: number;

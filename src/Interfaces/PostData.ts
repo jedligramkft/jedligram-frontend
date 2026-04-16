@@ -9,4 +9,5 @@ export interface PostData {
 	score: number;
 	image?: string;
 	is_mine: boolean;
+	my_vote: boolean | null; // true = upvoted, false = downvoted, null = no vote
 }
