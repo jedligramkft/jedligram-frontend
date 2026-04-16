@@ -39,25 +39,17 @@ const MembersList = ({
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(
-		null,
-	);
+	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(null);
 
-	const [shouldDisplayAllMembers, setShouldDisplayAllMembers] =
-		useState(false);
+	const [shouldDisplayAllMembers, setShouldDisplayAllMembers] = useState(false);
 
 	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
 
-	const [localJoinedMembers, setLocalJoinedMembers] = useState<UserData[]>(
-		[],
-	);
+	const [localJoinedMembers, setLocalJoinedMembers] = useState<UserData[]>([]);
 
 	useEffect(() => {
 		setLocalJoinedMembers(joinedMembers);
 	}, [joinedMembers]);
-
-	//TODO: A thread lekérésnél adja vissza a usernek a roleját
-	//TODO: Felnyíló menü a profil gomt helyettm ahol átnavigálhatok a profilra, bannolhatok, vagy rangot állíthatok
 
 	async function handleRoleChange(
 		e: React.MouseEvent<HTMLButtonElement>,
@@ -79,9 +71,7 @@ const MembersList = ({
 				// Update the local state to reflect the role change
 				setLocalJoinedMembers((prevMembers) =>
 					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: newRoleId }
-							: member,
+						member.id === userId ? { ...member, role_id: newRoleId } : member,
 					),
 				);
 			}
@@ -138,11 +128,7 @@ const MembersList = ({
 			);
 			if (!confirmUnban) throw new Error("Unban cancelled by user");
 
-			const response = await UpdateRoleOfMemberInThread(
-				threadId,
-				userId,
-				3,
-			); // Set role to Member
+			const response = await UpdateRoleOfMemberInThread(threadId, userId, 3); // Set role to Member
 			if (response.status === 200) {
 				// Update the local state to reflect the unban
 				setLocalJoinedMembers((prevMembers) =>
@@ -171,8 +157,7 @@ const MembersList = ({
 							className={`flex items-center gap-3 *:bg-white/10 animate-pulse`}
 							style={{
 								animationDelay: i * 200 + "ms",
-							}}
-						>
+							}}>
 							<div className="h-8 w-8 rounded-full" />
 							<div className="h-4 w-30 rounded-lg" />
 							<div className="h-8 w-14 rounded-xl ml-auto" />
@@ -193,16 +178,12 @@ const MembersList = ({
 							// Card for each member
 							<div
 								key={user.id}
-								className="relative flex items-center gap-3 overflow-visible"
-							>
+								className="relative flex items-center gap-3 overflow-visible">
 								{isActionListOpen === user.id && (
-									<div className="absolute right-5 bottom-full z-99 mt-2 flex min-w-56 flex-col items-start justify-center gap-1 rounded-lg rounded-br-none bg-neutral-700 p-2 shadow-md border border-neutral-600 *:w-full *:text-sm">
+									<div className="absolute right-5 bottom-full z-50 mt-2 flex min-w-56 flex-col items-start justify-center gap-1 rounded-lg rounded-br-none bg-neutral-700 p-2 shadow-md border border-neutral-600 *:w-full *:text-sm">
 										<GhostButton
-											onClick={() =>
-												navigate(`/users/${user.id}`)
-											}
-											className="px-3 py-1.5"
-										>
+											onClick={() => navigate(`/users/${user.id}`)}
+											className="px-3 py-1.5">
 											Profil megtekintése
 										</GhostButton>
 
@@ -215,15 +196,9 @@ const MembersList = ({
 													<hr className="text-gray-400/20" />
 													<GhostButton
 														onClick={(e) =>
-															handleRoleChange(
-																e,
-																user.id,
-																user.role_id! -
-																	1,
-															)
+															handleRoleChange(e, user.id, user.role_id! - 1)
 														}
-														className="px-3 py-1.5"
-													>
+														className="px-3 py-1.5">
 														Előléptetés
 													</GhostButton>
 												</>
@@ -237,15 +212,9 @@ const MembersList = ({
 													<hr className="text-gray-400/20" />
 													<GhostButton
 														onClick={(e) =>
-															handleRoleChange(
-																e,
-																user.id,
-																user.role_id! +
-																	1,
-															)
+															handleRoleChange(e, user.id, user.role_id! + 1)
 														}
-														className="px-3 py-1.5"
-													>
+														className="px-3 py-1.5">
 														Lefokozás
 													</GhostButton>
 												</>
@@ -262,13 +231,7 @@ const MembersList = ({
 													<hr className="text-gray-400/20" />
 													<GhostButton
 														className="text-red-400 hover:text-red-500 hover:font-bold transition-all px-3 py-1.5"
-														onClick={(e) =>
-															handleBanUser(
-																e,
-																user.id,
-															)
-														}
-													>
+														onClick={(e) => handleBanUser(e, user.id)}>
 														Kitiltás
 													</GhostButton>
 												</>
@@ -281,13 +244,7 @@ const MembersList = ({
 													<hr className="text-gray-400/20" />
 													<GhostButton
 														className="text-green-400 hover:text-green-500 hover:font-bold transition-all px-3 py-1.5"
-														onClick={(e) =>
-															handleUnbanUser(
-																e,
-																user.id,
-															)
-														}
-													>
+														onClick={(e) => handleUnbanUser(e, user.id)}>
 														Kitiltás feloldása
 													</GhostButton>
 												</>
@@ -304,8 +261,7 @@ const MembersList = ({
 								<span className="text-sm text-white/80">
 									@{user.name}
 									<sup
-										className={`text-xs ml-1 py-0.5 px-1 rounded-full ${RoleColorMapping[user.role_id!]}`}
-									>
+										className={`text-xs ml-1 py-0.5 px-1 rounded-full ${RoleColorMapping[user.role_id!]}`}>
 										{RoleMapping[user.role_id!]}
 									</sup>
 								</span>
@@ -360,24 +316,21 @@ const MembersList = ({
 										} else {
 											setIsActionListOpen(user.id);
 										}
-									}}
-								>
+									}}>
 									<DynamicFAIcon exportName="faEllipsisVertical" />
 								</GhostButton>
 							</div>
 						))
 					)}
-					{localJoinedMembers.length > 5 &&
-						!shouldDisplayAllMembers && (
-							// Button to show all members if there are more than 5
-							<SecondaryButton
-								onClick={() => setShouldDisplayAllMembers(true)}
-								className="px-4 py-2"
-							>
-								+{localJoinedMembers.length - 5}{" "}
-								{t("community.community_sidebar.member")}
-							</SecondaryButton>
-						)}
+					{localJoinedMembers.length > 5 && !shouldDisplayAllMembers && (
+						// Button to show all members if there are more than 5
+						<SecondaryButton
+							onClick={() => setShouldDisplayAllMembers(true)}
+							className="px-4 py-2">
+							+{localJoinedMembers.length - 5}{" "}
+							{t("community.community_sidebar.member")}
+						</SecondaryButton>
+					)}
 				</>
 			)}
 		</>

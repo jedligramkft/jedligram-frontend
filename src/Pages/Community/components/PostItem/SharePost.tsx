@@ -28,7 +28,7 @@ const SharePost = ({
 	return (
 		<GhostButton className="gap-1" onClick={handleShare}>
 			<DynamicFAIcon exportName="faShare" />
-			{t("community.post_item.share")}
+			<span className="hidden md:inline">{t("community.post_item.share")}</span>
 		</GhostButton>
 	);
 };
