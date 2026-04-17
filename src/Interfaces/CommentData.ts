@@ -9,4 +9,5 @@ export interface CommentData {
 	replies_count: number;
 	replies: CommentData[];
 	is_mine: boolean;
+	my_vote: boolean | null; // true = upvoted, false = downvoted, null = no vote
 }

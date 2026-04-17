@@ -124,7 +124,11 @@ const PostItem = ({
 						<div className="flex gap-4">
 							{/* Upvote and downvote buttons */}
 							{localNode.score !== undefined && isTopLevel && (
-								<VoteComponent id={localNode.id} startScore={localNode.score} />
+								<VoteComponent
+									id={localNode.id}
+									myVote={localNode.my_vote}
+									startScore={localNode.score}
+								/>
 							)}
 							<GhostButton
 								className={`gap-1 ${commentOpen ? "text-white" : "text-white/75"}`}
