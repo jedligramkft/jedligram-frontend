@@ -105,7 +105,7 @@ export const Searchbar = ({
 				{filteredThreads.length > 0 && (
 					<div className={dropdownClass}>
 						<div className="max-h-72 overflow-y-auto">
-							{filteredThreads.slice(0, 3).map((thread) => (
+							{filteredThreads.map((thread) => (
 								<Link
 									key={thread.id}
 									to={`/communities/${thread.id}`}

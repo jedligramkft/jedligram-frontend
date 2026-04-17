@@ -3,8 +3,9 @@ import type { ThreadData } from "../Interfaces/ThreadData";
 // import type { UserData } from "../Interfaces/UserData";
 import httpClient from "./httpClient";
 
-export const GetThreads = async (): Promise<ResponseData> => {
-	const response = await httpClient.get("/api/threads");
+export const GetThreads = async (page?: number): Promise<ResponseData> => {
+	const link = page ? `/api/threads?page=${page}` : "/api/threads";
+	const response = await httpClient.get(link);
 
 	return {
 		status: response.status,
