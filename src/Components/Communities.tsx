@@ -5,6 +5,7 @@ import { GetThreads } from "../api/threads";
 import type { ThreadData } from "../Interfaces/ThreadData";
 import CommunityCardItem from "./CommunityCard/CommunityCardItem";
 import { PrimaryButton, SecondaryButton } from "./Buttons";
+import { toast } from "react-toastify";
 
 const Communities = () => {
 	const navigate = useNavigate();
@@ -21,10 +22,11 @@ const Communities = () => {
 			const responseData = res.data as { data: ThreadData[] }; // contains data, links, meta
 			setThreads(responseData.data);
 		} catch (err: any) {
-			setLoadError(
-				err?.response?.data?.message?.trim() ||
-					t("communities.load_error"),
-			);
+      const errMsg = err?.response?.data?.message?.trim() || t("communities.load_error");
+      
+			setLoadError(errMsg);
+      toast.error(errMsg);
+      
 			console.error(err);
 		} finally {
 			setIsLoading(false);

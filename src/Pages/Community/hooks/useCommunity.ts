@@ -12,6 +12,7 @@ import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
 import { VoteOnPost } from "../../../api/vote";
 import { IsLoggedIn } from "../../../api/auth";
+import { toast } from "react-toastify";
 
 type RecentThreadItem = {
 	id: number;
@@ -147,7 +148,7 @@ export const useCommunity = (
 					return;
 				}
 
-				alert(message ?? "Nem sikerült csatlakozni.");
+				toast.error(message ?? "Nem sikerült csatlakozni.");
 				return;
 			}
 		}
@@ -182,7 +183,7 @@ export const useCommunity = (
 					return;
 				}
 				const message = (err.response?.data as any)?.message;
-				alert(message ?? "Nem sikerült elhagyni a közösséget.");
+				toast.error(message ?? "Nem sikerült elhagyni a közösséget.");
 				return;
 			}
 		}
@@ -276,7 +277,7 @@ export const useCommunity = (
 					err instanceof Error
 						? err.message
 						: "Nem sikerült szavazni.";
-				alert(message);
+				toast.error(message);
 			} finally {
 				setVotingPostId(null);
 			}
@@ -299,6 +300,7 @@ export const useCommunity = (
 			await (navigator as any).share({ url: inviteUrl });
 			return;
 		} catch (err) {
+			toast.error("Hiba történt az meghívás küldése során.");
 			if (axios.isAxiosError(err)) {
 				if (err.response?.status === 401) {
 					navigateFn("/auth/login", { replace: true });

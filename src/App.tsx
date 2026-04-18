@@ -14,6 +14,7 @@ import LoginPage from "./Pages/Auth/Login";
 import SearchResults from "./Pages/Search/SearchResults";
 import DeletedCommunity from "./Pages/Community/DeletedCommunity";
 import { VerificationPage } from "./Pages/Auth/Verification";
+import { ToastContainer } from "react-toastify";
 
 function App() {
 	const location = useLocation();
@@ -127,6 +128,14 @@ function App() {
 					<Route path="verification" element={<VerificationPage />} />
 				</Route>
 			</Routes>
+
+			<ToastContainer
+				position="top-center"
+				autoClose={2500}
+				newestOnTop
+				theme="light"
+				toastClassName="!w-[90vw] sm:!w-auto backdrop-blur-xl bg-neutral-900 border border-white/10 rounded-xl mx-auto"
+			/>
 		</>
 	);
 }

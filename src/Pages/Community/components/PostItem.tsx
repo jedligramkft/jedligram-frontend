@@ -9,6 +9,7 @@ import { Link } from "react-router";
 import { DangerButton, GhostButton } from "../../../Components/Buttons";
 import { DeletePost } from "../../../api/posts";
 import { DeleteComment } from "../../../api/comments";
+import { toast } from "react-toastify";
 
 type PostItemProps = {
 	node: PostAndCommentData;
@@ -67,7 +68,7 @@ const PostItem = ({
 			}
 		} catch (error) {
 			console.error("Error deleting post/comment:", error);
-			window.alert("Hiba történt a törlés során. Kérlek próbáld újra.");
+			toast.error("Hiba történt a törlés során. Kérlek próbáld újra.");
 		} finally {
 			btn.disabled = false;
 		}

@@ -12,6 +12,7 @@ import { TextAreaComponent } from "../../Components/InputFields/TextAreaComponen
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
 import { IsLoggedIn } from "../../api/auth";
+import { toast } from "react-toastify";
 
 const CreateCommunity = () => {
 	const navigate = useNavigate();
@@ -32,7 +33,7 @@ const CreateCommunity = () => {
 		e.preventDefault();
 
 		if (!communityName.trim() || !description.trim() || !rules.trim()) {
-			alert(t("createCommunity.validation_error"));
+			toast.error(t("createCommunity.validation_error"));
 			return;
 		}
 		try {
@@ -63,7 +64,7 @@ const CreateCommunity = () => {
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
 				const message = (err.response?.data as any)?.message;
-				alert(message ?? t("createCommunity.create_error"));
+				toast.error(message ?? t("createCommunity.create_error"));
 				return;
 			}
 		}

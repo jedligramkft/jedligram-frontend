@@ -7,6 +7,7 @@ import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
 import CommunityCardItem from "../../Components/CommunityCard/CommunityCardItem";
 import { IsLoggedIn } from "../../api/auth";
 import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
+import { toast } from "react-toastify";
 
 const AllCommunities = () => {
 	const navigate = useNavigate();
@@ -40,6 +41,7 @@ const AllCommunities = () => {
 					alert(message);
 					return;
 				}
+				toast.error("Error fetching threads:");
 			}
 			console.error("Error fetching threads:", error);
 		} finally {
