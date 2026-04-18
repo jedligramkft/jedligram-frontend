@@ -17,7 +17,7 @@ const CommunitySidebar = ({
 	myRank,
 	// showAllMembers,
 	// onLoadMore,
-	postsCount,
+	// postsCount,
 }: Props) => {
 	const { t } = useTranslation();
 
