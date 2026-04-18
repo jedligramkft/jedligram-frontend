@@ -5,6 +5,7 @@ import axios from "axios";
 import { CreatePostInThread } from "../../api/posts";
 import { DragnDrop } from "../../Components/DragnDrop/DragnDrop";
 import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
+import { toast } from "react-toastify";
 
 const CreatePost = () => {
 	const { t } = useTranslation();
@@ -25,7 +26,7 @@ const CreatePost = () => {
 		}
 
 		if (!id) {
-			alert(t("createPost.invalid_community_error"));
+			toast.error(t("createPost.invalid_community_error"));
 			return;
 		}
 
@@ -36,7 +37,7 @@ const CreatePost = () => {
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
 				const message = (err.response?.data as any)?.message;
-				alert(message ?? t("createPost.create_error"));
+				toast.error(message ?? t("createPost.create_error"));
 				return;
 			}
 		} finally {

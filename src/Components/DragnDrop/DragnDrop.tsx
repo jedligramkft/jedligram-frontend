@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../Utils/DynamicFaIcon";
 import { DangerButton, PrimaryButton } from "../Buttons";
 import { twMerge } from "tailwind-merge";
+import { toast } from "react-toastify";
 
 interface DragnDropProps {
 	onFileSelected: (file: File) => void | Promise<void>;
@@ -45,7 +46,6 @@ export const DragnDrop = ({
 	previewImageClassName,
 }: DragnDropProps) => {
 	const [isDragOver, setIsDragOver] = useState(false);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const { t } = useTranslation();
@@ -84,7 +84,7 @@ export const DragnDrop = ({
 
 	// Keep local and parent validation states in sync.
 	const setValidationError = (message: string | null) => {
-		setErrorMessage(message);
+		toast.error(message);
 		onValidationError?.(message);
 	};
 
@@ -114,7 +114,7 @@ export const DragnDrop = ({
 	const processFile = async (file: File) => {
 		const validationError = validateFile(file);
 		if (validationError) {
-			setValidationError(validationError);
+			toast.error(validationError);
 			return;
 		}
 
@@ -243,11 +243,6 @@ export const DragnDrop = ({
 								</p>
 							</div>
 						</div>
-						{errorMessage ? (
-							<p className="mt-2 text-sm text-red-400">
-								{errorMessage}
-							</p>
-						) : null}
 					</>
 				)}
 			</div>

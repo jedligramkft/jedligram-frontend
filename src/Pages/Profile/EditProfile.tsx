@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { IsVerificationEnabled, Toggle2FA } from "../../api/auth";
 import { getActiveTheme, toggleTheme } from "../../theme";
 import { PrimaryButton } from "../../Components/Buttons";
+import { toast } from "react-toastify";
 
 export const EditProfile = (props: {
 	targetUser: UserData;
@@ -124,7 +125,7 @@ export const EditProfile = (props: {
 					err instanceof Error
 						? err.message
 						: t("profile.edit_profile.upload_failed_error");
-				alert(message);
+				toast.error(message);
 			}
 			setFileToUpload(null);
 		}

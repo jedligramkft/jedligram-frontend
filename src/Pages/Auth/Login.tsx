@@ -6,11 +6,11 @@ import type { UserData } from "../../Interfaces/UserData";
 import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { PrimaryButton } from "../../Components/Buttons";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
 	const [isPasswordVisible, setPasswordVisible] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const navigate = useNavigate();
@@ -20,7 +20,6 @@ const LoginPage = () => {
 		e.preventDefault();
 		if (isSubmitting) return;
 		setIsSubmitting(true);
-		setError(null);
 
 		const userData: UserData = {
 			id: -1,
@@ -30,7 +29,7 @@ const LoginPage = () => {
 		};
 
 		if (!username || !password) {
-			setError(t("auth.login.empty_fields_error"));
+			toast.error(t("auth.login.empty_fields_error"));
 			setIsSubmitting(false);
 			return;
 		}
@@ -49,16 +48,16 @@ const LoginPage = () => {
 		} catch (error) {
 			console.log(error);
 			if (!(error instanceof Error)) {
-				setError(t("auth.login.generic_error"));
+				toast.error(t("auth.login.generic_error"));
 				return;
 			}
 
 			if (error.message.includes("401")) {
-				setError(t("auth.login.invalid_credentials_error"));
+				toast.error(t("auth.login.invalid_credentials_error"));
 				return;
 			}
 
-			setError(t("auth.login.generic_error"));
+			toast.error(t("auth.login.generic_error"));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -69,19 +68,9 @@ const LoginPage = () => {
 			<h1 className="text-2xl font-black">{t("auth.login.title")}</h1>
 			<p className="text-sm text-white/70">{t("auth.login.subtitle")}</p>
 
-			{error && (
-				<div className="w-full rounded-xl flex items-center p-4 border border-red-500 bg-red-500/10 text-red-500 bg-linear-60 from-red-500/10 to-red-500/20">
-					<DynamicFAIcon
-						exportName="faExclamationCircle"
-						className="text-2xl"
-					/>
-					<p className="text-sm text-white ml-3">{error}</p>
-				</div>
-			)}
-
 			<form
 				onSubmit={handleLogin}
-				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
+				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1`}
 			>
 				<InputComponent
 					label={t("auth.login.username_label")}
