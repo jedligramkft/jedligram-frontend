@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Verify2FA } from "../../api/auth";
-import DynamicFAIcon from "../../Components/Utils/DynamicFaIcon";
 import { InputComponent } from "../../Components/InputFields/InputComponent";
 import { PrimaryButton } from "../../Components/Buttons";
+import { toast } from "react-toastify";
 
 export const VerificationPage = () => {
 	const searchParams = useSearchParams();
@@ -15,7 +15,6 @@ export const VerificationPage = () => {
 		searchParams[0].get("code") || "",
 	);
 
-	const [error, setError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { t } = useTranslation();
 
@@ -23,17 +22,16 @@ export const VerificationPage = () => {
 		e.preventDefault();
 		if (isSubmitting) return;
 		setIsSubmitting(true);
-		setError(null);
 
 		if (!email || !verificationCode) {
-			setError(t("auth.verification.empty_fields_error"));
+			toast.error(t("auth.verification.empty_fields_error"));
 			setIsSubmitting(false);
 			return;
 		}
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(email)) {
-			setError(t("auth.verification.invalid_email_error"));
+			toast.error(t("auth.verification.invalid_email_error"));
 			setIsSubmitting(false);
 			return;
 		}
@@ -51,7 +49,7 @@ export const VerificationPage = () => {
 				}
 			}
 		} catch {
-			setError(t("auth.verification.generic_error"));
+			toast.error(t("auth.verification.generic_error"));
 		}
 
 		setIsSubmitting(false);
@@ -66,18 +64,9 @@ export const VerificationPage = () => {
 				{t("auth.verification.subtitle")}
 			</p>
 
-			{error && (
-				<div className="w-full rounded-xl flex items-center p-4 border border-red-500 bg-red-500/10 text-red-500 bg-linear-60 from-red-500/10 to-red-500/20">
-					<DynamicFAIcon
-						exportName="faExclamationCircle"
-						className="text-2xl"
-					/>
-					<p className="text-sm text-white ml-3">{error}</p>
-				</div>
-			)}
 			<form
 				onSubmit={handleVerification}
-				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1 ${error ? "mt-2" : "mt-6"}`}
+				className={`flex flex-col gap-4 *:flex *:flex-col *:gap-1`}
 			>
 				<InputComponent
 					label={t("auth.verification.email_label")}
