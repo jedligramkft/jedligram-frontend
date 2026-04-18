@@ -22,11 +22,13 @@ const Communities = () => {
 			const responseData = res.data as { data: ThreadData[] }; // contains data, links, meta
 			setThreads(responseData.data);
 		} catch (err: any) {
-      const errMsg = err?.response?.data?.message?.trim() || t("communities.load_error");
-      
+			const errMsg =
+				err?.response?.data?.message?.trim() ||
+				t("communities.load_error");
+
 			setLoadError(errMsg);
-      toast.error(errMsg);
-      
+			toast.error(errMsg);
+
 			console.error(err);
 		} finally {
 			setIsLoading(false);
