@@ -50,7 +50,8 @@ const CommunitySidebar = ({
 							{t("community.community_sidebar.posts")}
 						</div>
 						<div className="mt-1 text-2xl font-bold text-white">
-							{postsCount}
+							{/* {postsCount} */}
+							TBI
 						</div>
 					</div>
 				</div>
