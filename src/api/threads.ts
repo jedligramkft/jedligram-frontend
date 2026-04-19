@@ -3,8 +3,9 @@ import type { ThreadData } from "../Interfaces/ThreadData";
 // import type { UserData } from "../Interfaces/UserData";
 import httpClient from "./httpClient";
 
-export const GetThreads = async (): Promise<ResponseData> => {
-	const response = await httpClient.get("/api/threads");
+export const GetThreads = async (page?: number): Promise<ResponseData> => {
+	const link = page ? `/api/threads?page=${page}` : "/api/threads";
+	const response = await httpClient.get(link);
 
 	return {
 		status: response.status,
@@ -69,8 +70,11 @@ export const LeaveThread = async (threadId: number): Promise<ResponseData> => {
 
 export const GetThreadMembers = async (
 	threadId: number,
+	page: number = 1,
 ): Promise<ResponseData> => {
-	const response = await httpClient.get(`/api/threads/${threadId}/members`);
+	const response = await httpClient.get(
+		`/api/threads/${threadId}/members?page=${page}`,
+	);
 	return {
 		status: response.status,
 		data: response.data,
@@ -172,8 +176,12 @@ export const BanUserFromThread = async (
 
 export const GetPostsInThread = async (
 	threadId: number,
+	page?: number,
 ): Promise<ResponseData> => {
-	const response = await httpClient.get(`/api/threads/${threadId}/posts`);
+	const link = page
+		? `/api/threads/${threadId}/posts?page=${page}`
+		: `/api/threads/${threadId}/posts`;
+	const response = await httpClient.get(link);
 
 	return {
 		status: response.status,

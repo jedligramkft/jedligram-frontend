@@ -14,25 +14,33 @@ const Communities = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
+	const fetchThreads = async () => {
+		setIsLoading(true);
+		setLoadError(null);
+		try {
+			const res = await GetThreads(1);
+			const responseData = res.data as { data: ThreadData[] }; // contains data, links, meta
+			setThreads(responseData.data);
+		} catch (err: any) {
+			const errMsg =
+				err?.response?.data?.message?.trim() ||
+				t("communities.load_error");
+
+			setLoadError(errMsg);
+			toast.error(errMsg);
+
+			console.error(err);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	useEffect(() => {
-		const fetchThreads = async () => {
-			setIsLoading(true);
-			setLoadError(null);
-			try {
-				const res = await GetThreads();
-				const data = res.data?.threads ?? res.data;
-				setThreads(Array.isArray(data) ? data : []);
-			} catch (err: any) {
-				toast.error(
-					err?.response?.data?.message?.trim() ||
-						t("communities.load_error"),
-				);
-				console.error(err);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-		fetchThreads();
+		async function load() {
+			setThreads([]); // Clear threads when component mounts to avoid showing stale data
+			await fetchThreads();
+		}
+		load();
 	}, [t]);
 
 	const visibleThreads = threads.slice(0, 6);

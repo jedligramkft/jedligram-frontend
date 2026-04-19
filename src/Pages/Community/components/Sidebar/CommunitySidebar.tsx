@@ -1,7 +1,5 @@
 import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
-import { GetThreadMembers } from "../../../../api/threads";
 import MembersList from "./MembersList";
 
 type Props = {
@@ -13,58 +11,15 @@ type Props = {
 	myRank: number | null;
 };
 
-const profileStorageKey =
-	import.meta.env.VITE_PROFILE_STORAGE_KEY || "jedligram_profile";
-
 const CommunitySidebar = ({
 	// joinedUsers: joinedUsers,
 	id,
 	myRank,
 	// showAllMembers,
 	// onLoadMore,
-	postsCount,
+	// postsCount,
 }: Props) => {
 	const { t } = useTranslation();
-
-	const [isLoadingMembers, setIsLoadingMembers] = useState(true);
-
-	const [joinedMembers, setJoinedMembers] = useState<UserData[]>([]);
-
-	useEffect(() => {
-		async function load() {
-			setJoinedMembers([]);
-			try {
-				setIsLoadingMembers(true);
-
-				const users = (await GetThreadMembers(id)) as {
-					data: UserData[];
-				};
-
-				users.data.sort((a, b) => a.role_id! - b.role_id!); // Sort users by role (Admin > Moderator > Member > Banned)
-
-				// my user should be the first
-				const rawProfile =
-					localStorage.getItem(profileStorageKey) ?? "{}";
-				const myId = JSON.parse(rawProfile).id;
-				if (myId) {
-					const myIndex = users.data.findIndex((u) => u.id === myId);
-					if (myIndex > -1) {
-						const [myUser] = users.data.splice(myIndex, 1);
-						users.data.unshift(myUser);
-					}
-				}
-
-				setJoinedMembers(users.data);
-			} catch (error) {
-				console.error("Failed to load members:", error);
-			} finally {
-				setIsLoadingMembers(false);
-			}
-		}
-
-		load();
-		//TODO: paginated endpoint for members and load more on button click instead of loading all at once
-	}, [id]);
 
 	return (
 		<aside className="relative z-40 space-y-6 overflow-visible">
@@ -73,12 +28,7 @@ const CommunitySidebar = ({
 					{t("community.community_sidebar.members")}
 				</h2>
 				<div className="mt-4 space-y-3 overflow-visible">
-					<MembersList
-						joinedMembers={joinedMembers}
-						isLoadingMembers={isLoadingMembers}
-						threadId={id}
-						myRank={myRank}
-					/>
+					<MembersList threadId={id} myRank={myRank} />
 				</div>
 			</div>
 			<div className="relative z-10 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/30 backdrop-blur">
@@ -91,7 +41,8 @@ const CommunitySidebar = ({
 							{t("community.community_sidebar.members")}
 						</div>
 						<div className="mt-1 text-2xl font-bold text-white">
-							{joinedMembers.length}
+							{/* {joinedMembers.length} */}
+							TBI
 						</div>
 					</div>
 					<div className="rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -99,7 +50,8 @@ const CommunitySidebar = ({
 							{t("community.community_sidebar.posts")}
 						</div>
 						<div className="mt-1 text-2xl font-bold text-white">
-							{postsCount}
+							{/* {postsCount} */}
+							TBI
 						</div>
 					</div>
 				</div>

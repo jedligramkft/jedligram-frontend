@@ -34,7 +34,7 @@ const SearchResults = () => {
 			setError("");
 
 			try {
-				const response = await SearchThreads(q);
+				const response = (await SearchThreads(q)).data;
 
 				if (cancelled) return;
 

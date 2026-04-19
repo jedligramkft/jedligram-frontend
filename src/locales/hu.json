@@ -232,7 +232,8 @@
 			"feed": "Hírfolyam",
 			"create_post": "Poszt létrehozása",
 			"join_to_post": "Csatlakozz a posztoláshoz",
-			"no_posts": "Nincsenek posztok még. Legyél te az első, aki posztol!"
+			"no_posts": "Nincsenek posztok még. Legyél te az első, aki posztol!",
+			"load_more_posts": "További posztok betöltése"
 		},
 		"reply_item": {
 			"close_replies": "Válaszok bezárása",

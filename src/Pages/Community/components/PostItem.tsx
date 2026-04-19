@@ -64,7 +64,7 @@ const PostItem = ({
 			else resp = await DeleteComment(originalPostId, localNode.id);
 
 			if (resp.status === 200) {
-				setLocalNode({ ...localNode, content: "[removed]", image: "" });
+				setLocalNode({ ...localNode, content: "[deleted]", image: "" });
 			}
 		} catch (error) {
 			console.error("Error deleting post/comment:", error);
@@ -102,7 +102,8 @@ const PostItem = ({
 						<div className="flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap">
 							<Link
 								to={`/users/${localNode.user.id}`}
-								className="shrink-0 text-white/75 text-sm hover:text-white">
+								className="shrink-0 text-white/75 text-sm hover:text-white"
+							>
 								@{localNode.user.name}
 							</Link>
 							<span className="shrink-0 text-white/55">·</span>
@@ -136,21 +137,28 @@ const PostItem = ({
 								onClick={() => {
 									if (!isJoined) return;
 									setCommentOpen(true);
-								}}>
+								}}
+							>
 								<DynamicFAIcon exportName="faComment" />{" "}
 								<span className="hidden md:inline">
 									{t("community.post_item.reply")}
 								</span>
 							</GhostButton>
-							<SharePost postId={POST_ID} communityId={communityId} />
+							<SharePost
+								postId={POST_ID}
+								communityId={communityId}
+							/>
 
 							{((myRank && myRank <= 2) || localNode.is_mine) &&
-								localNode.content !== "[removed]" && (
+								localNode.content !== "[deleted]" && (
 									<DangerButton
 										className="gap-2 ml-auto text-xs"
-										onClick={handleDelete}>
+										onClick={handleDelete}
+									>
 										<DynamicFAIcon exportName="faTrash" />
-										<span className="hidden md:inline">Törlés</span>
+										<span className="hidden md:inline">
+											Törlés
+										</span>
 									</DangerButton>
 								)}
 						</div>
@@ -162,7 +170,9 @@ const PostItem = ({
 								replyToUsername={
 									localNode.user.name
 										? localNode.user.name
-										: t("community.post_item.unknown_author")
+										: t(
+												"community.post_item.unknown_author",
+											)
 								}
 								onCommentSent={() => setCommentOpen(false)}
 								onCancel={() => setCommentOpen(false)}
@@ -177,7 +187,8 @@ const PostItem = ({
 									if (OnLoadMoreComments) {
 										OnLoadMoreComments();
 									}
-								}}>
+								}}
+							>
 								<DynamicFAIcon
 									exportName="faCirclePlus"
 									size="lg"
@@ -190,13 +201,16 @@ const PostItem = ({
 						{hasReplies ? (
 							<>
 								{isChildrenVisible ? (
-									<div className="space-y-4 mt-4">{children}</div>
+									<div className="space-y-4 mt-4">
+										{children}
+									</div>
 								) : (
 									<GhostButton
 										onClick={() => {
 											setIsChildrenVisible(true);
 										}}
-										className="p-2 pl-0 whitespace-nowrap">
+										className="p-2 pl-0 whitespace-nowrap"
+									>
 										<DynamicFAIcon
 											exportName="faCirclePlus"
 											size="lg"

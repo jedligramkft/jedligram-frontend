@@ -99,7 +99,7 @@ export const useCommunity = (
 	): Promise<UserData[]> => {
 		if (Number.isNaN(threadIdValue)) return [];
 
-		const response = await GetThreadMembers(threadIdValue);
+		const response = (await GetThreadMembers(threadIdValue)).data;
 		const usersData = response.data?.users ?? response.data;
 
 		if (!Array.isArray(usersData)) return [];

@@ -232,7 +232,8 @@
 			"feed": "Feed",
 			"create_post": "Create Post",
 			"join_to_post": "Join to Post",
-			"no_posts": "No posts yet. Be the first to create a post!"
+			"no_posts": "No posts yet. Be the first to create a post!",
+			"load_more_posts": "Load more posts"
 		},
 		"reply_item": {
 			"close_replies": "Close Replies",

@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import CommunityHeader from "./components/CommunityHeader";
 import CommunitySidebar from "./components/Sidebar/CommunitySidebar";
-import PostList from "./components/PostList";
 import { useCommunity } from "./hooks/useCommunity";
+import PostList from "./components/PostList";
 // import { useComments } from "./hooks/useComments";
 
 const Community = () => {

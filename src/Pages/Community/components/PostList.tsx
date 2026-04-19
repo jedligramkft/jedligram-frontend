@@ -9,6 +9,7 @@ import { GetPostsInThread } from "../../../api/threads";
 import type { CommentData } from "../../../Interfaces/CommentData";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import type { PostData } from "../../../Interfaces/PostData";
+import ScreenLoader from "../../../Components/Utils/ScreenLoader";
 import PostItem from "./PostItem";
 
 type Props = {
@@ -98,7 +99,8 @@ function sortNodesByNewest(nodes: PostAndCommentData[]): PostAndCommentData[] {
 		}))
 		.sort((a, b) => {
 			// Compute elapsed seconds for each item. Smaller = more recent.
-			const ageDifference = parseAgeToSeconds(a.age) - parseAgeToSeconds(b.age);
+			const ageDifference =
+				parseAgeToSeconds(a.age) - parseAgeToSeconds(b.age);
 
 			// If one item is clearly newer/older, use that ordering.
 			if (ageDifference !== 0) return ageDifference;
@@ -150,7 +152,9 @@ function mergeRepliesById(
 	fetchedReplies: PostAndCommentData[],
 ): PostAndCommentData[] {
 	// Ensure we always merge into a real array.
-	const currentReplies = Array.isArray(existingReplies) ? existingReplies : [];
+	const currentReplies = Array.isArray(existingReplies)
+		? existingReplies
+		: [];
 	// Use a map to deduplicate by reply id while keeping the latest object.
 	const repliesById = new Map<number, PostAndCommentData>();
 
@@ -219,6 +223,10 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 	const [postsAndComments, setPostsAndComments] = useState<
 		PostAndCommentData[]
 	>([]);
+	const [isLoadingPosts, setIsLoadingPosts] = useState(true);
+	// Ref-based paging avoids stale page state under rapid scroll callbacks.
+	const nextPageRef = useRef(1);
+	const [hasMore, setHasMore] = useState(false);
 	// Stores comment IDs for which the user already clicked "load more".
 	// We use a ref so these IDs survive rerenders and async reload cycles.
 	const loadedMoreCommentIdsRef = useRef<Set<number>>(new Set());
@@ -238,18 +246,34 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		transform: "translateX(-50%)",
 	};
 
-	/**
-	 * Load all top-level posts for the active thread.
-	 * This only fetches posts; comments are fetched separately in `loadCommentsByPost`.
-	 */
-	async function loadPosts(threadId: number): Promise<PostData[]> {
-		// API returns a generic response wrapper; we narrow to expected payload.
-		const postResponse = (await GetPostsInThread(threadId)) as {
-			data: PostData[];
-		};
+	async function fetchPosts(
+		threadId: number,
+		page: number = nextPageRef.current,
+	) {
+		setIsLoadingPosts(true);
 
-		// Return just the post array for downstream processing.
-		return postResponse.data;
+		try {
+			const response = await GetPostsInThread(threadId, page);
+			const responseData = response.data as {
+				data: PostData[];
+			};
+			nextPageRef.current = page + 1;
+			setHasMore(response.data["links"]["next"] !== null);
+
+			const commentsByPost = await loadCommentsByPost(responseData.data);
+			const mergedData = mergePostsWithComments(
+				responseData.data,
+				commentsByPost,
+			);
+			const mergedWithLoadedReplies =
+				await rehydrateLoadedReplies(mergedData);
+
+			return sortNodesByNewest(mergedWithLoadedReplies);
+		} catch (error) {
+			console.error("Failed to load posts:", error);
+		} finally {
+			setIsLoadingPosts(false);
+		}
 	}
 
 	/**
@@ -266,7 +290,9 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		const entries = await Promise.all(
 			posts.map(async (post) => {
 				// Fetch the flat/nested comment payload for this post.
-				const commentsResponse = (await GetCommentsForPost(post.id)) as {
+				const commentsResponse = (await GetCommentsForPost(
+					post.id,
+				)) as {
 					data: CommentData[];
 				};
 
@@ -300,7 +326,8 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 				data: CommentData[];
 			};
 			// Cast into shared tree node shape used by renderer.
-			const fetchedReplies = replyCommentsResponse.data as PostAndCommentData[];
+			const fetchedReplies =
+				replyCommentsResponse.data as PostAndCommentData[];
 
 			// Mark this thread as expanded so it can be restored on refresh.
 			loadedMoreCommentIdsRef.current.add(commentId);
@@ -345,16 +372,16 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		const fetchedReplyGroups = await Promise.all(
 			loadedCommentIds.map(async (commentId) => {
 				try {
-					const replyCommentsResponse = (await GetReplyCommentsForComment(
-						commentId,
-					)) as {
-						data: CommentData[];
-					};
+					const replyCommentsResponse =
+						(await GetReplyCommentsForComment(commentId)) as {
+							data: CommentData[];
+						};
 
 					// Return reply payload grouped by the original comment id.
 					return {
 						commentId,
-						replies: replyCommentsResponse.data as PostAndCommentData[],
+						replies:
+							replyCommentsResponse.data as PostAndCommentData[],
 					};
 				} catch (error) {
 					// Keep rehydration resilient even if one request fails.
@@ -408,7 +435,8 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 			const hasReplies = replies.length > 0;
 
 			// Keep the root post id available for nested reply actions.
-			const rootPostId = depth === 0 ? node.id : (originalPostId ?? node.id);
+			const rootPostId =
+				depth === 0 ? node.id : (originalPostId ?? node.id);
 
 			return (
 				<PostItem
@@ -424,11 +452,43 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 					OnLoadMoreComments={() => {
 						void loadMoreCommentsForComment(node.id);
 					}}
-					myRank={myRank}>
-					{hasReplies ? renderReplies(replies, depth + 1, rootPostId) : null}
+					myRank={myRank}
+				>
+					{hasReplies
+						? renderReplies(replies, depth + 1, rootPostId)
+						: null}
 				</PostItem>
 			);
 		});
+	}
+
+	async function loadMorePosts() {
+		// Keep callback idempotent while loading and when no next page exists.
+		if (isLoadingPosts || !hasMore) {
+			return;
+		}
+
+		const threadId = Number(id);
+		if (!id || !Number.isFinite(threadId)) {
+			return;
+		}
+
+		const posts = await fetchPosts(threadId);
+		if (posts) {
+			setPostsAndComments((prevPosts) =>
+				// Merge by id as a safety net if backend pages overlap.
+				sortNodesByNewest(
+					Array.from(
+						new Map(
+							[...prevPosts, ...posts].map((post) => [
+								post.id,
+								post,
+							]),
+						).values(),
+					),
+				),
+			);
+		}
 	}
 
 	useEffect(() => {
@@ -439,11 +499,14 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		// Reset the expanded-thread tracker when the active thread changes.
 		loadedMoreCommentIdsRef.current.clear();
 
-		// Full reload pipeline: posts -> comments -> merge -> rehydrate -> sort -> set state.
+		// Full reload pipeline: reset pagination -> first page -> set state.
 		async function load() {
 			// If there is no thread id in route params, clear the view.
 			if (!id) {
 				setPostsAndComments([]);
+				nextPageRef.current = 1;
+				setHasMore(false);
+				setIsLoadingPosts(false);
 				return;
 			}
 
@@ -451,25 +514,48 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 			const threadId = Number(id);
 			if (!Number.isFinite(threadId)) {
 				setPostsAndComments([]);
+				nextPageRef.current = 1;
+				setHasMore(false);
+				setIsLoadingPosts(false);
 				return;
 			}
 
-			// 1) Fetch posts.
-			const postData = await loadPosts(threadId);
-			// 2) Fetch comments for each post.
-			const commentsByPost = await loadCommentsByPost(postData);
-			// 3) Attach comments to posts.
-			const mergedData = mergePostsWithComments(postData, commentsByPost);
-			// 4) Rehydrate previously expanded comment branches.
-			const mergedWithLoadedReplies = await rehydrateLoadedReplies(mergedData);
+			setPostsAndComments([]);
+			nextPageRef.current = 1;
+			setHasMore(false);
+			setIsLoadingPosts(true);
 
-			// Guard against stale async completion after unmount.
-			if (!isActive) {
-				return;
+			try {
+				const response = await GetPostsInThread(threadId, 1);
+				const responseData = response.data as {
+					data: PostData[];
+				};
+				nextPageRef.current = 2;
+				setHasMore(response.data["links"]["next"] !== null);
+
+				const commentsByPost = await loadCommentsByPost(
+					responseData.data,
+				);
+				const mergedData = mergePostsWithComments(
+					responseData.data,
+					commentsByPost,
+				);
+				const mergedWithLoadedReplies =
+					await rehydrateLoadedReplies(mergedData);
+
+				// Guard against stale async completion after unmount.
+				if (!isActive) {
+					return;
+				}
+
+				setPostsAndComments(sortNodesByNewest(mergedWithLoadedReplies));
+			} catch (error) {
+				console.error("Failed to load posts:", error);
+			} finally {
+				if (isActive) {
+					setIsLoadingPosts(false);
+				}
 			}
-
-			// 5) Ensure newest-first ordering before rendering.
-			setPostsAndComments(sortNodesByNewest(mergedWithLoadedReplies));
 		}
 
 		// Trigger reload when another component dispatches "comment-added".
@@ -497,21 +583,60 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 				</h2>
 				{isJoined && (
 					<Link
-						to={id ? `/communities/${id}/posts/new` : "/all-communities"}
-						className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10">
+						to={
+							id
+								? `/communities/${id}/posts/new`
+								: "/all-communities"
+						}
+						className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
+					>
 						{t("community.post_list.create_post")}
 					</Link>
 				)}
 			</div>
 			<div
-				className={`space-y-4 overflow-x-auto ${postsAndComments.length === 0 ? "pb-2" : ""}`}>
-				{postsAndComments.length === 0 && (
+				className={`space-y-4 overflow-x-auto ${postsAndComments.length === 0 ? "pb-2" : ""}`}
+			>
+				{!isLoadingPosts && postsAndComments.length === 0 && (
 					<div className="text-sm text-white/70">
 						{t("community.post_list.no_posts")}
 					</div>
 				)}
 
 				{renderReplies(postsAndComments)}
+
+				{isLoadingPosts && (
+					<>
+						{[1].map((i) => (
+							<div key={i} className="animate-pulse p-4 w-full">
+								<div className="flex items-start flex-col w-full gap-3">
+									<div className="flex items-center gap-4">
+										<div
+											className="shrink-0 rounded-full bg-white/10"
+											style={avatarSizeStyle}
+										/>
+										<div className="h-3 w-40 rounded bg-white/10" />
+										<div className="h-2 w-14 rounded bg-white/10" />
+									</div>
+									<div className="space-y-4 pl-11 w-full">
+										<div className="space-y-2">
+											<div className="h-3 w-full rounded bg-white/10" />
+											<div className="h-3 w-full rounded bg-white/10" />
+											<div className="h-3 w-4/5 rounded bg-white/10" />
+										</div>
+										<div className="flex gap-2">
+											<div className="h-6 w-18 rounded-lg bg-white/10" />
+											<div className="h-6 w-6 rounded-lg bg-white/10" />
+											<div className="h-6 w-6 rounded-lg bg-white/10" />
+										</div>
+									</div>
+								</div>
+							</div>
+						))}
+					</>
+				)}
+
+				{hasMore && <ScreenLoader callback={loadMorePosts} />}
 			</div>
 		</div>
 	);
