@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { SecondaryButton } from "../../../Components/Buttons";
 import {
 	GetCommentsForPost,
 	GetReplyCommentsForComment,
@@ -10,6 +9,7 @@ import { GetPostsInThread } from "../../../api/threads";
 import type { CommentData } from "../../../Interfaces/CommentData";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import type { PostData } from "../../../Interfaces/PostData";
+import ScreenLoader from "../../../Components/Utils/ScreenLoader";
 import PostItem from "./PostItem";
 
 type Props = {
@@ -224,7 +224,8 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		PostAndCommentData[]
 	>([]);
 	const [isLoadingPosts, setIsLoadingPosts] = useState(true);
-	const [currentPage, setCurrentPage] = useState(1);
+	// Ref-based paging avoids stale page state under rapid scroll callbacks.
+	const nextPageRef = useRef(1);
 	const [hasMore, setHasMore] = useState(false);
 	// Stores comment IDs for which the user already clicked "load more".
 	// We use a ref so these IDs survive rerenders and async reload cycles.
@@ -245,7 +246,10 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		transform: "translateX(-50%)",
 	};
 
-	async function fetchPosts(threadId: number, page: number = currentPage) {
+	async function fetchPosts(
+		threadId: number,
+		page: number = nextPageRef.current,
+	) {
 		setIsLoadingPosts(true);
 
 		try {
@@ -253,7 +257,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 			const responseData = response.data as {
 				data: PostData[];
 			};
-			setCurrentPage(page + 1);
+			nextPageRef.current = page + 1;
 			setHasMore(response.data["links"]["next"] !== null);
 
 			const commentsByPost = await loadCommentsByPost(responseData.data);
@@ -458,25 +462,33 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		});
 	}
 
-	async function loadMorePosts(e: React.MouseEvent<HTMLButtonElement>) {
-		e.preventDefault();
-		const btn = e.currentTarget;
-		btn.disabled = true;
-
-		const threadId = Number(id);
-		if (!id || !Number.isFinite(threadId)) {
-			btn.disabled = false;
+	async function loadMorePosts() {
+		// Keep callback idempotent while loading and when no next page exists.
+		if (isLoadingPosts || !hasMore) {
 			return;
 		}
 
-		const posts = await fetchPosts(threadId, currentPage);
-		if (posts) {
-			setPostsAndComments((prevPosts) =>
-				sortNodesByNewest([...prevPosts, ...posts]),
-			);
+		const threadId = Number(id);
+		if (!id || !Number.isFinite(threadId)) {
+			return;
 		}
 
-		btn.disabled = false;
+		const posts = await fetchPosts(threadId);
+		if (posts) {
+			setPostsAndComments((prevPosts) =>
+				// Merge by id as a safety net if backend pages overlap.
+				sortNodesByNewest(
+					Array.from(
+						new Map(
+							[...prevPosts, ...posts].map((post) => [
+								post.id,
+								post,
+							]),
+						).values(),
+					),
+				),
+			);
+		}
 	}
 
 	useEffect(() => {
@@ -492,7 +504,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 			// If there is no thread id in route params, clear the view.
 			if (!id) {
 				setPostsAndComments([]);
-				setCurrentPage(1);
+				nextPageRef.current = 1;
 				setHasMore(false);
 				setIsLoadingPosts(false);
 				return;
@@ -502,14 +514,14 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 			const threadId = Number(id);
 			if (!Number.isFinite(threadId)) {
 				setPostsAndComments([]);
-				setCurrentPage(1);
+				nextPageRef.current = 1;
 				setHasMore(false);
 				setIsLoadingPosts(false);
 				return;
 			}
 
 			setPostsAndComments([]);
-			setCurrentPage(1);
+			nextPageRef.current = 1;
 			setHasMore(false);
 			setIsLoadingPosts(true);
 
@@ -518,7 +530,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 				const responseData = response.data as {
 					data: PostData[];
 				};
-				setCurrentPage(2);
+				nextPageRef.current = 2;
 				setHasMore(response.data["links"]["next"] !== null);
 
 				const commentsByPost = await loadCommentsByPost(
@@ -624,14 +636,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 					</>
 				)}
 
-				{hasMore && !isLoadingPosts && (
-					<SecondaryButton
-						onClick={loadMorePosts}
-						className="px-4 py-2 mt-2"
-					>
-						{t("community.post_list.load_more_posts")}
-					</SecondaryButton>
-				)}
+				{hasMore && <ScreenLoader callback={loadMorePosts} />}
 			</div>
 		</div>
 	);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { ThreadData } from "../../Interfaces/ThreadData";
@@ -6,8 +6,9 @@ import { GetThreads } from "../../api/threads";
 import WelcomeBanner from "../../Components/Utils/WelcomeBanner";
 import CommunityCardItem from "../../Components/CommunityCard/CommunityCardItem";
 import { IsLoggedIn } from "../../api/auth";
-import { PrimaryButton, SecondaryButton } from "../../Components/Buttons";
+import { PrimaryButton } from "../../Components/Buttons";
 import { toast } from "react-toastify";
+import ScreenLoader from "../../Components/Utils/ScreenLoader";
 
 const AllCommunities = () => {
 	const navigate = useNavigate();
@@ -15,28 +16,31 @@ const AllCommunities = () => {
 	const [threads, setThreads] = useState<ThreadData[]>([]);
 
 	const [isLoading, setIsLoading] = useState(true);
+	// Ref-based paging avoids stale closure state when scroll callbacks fire rapidly.
+	const nextPageRef = useRef(1);
 
 	const isLoggedIn = IsLoggedIn();
-	const [currentPage, setCurrentPage] = useState(1);
 	const [hasMore, setHasMore] = useState(false);
 	const [totalThreads, setTotalThreads] = useState(0);
 
 	//TODO: Infinite scroll
 
 	const fetchThreads = async () => {
+		const pageToFetch = nextPageRef.current;
+		setIsLoading(true);
 		try {
-			setIsLoading(true);
-
-			const response = await GetThreads(currentPage);
+			const response = await GetThreads(pageToFetch);
 			const responseData = response.data as { data: ThreadData[] }; // contains data, links, meta
-			setCurrentPage(currentPage + 1);
+			nextPageRef.current = pageToFetch + 1;
 			setHasMore(response.data["links"]["next"] !== null);
 			setTotalThreads(response.data["meta"]["total"] ?? 0);
 
 			return responseData.data;
 		} catch (error) {
 			{
-				const message = (error as any)?.response?.data?.message;
+				const message = (
+					error as { response?: { data?: { message?: string } } }
+				)?.response?.data?.message;
 				if (message) {
 					alert(message);
 					return;
@@ -52,7 +56,7 @@ const AllCommunities = () => {
 	useEffect(() => {
 		async function load() {
 			setThreads([]);
-			setCurrentPage(1);
+			nextPageRef.current = 1;
 			setHasMore(false);
 			const threads = await fetchThreads();
 			if (threads) setThreads(threads);
@@ -60,13 +64,25 @@ const AllCommunities = () => {
 		load();
 	}, []);
 
-	async function loadMoreCommunities(e: React.MouseEvent<HTMLButtonElement>) {
-		e.preventDefault();
-		const btn = e.currentTarget;
-		btn.disabled = true;
+	async function loadMoreCommunities() {
+		if (!hasMore) {
+			return;
+		}
+
 		const threads = await fetchThreads();
-		if (threads) setThreads((prevThreads) => [...prevThreads, ...threads]);
-		btn.disabled = false;
+		if (threads) {
+			setThreads((prevThreads) => {
+				// Keep a dedupe merge as a defensive guard if API pages overlap.
+				const existingThreadIds = new Set(
+					prevThreads.map((thread) => thread.id),
+				);
+				const uniqueIncomingThreads = threads.filter(
+					(thread) => !existingThreadIds.has(thread.id),
+				);
+
+				return [...prevThreads, ...uniqueIncomingThreads];
+			});
+		}
 	}
 
 	return (
@@ -112,7 +128,7 @@ const AllCommunities = () => {
 					)}
 				</div>
 
-				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+				<div className="relative grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{threads.map((thread) => {
 						return (
 							<CommunityCardItem
@@ -143,16 +159,7 @@ const AllCommunities = () => {
 							</div>
 						))}
 				</div>
-				{hasMore && !isLoading && (
-					<SecondaryButton
-						onClick={(e) => {
-							loadMoreCommunities(e);
-						}}
-						className="mx-auto mt-8 px-6 py-3"
-					>
-						{t("communities.more_communities")}
-					</SecondaryButton>
-				)}
+				{hasMore && <ScreenLoader callback={loadMoreCommunities} />}
 			</div>
 		</section>
 	);
