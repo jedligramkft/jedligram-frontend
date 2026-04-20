@@ -1,12 +1,8 @@
 import { GhostButton, SecondaryButton } from "../../../../Components/Buttons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
-import {
-	BanUserFromThread,
-	UpdateRoleOfMemberInThread,
-} from "../../../../api/threads";
 import type { CommunityMembers } from "../../hooks/useCommunity";
 
 const RoleMapping: Record<number, string> = {
@@ -40,39 +36,28 @@ const MembersList = ({
 		null,
 	);
 
-	async function handleRoleChange(
+	useEffect(() => {
+		// setInterval(() => {
+		// 	console.log(myRank);
+		// }, 200);
+		setIsActionListOpen(null); // Close any open action list when threadId changes
+	}, [threadId]);
+
+	const handleRoleChange = async (
 		e: React.MouseEvent<HTMLButtonElement>,
 		userId: number,
 		newRoleId: number,
-	) {
+	) => {
 		const button = e.currentTarget;
 		button.disabled = true;
 
 		try {
-			if (newRoleId < 1 || newRoleId > 4) throw new Error("Invalid role"); // Invalid role, do nothing
-
-			const response = await UpdateRoleOfMemberInThread(
-				threadId,
-				userId,
-				newRoleId,
-			);
-			if (response.status === 200) {
-				// Update the local state to reflect the role change
-				// setJoinedMembers((prevMembers) =>
-				// 	prevMembers.map((member) =>
-				// 		member.id === userId
-				// 			? { ...member, role_id: newRoleId }
-				// 			: member,
-				// 	),
-				// );
-			}
-		} catch (error) {
-			console.error("Failed to update role:", error);
+			await members.handleRoleChange(userId, newRoleId); // Role update is handled inside the hook, which updates the local state accordingly
 		} finally {
 			button.disabled = false;
 			setIsActionListOpen(null);
 		}
-	}
+	};
 
 	async function handleBanUser(
 		e: React.MouseEvent<HTMLButtonElement>,
@@ -82,24 +67,7 @@ const MembersList = ({
 		button.disabled = true;
 
 		try {
-			const confirmBan = window.confirm(
-				"Biztosan ki szeretnéd bannolni ezt a felhasználót? Ez a művelet visszavonhatatlan.",
-			);
-			if (!confirmBan) throw new Error("Ban cancelled by user");
-
-			const response = await BanUserFromThread(threadId, userId);
-			if (response.status === 200) {
-				// Update the local state to reflect the ban
-				// setJoinedMembers((prevMembers) =>
-				// 	prevMembers.map((member) =>
-				// 		member.id === userId
-				// 			? { ...member, role_id: 4 } // Set role to Banned
-				// 			: member,
-				// 	),
-				// );
-			}
-		} catch (error) {
-			console.error("Failed to ban user:", error);
+			await members.handleBanAndUnban(userId, true); // Ban action is handled inside the hook, which updates the local state accordingly
 		} finally {
 			button.disabled = false;
 			setIsActionListOpen(null);
@@ -114,28 +82,7 @@ const MembersList = ({
 		button.disabled = true;
 
 		try {
-			const confirmUnban = window.confirm(
-				"Biztosan vissza szeretnéd vonni a bannolást ettől a felhasználótól?",
-			);
-			if (!confirmUnban) throw new Error("Unban cancelled by user");
-
-			const response = await UpdateRoleOfMemberInThread(
-				threadId,
-				userId,
-				3,
-			); // Set role to Member
-			if (response.status === 200) {
-				// Update the local state to reflect the unban
-				// setJoinedMembers((prevMembers) =>
-				// 	prevMembers.map((member) =>
-				// 		member.id === userId
-				// 			? { ...member, role_id: 3 } // Set role to Member
-				// 			: member,
-				// 	),
-				// );
-			}
-		} catch (error) {
-			console.error("Failed to unban user:", error);
+			await members.handleBanAndUnban(userId, false); // Unban action is handled inside the hook, which updates the local state accordingly
 		} finally {
 			button.disabled = false;
 			setIsActionListOpen(null);
@@ -166,7 +113,6 @@ const MembersList = ({
 								>
 									Profil megtekintése
 								</GhostButton>
-
 								{/* PROMOTE és DEMOTE gombok */}
 								{myRank &&
 									myRank === 1 && //Admin vagyok
@@ -188,7 +134,6 @@ const MembersList = ({
 											</GhostButton>
 										</>
 									)}
-
 								{myRank &&
 									user.role_id! <= 2 &&
 									user.role_id! > myRank &&
@@ -209,9 +154,7 @@ const MembersList = ({
 											</GhostButton>
 										</>
 									)}
-
 								{/* BAN és UNBAN gombok */}
-
 								{myRank && //Van rangom
 									myRank <= 2 && //Admin vagy moderátor vagyok
 									user.role_id! !== 4 && //A user nincs bannolva

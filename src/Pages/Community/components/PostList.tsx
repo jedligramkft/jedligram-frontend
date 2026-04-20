@@ -11,6 +11,7 @@ import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
 import type { PostData } from "../../../Interfaces/PostData";
 import ScreenLoader from "../../../Components/Utils/ScreenLoader";
 import PostItem from "./PostItem";
+import { toast } from "react-toastify";
 
 type Props = {
 	id: number;
@@ -271,6 +272,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 			return sortNodesByNewest(mergedWithLoadedReplies);
 		} catch (error) {
 			console.error("Failed to load posts:", error);
+			toast.error("Failed to load posts. Please try again.");
 		} finally {
 			setIsLoadingPosts(false);
 		}
@@ -350,6 +352,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 				commentId,
 				error,
 			);
+			toast.error("Failed to load replies. Please try again.");
 		}
 	}
 
@@ -367,6 +370,8 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 		if (loadedCommentIds.length === 0) {
 			return nodes;
 		}
+
+		let hasRehydrateFailure = false;
 
 		// Fetch reply groups for all expanded comments in parallel.
 		const fetchedReplyGroups = await Promise.all(
@@ -390,6 +395,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 						commentId,
 						error,
 					);
+					hasRehydrateFailure = true;
 
 					return {
 						commentId,
@@ -398,6 +404,10 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 				}
 			}),
 		);
+
+		if (hasRehydrateFailure) {
+			toast.error("Failed to reload some replies. Please refresh and try again.");
+		}
 
 		// Apply every fetched group to the tree one-by-one.
 		let nextNodes = nodes;
@@ -551,6 +561,7 @@ const PostList = ({ id, isJoined, myRank }: Props) => {
 				setPostsAndComments(sortNodesByNewest(mergedWithLoadedReplies));
 			} catch (error) {
 				console.error("Failed to load posts:", error);
+				toast.error("Failed to load posts. Please try again.");
 			} finally {
 				if (isActive) {
 					setIsLoadingPosts(false);

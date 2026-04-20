@@ -24,19 +24,19 @@ const Community = () => {
 					isJoined={community.isUserJoined}
 					onJoin={community.handleJoin}
 					onLeave={community.handleLeave}
-					// onInvite={community.handleInvite}
+					onInvite={community.handleInvite}
 				/>
 				<div className="mt-8 grid gap-6 lg:grid-cols-3">
 					<div className="lg:col-span-2">
 						<PostList
 							id={threadId}
 							isJoined={community.isUserJoined}
-							myRank={community.thread?.my_role || 3}
+							myRank={community.thread?.my_role ?? 3}
 						/>
 					</div>
 					<CommunitySidebar
 						threadId={threadId}
-						myRank={community.thread?.my_role || 3}
+						myRank={community.thread?.my_role ?? 3}
 						members={community.members || null}
 						myId={community.myId}
 					/>
