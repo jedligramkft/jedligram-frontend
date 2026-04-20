@@ -1,12 +1,10 @@
 import { GhostButton, SecondaryButton } from "../../../../Components/Buttons";
-import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
 import {
 	BanUserFromThread,
-	GetThreadMembers,
 	UpdateRoleOfMemberInThread,
 } from "../../../../api/threads";
 import type { CommunityMembers } from "../../hooks/useCommunity";
@@ -60,13 +58,13 @@ const MembersList = ({
 			);
 			if (response.status === 200) {
 				// Update the local state to reflect the role change
-				setJoinedMembers((prevMembers) =>
-					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: newRoleId }
-							: member,
-					),
-				);
+				// setJoinedMembers((prevMembers) =>
+				// 	prevMembers.map((member) =>
+				// 		member.id === userId
+				// 			? { ...member, role_id: newRoleId }
+				// 			: member,
+				// 	),
+				// );
 			}
 		} catch (error) {
 			console.error("Failed to update role:", error);
@@ -92,13 +90,13 @@ const MembersList = ({
 			const response = await BanUserFromThread(threadId, userId);
 			if (response.status === 200) {
 				// Update the local state to reflect the ban
-				setJoinedMembers((prevMembers) =>
-					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: 4 } // Set role to Banned
-							: member,
-					),
-				);
+				// setJoinedMembers((prevMembers) =>
+				// 	prevMembers.map((member) =>
+				// 		member.id === userId
+				// 			? { ...member, role_id: 4 } // Set role to Banned
+				// 			: member,
+				// 	),
+				// );
 			}
 		} catch (error) {
 			console.error("Failed to ban user:", error);
@@ -128,13 +126,13 @@ const MembersList = ({
 			); // Set role to Member
 			if (response.status === 200) {
 				// Update the local state to reflect the unban
-				setJoinedMembers((prevMembers) =>
-					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: 3 } // Set role to Member
-							: member,
-					),
-				);
+				// setJoinedMembers((prevMembers) =>
+				// 	prevMembers.map((member) =>
+				// 		member.id === userId
+				// 			? { ...member, role_id: 3 } // Set role to Member
+				// 			: member,
+				// 	),
+				// );
 			}
 		} catch (error) {
 			console.error("Failed to unban user:", error);
