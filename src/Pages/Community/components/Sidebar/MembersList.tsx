@@ -1,14 +1,13 @@
 import { GhostButton, SecondaryButton } from "../../../../Components/Buttons";
-import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
 import {
 	BanUserFromThread,
-	GetThreadMembers,
 	UpdateRoleOfMemberInThread,
 } from "../../../../api/threads";
+import type { CommunityMembers } from "../../hooks/useCommunity";
 
 const RoleMapping: Record<number, string> = {
 	1: "Admin",
@@ -24,67 +23,22 @@ const RoleColorMapping: Record<number, string> = {
 	4: "bg-gray-500",
 };
 
-const profileStorageKey =
-	import.meta.env.VITE_PROFILE_STORAGE_KEY || "jedligram_profile";
-
 const MembersList = ({
 	threadId,
+	myId,
 	myRank,
+	members,
 }: {
 	threadId: number;
+	myId: number | undefined;
 	myRank: number | null;
+	members: CommunityMembers;
 }) => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(
 		null,
 	);
-
-	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
-
-	const [isLoadingMembers, setIsLoadingMembers] = useState(true);
-	const [joinedMembers, setJoinedMembers] = useState<UserData[]>([]);
-	const [currentPage, setCurrentPage] = useState(1);
-	const [hasMore, setHasMore] = useState(false);
-
-	const fetchJoinedUsers = async () => {
-		setIsLoadingMembers(true);
-		try {
-			const response = await GetThreadMembers(threadId, currentPage);
-			const responseData = response.data as {
-				data: UserData[];
-			};
-			setCurrentPage(currentPage + 1);
-			setHasMore(response.data["links"]["next"] !== null);
-
-			return responseData.data;
-		} catch (error) {
-			console.error("Failed to load members:", error);
-		} finally {
-			setIsLoadingMembers(false);
-		}
-	};
-
-	useEffect(() => {
-		async function load() {
-			setJoinedMembers([]);
-			setCurrentPage(1);
-			setHasMore(false);
-			const users = await fetchJoinedUsers();
-			if (users) setJoinedMembers(users);
-		}
-
-		load();
-	}, [threadId]);
-
-	async function loadMoreMembers(e: React.MouseEvent<HTMLButtonElement>) {
-		e.preventDefault();
-		const btn = e.currentTarget;
-		btn.disabled = true;
-		const users = await fetchJoinedUsers();
-		if (users) setJoinedMembers((prev) => [...prev, ...users]);
-		btn.disabled = false;
-	}
 
 	async function handleRoleChange(
 		e: React.MouseEvent<HTMLButtonElement>,
@@ -104,13 +58,13 @@ const MembersList = ({
 			);
 			if (response.status === 200) {
 				// Update the local state to reflect the role change
-				setJoinedMembers((prevMembers) =>
-					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: newRoleId }
-							: member,
-					),
-				);
+				// setJoinedMembers((prevMembers) =>
+				// 	prevMembers.map((member) =>
+				// 		member.id === userId
+				// 			? { ...member, role_id: newRoleId }
+				// 			: member,
+				// 	),
+				// );
 			}
 		} catch (error) {
 			console.error("Failed to update role:", error);
@@ -136,13 +90,13 @@ const MembersList = ({
 			const response = await BanUserFromThread(threadId, userId);
 			if (response.status === 200) {
 				// Update the local state to reflect the ban
-				setJoinedMembers((prevMembers) =>
-					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: 4 } // Set role to Banned
-							: member,
-					),
-				);
+				// setJoinedMembers((prevMembers) =>
+				// 	prevMembers.map((member) =>
+				// 		member.id === userId
+				// 			? { ...member, role_id: 4 } // Set role to Banned
+				// 			: member,
+				// 	),
+				// );
 			}
 		} catch (error) {
 			console.error("Failed to ban user:", error);
@@ -172,13 +126,13 @@ const MembersList = ({
 			); // Set role to Member
 			if (response.status === 200) {
 				// Update the local state to reflect the unban
-				setJoinedMembers((prevMembers) =>
-					prevMembers.map((member) =>
-						member.id === userId
-							? { ...member, role_id: 3 } // Set role to Member
-							: member,
-					),
-				);
+				// setJoinedMembers((prevMembers) =>
+				// 	prevMembers.map((member) =>
+				// 		member.id === userId
+				// 			? { ...member, role_id: 3 } // Set role to Member
+				// 			: member,
+				// 	),
+				// );
 			}
 		} catch (error) {
 			console.error("Failed to unban user:", error);
@@ -190,12 +144,12 @@ const MembersList = ({
 
 	return (
 		<>
-			{!isLoadingMembers && joinedMembers.length === 0 ? (
+			{!members.isLoading && members.totalCount === 0 ? (
 				<div className="text-sm text-white/70">
 					{t("community.community_sidebar.no_members")}
 				</div>
 			) : (
-				joinedMembers.map((user) => (
+				members.fetchedMembers.map((user) => (
 					// Card for each member
 					<div
 						key={user.id}
@@ -324,9 +278,13 @@ const MembersList = ({
 				))
 			)}
 
-			{isLoadingMembers && (
+			{members.isLoading && (
 				<>
-					{[1, 2, 3, 4, 5].map((i) => (
+					{[
+						...Array(
+							members.totalCount - members.fetchedMembers.length,
+						),
+					].map((i) => (
 						<div
 							key={i}
 							className={`flex items-center gap-3 *:bg-white/10 animate-pulse`}
@@ -342,9 +300,9 @@ const MembersList = ({
 				</>
 			)}
 
-			{hasMore && !isLoadingMembers && (
+			{members.hasMore && !members.isLoading && (
 				<SecondaryButton
-					onClick={loadMoreMembers}
+					onClick={members.fetchMoreMembers}
 					className="px-4 py-2 mt-2"
 				>
 					További tagok betöltése

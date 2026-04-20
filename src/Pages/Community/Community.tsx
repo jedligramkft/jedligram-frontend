@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import CommunityHeader from "./components/CommunityHeader";
 import CommunitySidebar from "./components/Sidebar/CommunitySidebar";
 import { useCommunity } from "./hooks/useCommunity";
+import CommunityHeader from "./components/CommunityHeader";
 import PostList from "./components/PostList";
 // import { useComments } from "./hooks/useComments";
 
@@ -10,8 +10,7 @@ const Community = () => {
 	const navigate = useNavigate();
 	const threadId = id ? Number(id) : NaN;
 
-	const community = useCommunity(threadId, id, navigate);
-	// const comments = useComments(isLoggedIn);
+	const community = useCommunity(threadId, navigate);
 
 	return (
 		<section className="relative min-h-screen overflow-hidden bg-linear-to-b from-[#35383d] via-[#2b2f34] to-[#1f2226] poppins-regular">
@@ -22,23 +21,24 @@ const Community = () => {
 				<CommunityHeader
 					id={id}
 					thread={community.thread}
-					isJoined={community.isJoined}
+					isJoined={community.isUserJoined}
 					onJoin={community.handleJoin}
 					onLeave={community.handleLeave}
-					onInvite={community.handleInvite}
+					// onInvite={community.handleInvite}
 				/>
 				<div className="mt-8 grid gap-6 lg:grid-cols-3">
 					<div className="lg:col-span-2">
 						<PostList
-							id={id}
-							isJoined={community.isJoined}
+							id={threadId}
+							isJoined={community.isUserJoined}
 							myRank={community.thread?.my_role || 3}
 						/>
 					</div>
 					<CommunitySidebar
-						id={Number(id)}
+						threadId={threadId}
 						myRank={community.thread?.my_role || 3}
-						memberCount={community.thread?.users_count || 0}
+						members={community.members || null}
+						myId={community.myId}
 					/>
 				</div>
 			</div>

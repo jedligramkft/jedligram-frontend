@@ -71,7 +71,7 @@ const ScreenLoader = ({ callback, delayMs = 350 }: ScreenLoaderProps) => {
 		};
 	}, [delayMs]);
 
-	return <div ref={loaderRef} className="w-20 h-20 absolute bottom-40"></div>;
+	return <div ref={loaderRef} className="w-20 h-1 absolute bottom-96"></div>;
 };
 
 export default ScreenLoader;

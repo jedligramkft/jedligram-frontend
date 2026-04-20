@@ -13,7 +13,7 @@ import ScreenLoader from "../../../Components/Utils/ScreenLoader";
 import PostItem from "./PostItem";
 
 type Props = {
-	id: string | undefined;
+	id: number;
 	isJoined: boolean;
 	myRank: number | null;
 };

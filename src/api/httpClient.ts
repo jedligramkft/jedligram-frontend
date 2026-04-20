@@ -32,8 +32,9 @@ httpClient.interceptors.response.use(
 	(response) => response,
 	(error: AxiosError) => {
 		if (error.response?.status === 401) {
-			//TODO redirect to login page
-			console.error("Unauthorized! Redirecting to login...");
+			// console.error("Unauthorized! Redirecting to login...");
+			// localStorage.removeItem(authTokenName);
+			// window.location.href = "/auth/login";
 		}
 		return Promise.reject(error);
 	},

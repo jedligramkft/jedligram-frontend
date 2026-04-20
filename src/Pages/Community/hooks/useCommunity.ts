@@ -1,17 +1,14 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
 	GetThreadById,
-	GetPostsInThread,
 	JoinThread,
 	LeaveThread,
 	GetThreadMembers,
 } from "../../../api/threads";
-import { GetUserThreads } from "../../../api/users";
+import { GetUserProfile } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
-import { VoteOnPost } from "../../../api/vote";
-import { IsLoggedIn } from "../../../api/auth";
 import { toast } from "react-toastify";
 
 type RecentThreadItem = {
@@ -20,52 +17,195 @@ type RecentThreadItem = {
 	image?: string;
 };
 
+// Interface describing the `members` section returned by the hook.
+export interface CommunityMembers {
+	isLoading: boolean;
+	hasMore: boolean;
+	totalCount: number;
+	fetchedMembers: UserData[];
+	fetchMoreMembers: () => Promise<void>;
+}
+
+// Full return shape of `useCommunity` for explicit typing in consumers.
+export interface UseCommunityReturn {
+	thread: ThreadData | null;
+	isUserJoined: boolean;
+	myId?: number;
+	handleJoin: () => Promise<void>;
+	handleLeave: () => Promise<void>;
+
+	members: CommunityMembers;
+}
+
 const profileStorageKey =
 	import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY ?? "jedligram_profile";
 
 export const useCommunity = (
 	threadId: number,
-	id: string | undefined,
 	navigateFn: (path: string, options?: any) => void,
-) => {
-	const isLoggedIn = IsLoggedIn();
-	const [isJoined, setIsJoined] = useState(false);
+): UseCommunityReturn => {
+	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
+
 	const [thread, setThread] = useState<ThreadData | null>(null);
-	const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
-	const [votingPostId, setVotingPostId] = useState<number | null>(null);
-	const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
-	const [showAllMembers, setShowAllMembers] = useState(false);
+	const [isUserJoined, setIsUserJoined] = useState(false);
+
+	// const isLoggedIn = IsLoggedIn();
+	// const [isJoined, setIsJoined] = useState(false);
+	// const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
+	// const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
 
 	const recentThreadsStorageKey = "jedligram_recent_threads";
 
-	const readProfile = (): any => {
+	/* MEMBERS LIST */
+	const [MembersFetched, setMembersFetched] = useState<UserData[]>([]);
+	const [MembersIsThereMore, setMembersIsThereMore] = useState(false);
+	const [MembersIsLoading, setMembersIsLoading] = useState(false);
+	const [MembersCurrentPage, setMembersCurrentPage] = useState(1);
+	const [MembersCount, setMembersCount] = useState(0);
+
+	async function fetchJoinedUsers(currentPage: number) {
+		setMembersIsLoading(true);
 		try {
-			const raw = localStorage.getItem(profileStorageKey);
-			return raw ? JSON.parse(raw) : {};
-		} catch {
-			return {};
+			const response = await GetThreadMembers(threadId, currentPage);
+			const responseData = response.data as {
+				data: UserData[];
+			};
+
+			let total = response.data["meta"]["total"] || 0;
+
+			if (
+				isUserJoined &&
+				MembersFetched.some((user) => user.id === myId)
+			) {
+				total = total - 1;
+				responseData.data = responseData.data.filter(
+					(user) => user.id !== myId,
+				);
+			}
+
+			setMembersIsThereMore(response.data["links"]["next"] !== null);
+			setMembersCurrentPage(currentPage + 1);
+			setMembersCount(total);
+
+			return responseData.data;
+		} catch (error) {
+			toast.error("An error occurred while loading the members.");
+			return [];
+		} finally {
+			setMembersIsLoading(false);
 		}
-	};
+	}
 
-	const getCurrentUserId = (): number | undefined => {
-		const profile = readProfile();
-		const userId = profile.id;
-		return userId;
-	};
+	async function InitialFetchMembers() {
+		setMembersFetched([]);
+		setMembersCurrentPage(1);
+		setMembersIsThereMore(false);
 
-	const refreshIsJoined = async () => {
-		const userId = getCurrentUserId();
+		const users = await fetchJoinedUsers(MembersCurrentPage);
+		setMembersFetched(users);
+	}
 
+	async function FetchMoreMembers() {
+		if (MembersIsLoading || !MembersIsThereMore) return;
+		const users = await fetchJoinedUsers(MembersCurrentPage);
+		setMembersFetched((prev) => [...prev, ...users]);
+	}
+
+	/* END OF MEMBERS LIST */
+
+	//Get the current thread data
+	async function fetchThreadData(id: number): Promise<ThreadData | null> {
 		try {
-			const response = await GetUserThreads(userId!);
-			const list = response.data;
-			const joinedThreadIds = list.map((t: any) => Number(t.id));
+			const threadRes = (await GetThreadById(id)) as { data: ThreadData };
 
-			setIsJoined(joinedThreadIds.includes(threadId));
-		} catch {
-			setIsJoined(false);
+			// console.log("Fetched thread data:", threadRes.data);
+			setThread(threadRes.data);
+			return threadRes.data;
+		} catch (err) {
+			if (!axios.isAxiosError(err)) {
+				toast.error(
+					"An unexpected error occurred while loading the community.",
+				);
+				return null;
+			}
+
+			switch (err.response?.status) {
+				case 404:
+					toast.error("Community not found.");
+					navigateFn("/all-communities");
+					return null;
+				case 401:
+					toast.error(
+						"Unauthenticated. Please log in and try again.",
+					);
+					navigateFn("/auth/login", { replace: true });
+					return null;
+				case 403:
+					toast.error(
+						"You do not have permission to view this community.",
+					);
+					navigateFn("/all-communities");
+					return null;
+				default:
+					toast.error(
+						"An error occurred while loading the community.",
+					);
+					return null;
+			}
 		}
-	};
+	}
+
+	async function HandleJoin() {
+		try {
+			await JoinThread(threadId);
+			setIsUserJoined(true);
+			const myUser = await GetUserProfile(myId)
+				.then((res) => res.data)
+				.catch(() => null);
+
+			if (myUser) {
+				myUser.role_id = 3;
+				setMembersFetched((prev) => [myUser!, ...prev]);
+				setMembersCount((prev) => prev + 1);
+			}
+			window.dispatchEvent(new Event("joined-threads-changed"));
+		} catch (error) {
+			toast.error("An error occurred while joining the community.");
+		}
+	}
+
+	async function HandleLeave() {
+		try {
+			await LeaveThread(threadId);
+			setIsUserJoined(false);
+			setMembersFetched((prev) => prev.filter((u) => u.id !== myId));
+			setMembersCount((prev) => prev - 1);
+			window.dispatchEvent(new Event("joined-threads-changed"));
+		} catch (error) {
+			toast.error("An error occurred while leaving the community.");
+		}
+	}
+
+	useEffect(() => {
+		if (Number.isNaN(threadId)) {
+			navigateFn("/all-communities");
+		}
+
+		async function load() {
+			const threadRes = await fetchThreadData(threadId); //Get the thread the user is currently viewing
+			if (threadRes === null) return;
+			saveRecentThread(threadId, threadRes.name, threadRes.image); //Save the thread to recent threads in local storage
+
+			setIsUserJoined(threadRes.my_role !== null); //Check if the user is a member of the thread
+			// console.log("User joined status:", threadRes.my_role !== null);
+
+			await InitialFetchMembers(); //Fetch the members of the thread
+		}
+
+		setMembersIsLoading(true);
+
+		load();
+	}, [threadId, navigateFn]);
 
 	const saveRecentThread = (
 		threadId: number,
@@ -94,234 +234,253 @@ export const useCommunity = (
 		}
 	};
 
-	const fetchJoinedUsers = async (
-		threadIdValue: number,
-	): Promise<UserData[]> => {
-		if (Number.isNaN(threadIdValue)) return [];
-
-		const response = (await GetThreadMembers(threadIdValue)).data;
-		const usersData = response.data?.users ?? response.data;
-
-		if (!Array.isArray(usersData)) return [];
-		return usersData as UserData[];
-	};
-
-	const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
-		if (isLoggedIn) return;
-
-		e.preventDefault();
-		navigateFn("/auth/login", { replace: true });
-	};
-
-	const handleJoin = useCallback(async () => {
-		if (!isLoggedIn) {
-			navigateFn("/auth/login", { replace: true });
-			return;
-		}
-
-		if (Number.isNaN(threadId)) return;
-
-		try {
-			await JoinThread(threadId);
-			setIsJoined(true);
-			const users = await fetchJoinedUsers(threadId);
-			setJoinedUsers(users);
-			setShowAllMembers(false);
-			window.dispatchEvent(new Event("joined-threads-changed"));
-		} catch (err) {
-			if (axios.isAxiosError(err)) {
-				if (err.response?.status === 401) {
-					navigateFn("/auth/login", { replace: true });
-					return;
-				}
-				const message = (err.response?.data as any).message;
-				const lower = message.toLowerCase();
-				const alreadyMember =
-					lower.includes("already") && lower.includes("member");
-
-				if (alreadyMember) {
-					setIsJoined(true);
-					const users = await fetchJoinedUsers(threadId);
-					setJoinedUsers(users);
-					setShowAllMembers(false);
-					window.dispatchEvent(new Event("joined-threads-changed"));
-					return;
-				}
-
-				toast.error(message ?? "Nem sikerült csatlakozni.");
-				return;
-			}
-		}
-	}, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
-
-	const handleLeave = useCallback(async () => {
-		if (!isLoggedIn) {
-			navigateFn("/auth/login", { replace: true });
-			return;
-		}
-
-		if (Number.isNaN(threadId)) return;
-
-		try {
-			await LeaveThread(threadId);
-			setIsJoined(false);
-			setShowAllMembers(false);
-
-			const profile = readProfile();
-			const currentUserId = profile.id;
-			if (currentUserId) {
-				setJoinedUsers((prev) =>
-					prev.filter((u) => u.id !== currentUserId),
-				);
-			}
-
-			window.dispatchEvent(new Event("joined-threads-changed"));
-		} catch (err) {
-			if (axios.isAxiosError(err)) {
-				if (err.response?.status === 401) {
-					navigateFn("/auth/login", { replace: true });
-					return;
-				}
-				const message = (err.response?.data as any)?.message;
-				toast.error(message ?? "Nem sikerült elhagyni a közösséget.");
-				return;
-			}
-		}
-	}, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
-
-	useEffect(() => {
-		void refreshIsJoined();
-		window.addEventListener("joined-threads-changed", refreshIsJoined);
-		return () =>
-			window.removeEventListener(
-				"joined-threads-changed",
-				refreshIsJoined,
-			);
-	}, [refreshIsJoined]);
-
-	useEffect(() => {
-		if (!id) return;
-
-		let isCancelled = false;
-		const load = async () => {
-			setJoinedUsers([]);
-			setShowAllMembers(false);
-			try {
-				const [threadRes, postsRes] = await Promise.all([
-					GetThreadById(threadId),
-					GetPostsInThread(threadId),
-				]);
-
-				const threadData = (threadRes.data?.thread ??
-					threadRes.data) as ThreadData;
-				const postsData = postsRes.data?.posts ?? postsRes.data;
-
-				if (!isCancelled) {
-					setThread(threadData);
-					const postsArray = Array.isArray(postsData)
-						? (postsData as Array<Record<string, unknown>>)
-						: [];
-					setPosts(postsArray);
-					saveRecentThread(
-						threadId,
-						threadData?.name,
-						threadData?.image,
-					);
-				}
-
-				try {
-					const users = await fetchJoinedUsers(threadId);
-					if (!isCancelled) setJoinedUsers(users);
-				} catch (err) {
-					console.warn("Nem sikerült betölteni a tagokat.", err);
-					if (!isCancelled) setJoinedUsers([]);
-				}
-			} catch (err) {
-				if (isCancelled) return;
-
-				if (axios.isAxiosError(err) && err.response?.status === 401) {
-					navigateFn("/auth/login", { replace: true });
-					return;
-				}
-			}
-		};
-
-		void load();
-		return () => {
-			isCancelled = true;
-		};
-	}, [id, isLoggedIn, threadId, navigateFn]);
-
-	const handleVote = useCallback(
-		async (postId: number, isUpvote: boolean) => {
-			if (!isLoggedIn) {
-				navigateFn("/auth/login", { replace: true });
-				return;
-			}
-
-			if (votingPostId === postId) return;
-			setVotingPostId(postId);
-
-			try {
-				await VoteOnPost(postId, isUpvote);
-				const refreshed = await GetPostsInThread(threadId);
-				const refreshedPosts = (refreshed.data?.posts ??
-					refreshed.data) as unknown;
-				setPosts(
-					Array.isArray(refreshedPosts)
-						? (refreshedPosts as Array<Record<string, unknown>>)
-						: [],
-				);
-			} catch (err) {
-				const message =
-					err instanceof Error
-						? err.message
-						: "Nem sikerült szavazni.";
-				toast.error(message);
-			} finally {
-				setVotingPostId(null);
-			}
-		},
-		[votingPostId, threadId, isLoggedIn, navigateFn],
-	);
-
-	const handleLoadMoreUsernames = () => {
-		setShowAllMembers(true);
-	};
-
-	const handleInvite = async () => {
-		if (Number.isNaN(threadId)) return;
-
-		try {
-			const inviteUrl = new URL(
-				`/communities/${threadId}`,
-				window.location.origin,
-			).toString();
-			await (navigator as any).share({ url: inviteUrl });
-			return;
-		} catch (err) {
-			toast.error("Hiba történt az meghívás küldése során.");
-			if (axios.isAxiosError(err)) {
-				if (err.response?.status === 401) {
-					navigateFn("/auth/login", { replace: true });
-					return;
-				}
-			}
-		}
-	};
-
 	return {
 		thread,
-		posts,
-		isJoined,
-		votingPostId,
-		joinedUsers,
-		showAllMembers,
-		handleNewPost,
-		handleJoin,
-		handleLeave,
-		handleVote,
-		handleLoadMoreUsernames,
-		handleInvite,
+		isUserJoined,
+		myId,
+		handleJoin: HandleJoin,
+		handleLeave: HandleLeave,
+
+		members: {
+			isLoading: MembersIsLoading,
+			hasMore: MembersIsThereMore,
+			totalCount: MembersCount,
+			fetchedMembers: MembersFetched,
+			fetchMoreMembers: FetchMoreMembers,
+		},
 	};
+	// const readProfile = (): any => {
+	// 	try {
+	// 		const raw = localStorage.getItem(profileStorageKey);
+	// 		return raw ? JSON.parse(raw) : {};
+	// 	} catch {
+	// 		return {};
+	// 	}
+	// };
+
+	// const getCurrentUserId = (): number | undefined => {
+	// 	const profile = readProfile();
+	// 	const userId = profile.id;
+	// 	return userId;
+	// };
+
+	// const refreshIsJoined = async () => {
+	// 	const userId = getCurrentUserId();
+
+	// 	try {
+	// 		const response = await GetUserThreads(userId!);
+	// 		const list = response.data;
+	// 		const joinedThreadIds = list.map((t: any) => Number(t.id));
+
+	// 		setIsJoined(joinedThreadIds.includes(threadId));
+	// 	} catch {
+	// 		setIsJoined(false);
+	// 	}
+	// };
+
+	// const saveRecentThread = (
+	// 	threadId: number,
+	// 	threadName?: string,
+	// 	threadImage?: string,
+	// ) => {
+	// 	if (!Number.isFinite(threadId)) return;
+
+	// 	try {
+	// 		const raw = localStorage.getItem(recentThreadsStorageKey);
+	// 		const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
+
+	// 		const next: RecentThreadItem[] = [
+	// 			{
+	// 				id: threadId,
+	// 				name: threadName?.trim() || undefined,
+	// 				image: threadImage,
+	// 			},
+	// 			...current.filter((t) => t.id !== threadId),
+	// 		].slice(0, 5);
+
+	// 		localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
+	// 		window.dispatchEvent(new Event("recent-threads-changed"));
+	// 	} catch {
+	// 		console.error("Failed to save recent thread.");
+	// 	}
+	// };
+
+	// const fetchJoinedUsers = async (
+	// 	threadIdValue: number,
+	// ): Promise<UserData[]> => {
+	// 	if (Number.isNaN(threadIdValue)) return [];
+
+	// 	const response = (await GetThreadMembers(threadIdValue)).data;
+	// 	const usersData = response.data?.users ?? response.data;
+
+	// 	if (!Array.isArray(usersData)) return [];
+	// 	return usersData as UserData[];
+	// };
+
+	// const handleJoin = useCallback(async () => {
+	// 	if (!isLoggedIn) {
+	// 		navigateFn("/auth/login", { replace: true });
+	// 		return;
+	// 	}
+
+	// 	if (Number.isNaN(threadId)) return;
+
+	// 	try {
+	// 		await JoinThread(threadId);
+	// 		setIsJoined(true);
+	// 		const users = await fetchJoinedUsers(threadId);
+	// 		setJoinedUsers(users);
+	// 		window.dispatchEvent(new Event("joined-threads-changed"));
+	// 	} catch (err) {
+	// 		if (axios.isAxiosError(err)) {
+	// 			if (err.response?.status === 401) {
+	// 				navigateFn("/auth/login", { replace: true });
+	// 				return;
+	// 			}
+	// 			const message = (err.response?.data as any).message;
+	// 			const lower = message.toLowerCase();
+	// 			const alreadyMember =
+	// 				lower.includes("already") && lower.includes("member");
+
+	// 			if (alreadyMember) {
+	// 				setIsJoined(true);
+	// 				const users = await fetchJoinedUsers(threadId);
+	// 				setJoinedUsers(users);
+	// 				window.dispatchEvent(new Event("joined-threads-changed"));
+	// 				return;
+	// 			}
+
+	// 			toast.error(message ?? "Nem sikerült csatlakozni.");
+	// 			return;
+	// 		}
+	// 	}
+	// }, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
+
+	// const handleLeave = useCallback(async () => {
+	// 	if (!isLoggedIn) {
+	// 		navigateFn("/auth/login", { replace: true });
+	// 		return;
+	// 	}
+
+	// 	if (Number.isNaN(threadId)) return;
+
+	// 	try {
+	// 		await LeaveThread(threadId);
+	// 		setIsJoined(false);
+
+	// 		const profile = readProfile();
+	// 		const currentUserId = profile.id;
+	// 		if (currentUserId) {
+	// 			setJoinedUsers((prev) =>
+	// 				prev.filter((u) => u.id !== currentUserId),
+	// 			);
+	// 		}
+
+	// 		window.dispatchEvent(new Event("joined-threads-changed"));
+	// 	} catch (err) {
+	// 		if (axios.isAxiosError(err)) {
+	// 			if (err.response?.status === 401) {
+	// 				navigateFn("/auth/login", { replace: true });
+	// 				return;
+	// 			}
+	// 			const message = (err.response?.data as any)?.message;
+	// 			toast.error(message ?? "Nem sikerült elhagyni a közösséget.");
+	// 			return;
+	// 		}
+	// 	}
+	// }, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
+
+	// useEffect(() => {
+	// 	void refreshIsJoined();
+	// 	window.addEventListener("joined-threads-changed", refreshIsJoined);
+	// 	return () =>
+	// 		window.removeEventListener(
+	// 			"joined-threads-changed",
+	// 			refreshIsJoined,
+	// 		);
+	// }, [refreshIsJoined]);
+
+	// useEffect(() => {
+	// 	if (!id) return;
+
+	// 	let isCancelled = false;
+	// 	const load = async () => {
+	// 		setJoinedUsers([]);
+	// 		try {
+	// 			const [threadRes, postsRes] = await Promise.all([
+	// 				GetThreadById(threadId),
+	// 				GetPostsInThread(threadId),
+	// 			]);
+
+	// 			const threadData = (threadRes.data?.thread ??
+	// 				threadRes.data) as ThreadData;
+	// 			const postsData = postsRes.data?.posts ?? postsRes.data;
+
+	// 			if (!isCancelled) {
+	// 				setThread(threadData);
+	// 				const postsArray = Array.isArray(postsData)
+	// 					? (postsData as Array<Record<string, unknown>>)
+	// 					: [];
+	// 				setPosts(postsArray);
+	// 				saveRecentThread(
+	// 					threadId,
+	// 					threadData?.name,
+	// 					threadData?.image,
+	// 				);
+	// 			}
+
+	// 			try {
+	// 				const users = await fetchJoinedUsers(threadId);
+	// 				if (!isCancelled) setJoinedUsers(users);
+	// 			} catch (err) {
+	// 				console.warn("Nem sikerült betölteni a tagokat.", err);
+	// 				if (!isCancelled) setJoinedUsers([]);
+	// 			}
+	// 		} catch (err) {
+	// 			if (isCancelled) return;
+
+	// 			if (axios.isAxiosError(err) && err.response?.status === 401) {
+	// 				navigateFn("/auth/login", { replace: true });
+	// 				return;
+	// 			}
+	// 		}
+	// 	};
+
+	// 	void load();
+	// 	return () => {
+	// 		isCancelled = true;
+	// 	};
+	// }, [id, isLoggedIn, threadId, navigateFn]);
+
+	// const handleInvite = async () => {
+	// 	if (Number.isNaN(threadId)) return;
+
+	// 	try {
+	// 		const inviteUrl = new URL(
+	// 			`/communities/${threadId}`,
+	// 			window.location.origin,
+	// 		).toString();
+	// 		await (navigator as any).share({ url: inviteUrl });
+	// 		return;
+	// 	} catch (err) {
+	// 		toast.error("Hiba történt az meghívás küldése során.");
+	// 		if (axios.isAxiosError(err)) {
+	// 			if (err.response?.status === 401) {
+	// 				navigateFn("/auth/login", { replace: true });
+	// 				return;
+	// 			}
+	// 		}
+	// 	}
+	// };
+
+	// return {
+	// 	thread,
+	// 	// posts,
+	// 	isJoined,
+	// 	// votingPostId,
+	// 	// joinedUsers,
+	// 	handleJoin,
+	// 	handleLeave,
+	// 	handleInvite,
+	// };
 };
