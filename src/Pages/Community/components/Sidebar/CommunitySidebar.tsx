@@ -1,14 +1,10 @@
-import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
 import MembersList from "./MembersList";
 
 type Props = {
 	id: number;
-	joinedUsers: UserData[];
-	showAllMembers: boolean;
-	onLoadMore: () => void;
-	postsCount: number;
 	myRank: number | null;
+	memberCount: number;
 };
 
 const CommunitySidebar = ({
@@ -17,7 +13,7 @@ const CommunitySidebar = ({
 	myRank,
 	// showAllMembers,
 	// onLoadMore,
-	// postsCount,
+	memberCount
 }: Props) => {
 	const { t } = useTranslation();
 
@@ -41,17 +37,7 @@ const CommunitySidebar = ({
 							{t("community.community_sidebar.members")}
 						</div>
 						<div className="mt-1 text-2xl font-bold text-white">
-							{/* {joinedMembers.length} */}
-							TBI
-						</div>
-					</div>
-					<div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-						<div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-							{t("community.community_sidebar.posts")}
-						</div>
-						<div className="mt-1 text-2xl font-bold text-white">
-							{/* {postsCount} */}
-							TBI
+							{memberCount}
 						</div>
 					</div>
 				</div>
