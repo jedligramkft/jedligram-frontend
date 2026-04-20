@@ -1,16 +1,14 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
 	GetThreadById,
-	GetPostsInThread,
 	JoinThread,
 	LeaveThread,
 	GetThreadMembers,
 } from "../../../api/threads";
-import { GetUserProfile, GetUserThreads } from "../../../api/users";
+import { GetUserProfile } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
-import { IsLoggedIn } from "../../../api/auth";
 import { toast } from "react-toastify";
 
 type RecentThreadItem = {
@@ -56,7 +54,7 @@ export const useCommunity = (
 	// const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
 	// const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
 
-	// const recentThreadsStorageKey = "jedligram_recent_threads";
+	const recentThreadsStorageKey = "jedligram_recent_threads";
 
 	/* MEMBERS LIST */
 	const [MembersFetched, setMembersFetched] = useState<UserData[]>([]);
@@ -196,8 +194,11 @@ export const useCommunity = (
 		async function load() {
 			const threadRes = await fetchThreadData(threadId); //Get the thread the user is currently viewing
 			if (threadRes === null) return;
+			saveRecentThread(threadId, threadRes.name, threadRes.image); //Save the thread to recent threads in local storage
+
 			setIsUserJoined(threadRes.my_role !== null); //Check if the user is a member of the thread
 			// console.log("User joined status:", threadRes.my_role !== null);
+
 			await InitialFetchMembers(); //Fetch the members of the thread
 		}
 
@@ -205,6 +206,33 @@ export const useCommunity = (
 
 		load();
 	}, [threadId, navigateFn]);
+
+	const saveRecentThread = (
+		threadId: number,
+		threadName?: string,
+		threadImage?: string,
+	) => {
+		if (!Number.isFinite(threadId)) return;
+
+		try {
+			const raw = localStorage.getItem(recentThreadsStorageKey);
+			const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
+
+			const next: RecentThreadItem[] = [
+				{
+					id: threadId,
+					name: threadName?.trim() || undefined,
+					image: threadImage,
+				},
+				...current.filter((t) => t.id !== threadId),
+			].slice(0, 5);
+
+			localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
+			window.dispatchEvent(new Event("recent-threads-changed"));
+		} catch {
+			console.error("Failed to save recent thread.");
+		}
+	};
 
 	return {
 		thread,
