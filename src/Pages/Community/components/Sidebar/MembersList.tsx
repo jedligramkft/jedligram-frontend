@@ -39,7 +39,7 @@ const MembersList = ({
 	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(
 		null,
 	);
-
+	
 	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
 
 	const [isLoadingMembers, setIsLoadingMembers] = useState(true);

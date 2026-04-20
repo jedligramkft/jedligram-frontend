@@ -1,23 +1,14 @@
-import type { UserData } from "../../../../Interfaces/UserData";
 import { useTranslation } from "react-i18next";
 import MembersList from "./MembersList";
 
 type Props = {
 	id: number;
-	joinedUsers: UserData[];
-	showAllMembers: boolean;
-	onLoadMore: () => void;
-	postsCount: number;
 	myRank: number | null;
 };
 
 const CommunitySidebar = ({
-	// joinedUsers: joinedUsers,
 	id,
 	myRank,
-	// showAllMembers,
-	// onLoadMore,
-	// postsCount,
 }: Props) => {
 	const { t } = useTranslation();
 

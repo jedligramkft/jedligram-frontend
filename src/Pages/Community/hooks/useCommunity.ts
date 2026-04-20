@@ -34,7 +34,6 @@ export const useCommunity = (
 	const [posts, setPosts] = useState<Array<Record<string, unknown>>>([]);
 	const [votingPostId, setVotingPostId] = useState<number | null>(null);
 	const [joinedUsers, setJoinedUsers] = useState<UserData[]>([]);
-	const [showAllMembers, setShowAllMembers] = useState(false);
 
 	const recentThreadsStorageKey = "jedligram_recent_threads";
 
@@ -106,13 +105,6 @@ export const useCommunity = (
 		return usersData as UserData[];
 	};
 
-	const handleNewPost = (e: React.MouseEvent<HTMLAnchorElement>) => {
-		if (isLoggedIn) return;
-
-		e.preventDefault();
-		navigateFn("/auth/login", { replace: true });
-	};
-
 	const handleJoin = useCallback(async () => {
 		if (!isLoggedIn) {
 			navigateFn("/auth/login", { replace: true });
@@ -126,7 +118,6 @@ export const useCommunity = (
 			setIsJoined(true);
 			const users = await fetchJoinedUsers(threadId);
 			setJoinedUsers(users);
-			setShowAllMembers(false);
 			window.dispatchEvent(new Event("joined-threads-changed"));
 		} catch (err) {
 			if (axios.isAxiosError(err)) {
@@ -143,7 +134,6 @@ export const useCommunity = (
 					setIsJoined(true);
 					const users = await fetchJoinedUsers(threadId);
 					setJoinedUsers(users);
-					setShowAllMembers(false);
 					window.dispatchEvent(new Event("joined-threads-changed"));
 					return;
 				}
@@ -165,7 +155,6 @@ export const useCommunity = (
 		try {
 			await LeaveThread(threadId);
 			setIsJoined(false);
-			setShowAllMembers(false);
 
 			const profile = readProfile();
 			const currentUserId = profile.id;
@@ -205,7 +194,6 @@ export const useCommunity = (
 		let isCancelled = false;
 		const load = async () => {
 			setJoinedUsers([]);
-			setShowAllMembers(false);
 			try {
 				const [threadRes, postsRes] = await Promise.all([
 					GetThreadById(threadId),
@@ -252,43 +240,6 @@ export const useCommunity = (
 		};
 	}, [id, isLoggedIn, threadId, navigateFn]);
 
-	const handleVote = useCallback(
-		async (postId: number, isUpvote: boolean) => {
-			if (!isLoggedIn) {
-				navigateFn("/auth/login", { replace: true });
-				return;
-			}
-
-			if (votingPostId === postId) return;
-			setVotingPostId(postId);
-
-			try {
-				await VoteOnPost(postId, isUpvote);
-				const refreshed = await GetPostsInThread(threadId);
-				const refreshedPosts = (refreshed.data?.posts ??
-					refreshed.data) as unknown;
-				setPosts(
-					Array.isArray(refreshedPosts)
-						? (refreshedPosts as Array<Record<string, unknown>>)
-						: [],
-				);
-			} catch (err) {
-				const message =
-					err instanceof Error
-						? err.message
-						: "Nem sikerült szavazni.";
-				toast.error(message);
-			} finally {
-				setVotingPostId(null);
-			}
-		},
-		[votingPostId, threadId, isLoggedIn, navigateFn],
-	);
-
-	const handleLoadMoreUsernames = () => {
-		setShowAllMembers(true);
-	};
-
 	const handleInvite = async () => {
 		if (Number.isNaN(threadId)) return;
 
@@ -312,16 +263,12 @@ export const useCommunity = (
 
 	return {
 		thread,
-		posts,
+		// posts,
 		isJoined,
-		votingPostId,
-		joinedUsers,
-		showAllMembers,
-		handleNewPost,
+		// votingPostId,
+		// joinedUsers,
 		handleJoin,
 		handleLeave,
-		handleVote,
-		handleLoadMoreUsernames,
 		handleInvite,
 	};
 };

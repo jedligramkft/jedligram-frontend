@@ -37,10 +37,6 @@ const Community = () => {
 					</div>
 					<CommunitySidebar
 						id={Number(id)}
-						joinedUsers={community.joinedUsers}
-						showAllMembers={community.showAllMembers}
-						onLoadMore={community.handleLoadMoreUsernames}
-						postsCount={community.posts.length}
 						myRank={community.thread?.my_role || 3}
 					/>
 				</div>
