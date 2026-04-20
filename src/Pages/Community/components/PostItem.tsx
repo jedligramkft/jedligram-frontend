@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import DynamicFAIcon from "../../../Components/Utils/DynamicFaIcon";
 import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
@@ -7,21 +7,30 @@ import SharePost from "./PostItem/SharePost";
 import CommentWriter from "./PostItem/CommentWriter";
 import { Link } from "react-router";
 import { DangerButton, GhostButton } from "../../../Components/Buttons";
-import { DeletePost } from "../../../api/posts";
-import { DeleteComment } from "../../../api/comments";
-import { toast } from "react-toastify";
 
 type PostItemProps = {
 	node: PostAndCommentData;
 	originalPostId: number; // The ID of the original top-level post that all comments and replies are ultimately associated with, used for API calls related to commenting and voting.
 	isTopLevel: boolean; // Whether this node is a top-level post (true) or a comment reply (false), used for styling decisions.
 	communityId: number; // The ID of the community this post belongs to, used for constructing share URLs.
+	sharePageFromEnd?: number | null;
 	hasReplies: boolean;
 	avatarSizeStyle: CSSProperties;
 	connectorLineStyle: CSSProperties;
 	myRank: number | null;
 	children?: ReactNode;
 	OnLoadMoreComments?: () => void;
+	onCreateComment?: (input: {
+		isTopLevel: boolean;
+		originalPostId: number;
+		nodeId: number;
+		content: string;
+	}) => Promise<boolean>;
+	onDelete?: (input: {
+		isTopLevel: boolean;
+		originalPostId: number;
+		nodeId: number;
+	}) => Promise<void>;
 	isJoined?: boolean;
 };
 
@@ -30,12 +39,15 @@ const PostItem = ({
 	originalPostId,
 	isTopLevel,
 	communityId,
+	sharePageFromEnd,
 	hasReplies,
 	avatarSizeStyle,
 	connectorLineStyle,
 	myRank,
 	children,
 	OnLoadMoreComments,
+	onCreateComment,
+	onDelete,
 	isJoined,
 }: PostItemProps) => {
 	const { t } = useTranslation();
@@ -43,32 +55,21 @@ const PostItem = ({
 	const [commentOpen, setCommentOpen] = useState(false);
 	const [isChildrenVisible, setIsChildrenVisible] = useState(true);
 
-	const [localNode, setLocalNode] = useState(node);
-
-	useEffect(() => {
-		setLocalNode(node);
-	}, [node]);
-
 	async function handleDelete(e: React.MouseEvent<HTMLButtonElement>) {
 		const btn = e.currentTarget;
 		btn.disabled = true;
-		if (
-			!window.confirm(
-				"Biztosan törölni szeretnéd ezt a posztot? Ez a művelet nem visszavonható.",
-			)
-		)
+		if (!window.confirm(t("community.post_item.delete_confirm"))) {
+			btn.disabled = false;
 			return;
+		}
 		try {
-			let resp = null;
-			if (isTopLevel) resp = await DeletePost(originalPostId);
-			else resp = await DeleteComment(originalPostId, localNode.id);
-
-			if (resp.status === 200) {
-				setLocalNode({ ...localNode, content: "[deleted]", image: "" });
+			if (onDelete) {
+				await onDelete({
+					isTopLevel,
+					originalPostId,
+					nodeId: node.id,
+				});
 			}
-		} catch (error) {
-			console.error("Error deleting post/comment:", error);
-			toast.error("Hiba történt a törlés során. Kérlek próbáld újra.");
 		} finally {
 			btn.disabled = false;
 		}
@@ -91,7 +92,7 @@ const PostItem = ({
 					) : null}
 					{/* User profile picture. */}
 					<img
-						src={localNode.user.image_url}
+						src={node.user.image_url}
 						alt={``}
 						className="relative z-10 rounded-full object-cover"
 						style={avatarSizeStyle}
@@ -101,35 +102,35 @@ const PostItem = ({
 						{/* Username and timestamp row. */}
 						<div className="flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap">
 							<Link
-								to={`/users/${localNode.user.id}`}
+								to={`/users/${node.user.id}`}
 								className="shrink-0 text-white/75 text-sm hover:text-white"
 							>
-								@{localNode.user.name}
+								@{node.user.name}
 							</Link>
 							<span className="shrink-0 text-white/55">·</span>
 							<span className="shrink-0 text-xs text-white/55">
-								{localNode.age}
+								{node.age}
 							</span>
 						</div>
 						{/* Comment/post text body. */}
-						{localNode.image && (
+						{node.image && (
 							<img
-								src={localNode.image}
+								src={node.image}
 								alt={t("community.post_item.post_image_alt")}
 								className="max-h-60 object-contain rounded-lg"
 							/>
 						)}
 						<p className="wrap-anywhere whitespace-pre-wrap">
-							{localNode.content}
+							{node.content}
 						</p>
 						{/* Voting and action buttons row. */}
 						<div className="flex gap-4">
 							{/* Upvote and downvote buttons */}
-							{localNode.score !== undefined && isTopLevel && (
+							{node.score !== undefined && isTopLevel && (
 								<VoteComponent
-									id={localNode.id}
-									myVote={localNode.my_vote}
-									startScore={localNode.score}
+									id={node.id}
+									myVote={node.my_vote}
+									startScore={node.score}
 								/>
 							)}
 							<GhostButton
@@ -147,40 +148,50 @@ const PostItem = ({
 							<SharePost
 								postId={POST_ID}
 								communityId={communityId}
+								pageFromEnd={sharePageFromEnd}
 							/>
 
-							{((myRank && myRank <= 2) || localNode.is_mine) &&
-								localNode.content !== "[deleted]" && (
+							{((myRank && myRank <= 2) || node.is_mine) &&
+								node.content !== "[deleted]" && (
 									<DangerButton
 										className="gap-2 ml-auto text-xs"
 										onClick={handleDelete}
 									>
 										<DynamicFAIcon exportName="faTrash" />
 										<span className="hidden md:inline">
-											Törlés
+											{t("community.post_item.delete")}
 										</span>
 									</DangerButton>
 								)}
 						</div>
 						{commentOpen && (
 							<CommentWriter
-								isTopLevel={isTopLevel}
-								originalPostId={originalPostId}
-								nodeId={localNode.id}
 								replyToUsername={
-									localNode.user.name
-										? localNode.user.name
+									node.user.name
+										? node.user.name
 										: t(
 												"community.post_item.unknown_author",
 											)
 								}
+								onSubmitComment={async (content) => {
+									if (!onCreateComment) {
+										return false;
+									}
+
+									return onCreateComment({
+										isTopLevel,
+										originalPostId,
+										nodeId: node.id,
+										content,
+									});
+								}}
 								onCommentSent={() => setCommentOpen(false)}
 								onCancel={() => setCommentOpen(false)}
 							/>
 						)}
 						{!hasReplies &&
-						localNode.replies_count &&
-						localNode.replies_count > 0 ? (
+						node.replies_count &&
+						node.replies_count > 0 ? (
 							<GhostButton
 								className="p-2 pl-0 whitespace-nowrap"
 								onClick={() => {

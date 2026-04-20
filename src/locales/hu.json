@@ -90,6 +90,7 @@
 		"community_count": "közösség",
 		"create_button": "Közösség létrehozása",
 		"login_button": "Jelentkezz be közösség létrehozásához",
+		"fetch_threads_error": "Nem sikerült betölteni a közösségeket.",
 		"members": "tag",
 		"default_description": "Csatlakozz heti eseményekhez, közös stratégiákhoz és barátságos versenyekhez.",
 		"view_button": "Megnézem"
@@ -199,6 +200,42 @@
 			"stats": "Statisztika",
 			"posts": "Posztok"
 		},
+		"members_list": {
+			"roles": {
+				"admin": "Adminisztrátor",
+				"moderator": "Moderátor",
+				"member": "Tag",
+				"banned": "Kitiltva"
+			},
+			"view_profile": "Profil megtekintése",
+			"promote": "Előléptetés",
+			"demote": "Lefokozás",
+			"ban": "Kitiltás",
+			"unban": "Kitiltás feloldása",
+			"load_more_members": "További tagok betöltése"
+		},
+		"messages": {
+			"members_load_error": "Hiba történt a tagok betöltése közben.",
+			"posts_load_error": "Nem sikerült betölteni a posztokat. Próbáld újra.",
+			"replies_load_error": "Nem sikerült betölteni a válaszokat. Próbáld újra.",
+			"replies_reload_partial_error": "Néhány válasz újratöltése nem sikerült. Frissítsd az oldalt és próbáld újra.",
+			"delete_error": "Hiba történt a törlés során. Kérlek próbáld újra.",
+			"comment_send_error": "Nem sikerült elküldeni a hozzászólást.",
+			"role_update_error": "Nem sikerült frissíteni a felhasználó szerepkörét.",
+			"ban_confirm": "Biztosan ki szeretnéd bannolni ezt a felhasználót? Ez a művelet visszavonhatatlan.",
+			"unban_confirm": "Biztosan fel szeretnéd oldani a felhasználó kitiltását? Ez a művelet visszavonhatatlan.",
+			"ban_success": "A felhasználó sikeresen kitiltva.",
+			"unban_success": "A felhasználó kitiltása sikeresen feloldva.",
+			"community_not_found": "A közösség nem található.",
+			"unauthenticated": "Nincs hitelesítés. Jelentkezz be, majd próbáld újra.",
+			"permission_denied": "Nincs jogosultságod a közösség megtekintéséhez.",
+			"community_load_unexpected": "Váratlan hiba történt a közösség betöltése közben.",
+			"community_load_error": "Hiba történt a közösség betöltése közben.",
+			"join_error": "Hiba történt a közösséghez csatlakozás közben.",
+			"leave_error": "Hiba történt a közösség elhagyása közben.",
+			"share_not_available": "A megosztás ezen az eszközön nem elérhető.",
+			"invite_error": "Hiba történt a meghívás küldése során."
+		},
 		"community_header": {
 			"community": "Közösség",
 			"unknown_community": "Ismeretlen közösség",
@@ -225,6 +262,8 @@
 			"load_comments": "Hozzászólások betöltése",
 			"show_comments": "Hozzászólások megjelenítése",
 			"share": "Megosztás",
+			"delete": "Törlés",
+			"delete_confirm": "Biztosan törölni szeretnéd ezt a posztot? Ez a művelet nem visszavonható.",
 			"post_image_alt": "Posztkép"
 		},
 		"post_list": {
@@ -245,6 +284,7 @@
 		"comment_writer": {
 			"reply_placeholder": "Válaszolj @{{username}} kommentjére...",
 			"send_button": "Elküld",
+			"empty_error": "A hozzászólás nem lehet üres.",
 			"cancel_button": "Mégse"
 		},
 		"deleted": {

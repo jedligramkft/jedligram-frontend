@@ -7,9 +7,16 @@ type Props = {
 	myRank: number | null;
 	myId?: number;
 	members: CommunityMembers;
+	postsCount: number;
 };
 
-const CommunitySidebar = ({ threadId, myRank, myId, members }: Props) => {
+const CommunitySidebar = ({
+	threadId,
+	myRank,
+	myId,
+	members,
+	postsCount,
+}: Props) => {
 	const { t } = useTranslation();
 
 	return (
@@ -40,14 +47,14 @@ const CommunitySidebar = ({ threadId, myRank, myId, members }: Props) => {
 							{members.totalCount}
 						</div>
 					</div>
-					{/* <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+					<div className="rounded-2xl border border-white/10 bg-black/10 p-4">
 						<div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
 							{t("community.community_sidebar.posts")}
 						</div>
 						<div className="mt-1 text-2xl font-bold text-white">
-							TBI
+							{postsCount}
 						</div>
-					</div> */}
+					</div>
 				</div>
 			</div>
 		</aside>

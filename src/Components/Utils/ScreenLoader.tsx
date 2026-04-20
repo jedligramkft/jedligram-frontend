@@ -16,27 +16,6 @@ const ScreenLoader = ({ callback, delayMs = 350 }: ScreenLoaderProps) => {
 	}, [callback]);
 
 	useEffect(() => {
-		const triggerLoad = async () => {
-			if (isRequestInFlightRef.current) {
-				return;
-			}
-
-			// Lock immediately so repeated scroll events cannot queue overlapping requests.
-			isRequestInFlightRef.current = true;
-			try {
-				await callbackRef.current?.();
-			} finally {
-				if (unlockTimeoutRef.current) {
-					clearTimeout(unlockTimeoutRef.current);
-				}
-
-				// Brief cooldown smooths out bursty scroll callbacks between renders.
-				unlockTimeoutRef.current = setTimeout(() => {
-					isRequestInFlightRef.current = false;
-				}, delayMs);
-			}
-		};
-
 		const checkVisibility = () => {
 			const loaderElement = loaderRef.current;
 			if (!loaderElement) {
@@ -52,6 +31,28 @@ const ScreenLoader = ({ callback, delayMs = 350 }: ScreenLoaderProps) => {
 
 			if (isVisible) {
 				void triggerLoad();
+			}
+		};
+
+		const triggerLoad = async () => {
+			if (isRequestInFlightRef.current) {
+				return;
+			}
+
+			// Lock immediately so repeated scroll events cannot queue overlapping requests.
+			isRequestInFlightRef.current = true;
+			try {
+				await callbackRef.current?.();
+			} finally {
+				if (unlockTimeoutRef.current) {
+					clearTimeout(unlockTimeoutRef.current);
+				}
+
+				// Brief cooldown smooths out bursty callbacks; then recheck if loader is still visible.
+				unlockTimeoutRef.current = setTimeout(() => {
+					isRequestInFlightRef.current = false;
+					checkVisibility();
+				}, delayMs);
 			}
 		};
 

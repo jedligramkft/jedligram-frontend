@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
 import type { CommunityMembers } from "../../hooks/useCommunity";
 
-const RoleMapping: Record<number, string> = {
-	1: "Admin",
-	2: "Moderator",
-	3: "Member",
-	4: "Banned",
+const RoleTranslationKeyMapping: Record<number, string> = {
+	1: "community.members_list.roles.admin",
+	2: "community.members_list.roles.moderator",
+	3: "community.members_list.roles.member",
+	4: "community.members_list.roles.banned",
 };
 
 const RoleColorMapping: Record<number, string> = {
@@ -35,6 +35,10 @@ const MembersList = ({
 	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(
 		null,
 	);
+	const skeletonCount =
+		members.totalCount > 0
+			? Math.max(0, members.totalCount - members.fetchedMembers.length)
+			: 5;
 
 	useEffect(() => {
 		// setInterval(() => {
@@ -111,7 +115,7 @@ const MembersList = ({
 									}
 									className="px-3 py-1.5"
 								>
-									Profil megtekintése
+									{t("community.members_list.view_profile")}
 								</GhostButton>
 								{/* PROMOTE és DEMOTE gombok */}
 								{myRank &&
@@ -130,7 +134,9 @@ const MembersList = ({
 												}
 												className="px-3 py-1.5"
 											>
-												Előléptetés
+												{t(
+													"community.members_list.promote",
+												)}
 											</GhostButton>
 										</>
 									)}
@@ -150,7 +156,9 @@ const MembersList = ({
 												}
 												className="px-3 py-1.5"
 											>
-												Lefokozás
+												{t(
+													"community.members_list.demote",
+												)}
 											</GhostButton>
 										</>
 									)}
@@ -168,7 +176,9 @@ const MembersList = ({
 													handleBanUser(e, user.id)
 												}
 											>
-												Kitiltás
+												{t(
+													"community.members_list.ban",
+												)}
 											</GhostButton>
 										</>
 									)}
@@ -184,7 +194,9 @@ const MembersList = ({
 													handleUnbanUser(e, user.id)
 												}
 											>
-												Kitiltás feloldása
+												{t(
+													"community.members_list.unban",
+												)}
 											</GhostButton>
 										</>
 									)}
@@ -200,9 +212,13 @@ const MembersList = ({
 						<span className="text-sm text-white/80">
 							@{user.name}
 							<sup
-								className={`text-xs ml-1 py-0.5 px-1 rounded-full ${RoleColorMapping[user.role_id!]}`}
+								className={`text-xs ml-1 py-0.5 px-2 rounded-full ${RoleColorMapping[user.role_id!]}`}
 							>
-								{RoleMapping[user.role_id!]}
+								{t(
+									RoleTranslationKeyMapping[
+										user.role_id ?? 3
+									],
+								)}
 							</sup>
 						</span>
 						<GhostButton
@@ -223,16 +239,12 @@ const MembersList = ({
 
 			{members.isLoading && (
 				<>
-					{[
-						...Array(
-							members.totalCount - members.fetchedMembers.length,
-						),
-					].map((i) => (
+					{Array.from({ length: skeletonCount }).map((_, index) => (
 						<div
-							key={i}
+							key={`member-skeleton-${index}`}
 							className={`flex items-center gap-3 *:bg-white/10 animate-pulse`}
 							style={{
-								animationDelay: i * 200 + "ms",
+								animationDelay: `${index * 200}ms`,
 							}}
 						>
 							<div className="h-8 w-8 rounded-full" />
@@ -248,7 +260,7 @@ const MembersList = ({
 					onClick={members.fetchMoreMembers}
 					className="px-4 py-2 mt-2"
 				>
-					További tagok betöltése
+					{t("community.members_list.load_more_members")}
 				</SecondaryButton>
 			)}
 		</>
