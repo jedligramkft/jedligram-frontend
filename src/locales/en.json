@@ -90,6 +90,7 @@
 		"community_count": "communities",
 		"create_button": "Create Community",
 		"login_button": "Sign in to create community",
+		"fetch_threads_error": "Failed to fetch communities.",
 		"members": "members",
 		"default_description": "Join weekly events, share strategies, and enjoy friendly competition.",
 		"view_button": "View"
@@ -199,6 +200,42 @@
 			"stats": "Stats",
 			"posts": "Posts"
 		},
+		"members_list": {
+			"roles": {
+				"admin": "Admin",
+				"moderator": "Moderator",
+				"member": "Member",
+				"banned": "Banned"
+			},
+			"view_profile": "View profile",
+			"promote": "Promote",
+			"demote": "Demote",
+			"ban": "Ban",
+			"unban": "Unban",
+			"load_more_members": "Load more members"
+		},
+		"messages": {
+			"members_load_error": "An error occurred while loading members.",
+			"posts_load_error": "Failed to load posts. Please try again.",
+			"replies_load_error": "Failed to load replies. Please try again.",
+			"replies_reload_partial_error": "Failed to reload some replies. Please refresh and try again.",
+			"delete_error": "Something went wrong while deleting. Please try again.",
+			"comment_send_error": "Failed to send comment.",
+			"role_update_error": "Failed to update user role.",
+			"ban_confirm": "Are you sure you want to ban this user? This action is irreversible.",
+			"unban_confirm": "Are you sure you want to unban this user? This action is irreversible.",
+			"ban_success": "User has been banned successfully.",
+			"unban_success": "User has been unbanned successfully.",
+			"community_not_found": "Community not found.",
+			"unauthenticated": "Unauthenticated. Please log in and try again.",
+			"permission_denied": "You do not have permission to view this community.",
+			"community_load_unexpected": "An unexpected error occurred while loading the community.",
+			"community_load_error": "An error occurred while loading the community.",
+			"join_error": "An error occurred while joining the community.",
+			"leave_error": "An error occurred while leaving the community.",
+			"share_not_available": "Sharing is not available on this device.",
+			"invite_error": "An error occurred while sending the invite."
+		},
 		"community_header": {
 			"community": "Community",
 			"unknown_community": "Unknown Community",
@@ -225,6 +262,8 @@
 			"load_comments": "Load comments",
 			"show_comments": "Show comments",
 			"share": "Share",
+			"delete": "Delete",
+			"delete_confirm": "Are you sure you want to delete this post? This action cannot be undone.",
 			"post_image_alt": "Post image"
 		},
 		"post_list": {
@@ -245,6 +284,7 @@
 		"comment_writer": {
 			"reply_placeholder": "Reply to @{{username}}'s comment...",
 			"send_button": "Send",
+			"empty_error": "Comment cannot be empty.",
 			"cancel_button": "Cancel"
 		},
 		"deleted": {

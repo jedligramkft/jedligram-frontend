@@ -1,19 +1,15 @@
 import { GhostButton, SecondaryButton } from "../../../../Components/Buttons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DynamicFAIcon from "../../../../Components/Utils/DynamicFaIcon";
-import {
-	BanUserFromThread,
-	UpdateRoleOfMemberInThread,
-} from "../../../../api/threads";
 import type { CommunityMembers } from "../../hooks/useCommunity";
 
-const RoleMapping: Record<number, string> = {
-	1: "Admin",
-	2: "Moderator",
-	3: "Member",
-	4: "Banned",
+const RoleTranslationKeyMapping: Record<number, string> = {
+	1: "community.members_list.roles.admin",
+	2: "community.members_list.roles.moderator",
+	3: "community.members_list.roles.member",
+	4: "community.members_list.roles.banned",
 };
 
 const RoleColorMapping: Record<number, string> = {
@@ -39,40 +35,33 @@ const MembersList = ({
 	const [isActionListOpen, setIsActionListOpen] = useState<number | null>(
 		null,
 	);
+	const skeletonCount =
+		members.totalCount > 0
+			? Math.max(0, members.totalCount - members.fetchedMembers.length)
+			: 5;
 
-	async function handleRoleChange(
+	useEffect(() => {
+		// setInterval(() => {
+		// 	console.log(myRank);
+		// }, 200);
+		setIsActionListOpen(null); // Close any open action list when threadId changes
+	}, [threadId]);
+
+	const handleRoleChange = async (
 		e: React.MouseEvent<HTMLButtonElement>,
 		userId: number,
 		newRoleId: number,
-	) {
+	) => {
 		const button = e.currentTarget;
 		button.disabled = true;
 
 		try {
-			if (newRoleId < 1 || newRoleId > 4) throw new Error("Invalid role"); // Invalid role, do nothing
-
-			const response = await UpdateRoleOfMemberInThread(
-				threadId,
-				userId,
-				newRoleId,
-			);
-			if (response.status === 200) {
-				// Update the local state to reflect the role change
-				// setJoinedMembers((prevMembers) =>
-				// 	prevMembers.map((member) =>
-				// 		member.id === userId
-				// 			? { ...member, role_id: newRoleId }
-				// 			: member,
-				// 	),
-				// );
-			}
-		} catch (error) {
-			console.error("Failed to update role:", error);
+			await members.handleRoleChange(userId, newRoleId); // Role update is handled inside the hook, which updates the local state accordingly
 		} finally {
 			button.disabled = false;
 			setIsActionListOpen(null);
 		}
-	}
+	};
 
 	async function handleBanUser(
 		e: React.MouseEvent<HTMLButtonElement>,
@@ -82,24 +71,7 @@ const MembersList = ({
 		button.disabled = true;
 
 		try {
-			const confirmBan = window.confirm(
-				"Biztosan ki szeretnéd bannolni ezt a felhasználót? Ez a művelet visszavonhatatlan.",
-			);
-			if (!confirmBan) throw new Error("Ban cancelled by user");
-
-			const response = await BanUserFromThread(threadId, userId);
-			if (response.status === 200) {
-				// Update the local state to reflect the ban
-				// setJoinedMembers((prevMembers) =>
-				// 	prevMembers.map((member) =>
-				// 		member.id === userId
-				// 			? { ...member, role_id: 4 } // Set role to Banned
-				// 			: member,
-				// 	),
-				// );
-			}
-		} catch (error) {
-			console.error("Failed to ban user:", error);
+			await members.handleBanAndUnban(userId, true); // Ban action is handled inside the hook, which updates the local state accordingly
 		} finally {
 			button.disabled = false;
 			setIsActionListOpen(null);
@@ -114,28 +86,7 @@ const MembersList = ({
 		button.disabled = true;
 
 		try {
-			const confirmUnban = window.confirm(
-				"Biztosan vissza szeretnéd vonni a bannolást ettől a felhasználótól?",
-			);
-			if (!confirmUnban) throw new Error("Unban cancelled by user");
-
-			const response = await UpdateRoleOfMemberInThread(
-				threadId,
-				userId,
-				3,
-			); // Set role to Member
-			if (response.status === 200) {
-				// Update the local state to reflect the unban
-				// setJoinedMembers((prevMembers) =>
-				// 	prevMembers.map((member) =>
-				// 		member.id === userId
-				// 			? { ...member, role_id: 3 } // Set role to Member
-				// 			: member,
-				// 	),
-				// );
-			}
-		} catch (error) {
-			console.error("Failed to unban user:", error);
+			await members.handleBanAndUnban(userId, false); // Unban action is handled inside the hook, which updates the local state accordingly
 		} finally {
 			button.disabled = false;
 			setIsActionListOpen(null);
@@ -164,9 +115,8 @@ const MembersList = ({
 									}
 									className="px-3 py-1.5"
 								>
-									Profil megtekintése
+									{t("community.members_list.view_profile")}
 								</GhostButton>
-
 								{/* PROMOTE és DEMOTE gombok */}
 								{myRank &&
 									myRank === 1 && //Admin vagyok
@@ -184,11 +134,12 @@ const MembersList = ({
 												}
 												className="px-3 py-1.5"
 											>
-												Előléptetés
+												{t(
+													"community.members_list.promote",
+												)}
 											</GhostButton>
 										</>
 									)}
-
 								{myRank &&
 									user.role_id! <= 2 &&
 									user.role_id! > myRank &&
@@ -205,13 +156,13 @@ const MembersList = ({
 												}
 												className="px-3 py-1.5"
 											>
-												Lefokozás
+												{t(
+													"community.members_list.demote",
+												)}
 											</GhostButton>
 										</>
 									)}
-
 								{/* BAN és UNBAN gombok */}
-
 								{myRank && //Van rangom
 									myRank <= 2 && //Admin vagy moderátor vagyok
 									user.role_id! !== 4 && //A user nincs bannolva
@@ -225,7 +176,9 @@ const MembersList = ({
 													handleBanUser(e, user.id)
 												}
 											>
-												Kitiltás
+												{t(
+													"community.members_list.ban",
+												)}
 											</GhostButton>
 										</>
 									)}
@@ -241,7 +194,9 @@ const MembersList = ({
 													handleUnbanUser(e, user.id)
 												}
 											>
-												Kitiltás feloldása
+												{t(
+													"community.members_list.unban",
+												)}
 											</GhostButton>
 										</>
 									)}
@@ -257,9 +212,13 @@ const MembersList = ({
 						<span className="text-sm text-white/80">
 							@{user.name}
 							<sup
-								className={`text-xs ml-1 py-0.5 px-1 rounded-full ${RoleColorMapping[user.role_id!]}`}
+								className={`text-xs ml-1 py-0.5 px-2 rounded-full ${RoleColorMapping[user.role_id!]}`}
 							>
-								{RoleMapping[user.role_id!]}
+								{t(
+									RoleTranslationKeyMapping[
+										user.role_id ?? 3
+									],
+								)}
 							</sup>
 						</span>
 						<GhostButton
@@ -280,16 +239,12 @@ const MembersList = ({
 
 			{members.isLoading && (
 				<>
-					{[
-						...Array(
-							members.totalCount - members.fetchedMembers.length,
-						),
-					].map((i) => (
+					{Array.from({ length: skeletonCount }).map((_, index) => (
 						<div
-							key={i}
+							key={`member-skeleton-${index}`}
 							className={`flex items-center gap-3 *:bg-white/10 animate-pulse`}
 							style={{
-								animationDelay: i * 200 + "ms",
+								animationDelay: `${index * 200}ms`,
 							}}
 						>
 							<div className="h-8 w-8 rounded-full" />
@@ -305,7 +260,7 @@ const MembersList = ({
 					onClick={members.fetchMoreMembers}
 					className="px-4 py-2 mt-2"
 				>
-					További tagok betöltése
+					{t("community.members_list.load_more_members")}
 				</SecondaryButton>
 			)}
 		</>

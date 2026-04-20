@@ -45,7 +45,7 @@ const AllCommunities = () => {
 					alert(message);
 					return;
 				}
-				toast.error("Error fetching threads:");
+				toast.error(t("allCommunities.fetch_threads_error"));
 			}
 			console.error("Error fetching threads:", error);
 		} finally {

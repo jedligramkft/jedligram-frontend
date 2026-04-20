@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { GetThreads } from "../api/threads";
 import type { ThreadData } from "../Interfaces/ThreadData";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 // Used in searchengine
 export const useThreads = () => {
+	const { t } = useTranslation();
 	const [threads, setThreads] = useState<ThreadData[]>([]);
 
 	useEffect(() => {
@@ -15,7 +17,7 @@ export const useThreads = () => {
 			} catch (error) {
 				const message = (error as any)?.response?.data?.message;
 				if (message) {
-					toast.error("Failed to fetch threads: ");
+					toast.error(t("allCommunities.fetch_threads_error"));
 					return;
 				}
 				console.error("Error fetching threads:", error);

@@ -1,12 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
+	BanUserFromThread,
+	GetPostsInThread,
 	GetThreadById,
+	GetThreadMembers,
 	JoinThread,
 	LeaveThread,
-	GetThreadMembers,
+	UpdateRoleOfMemberInThread,
 } from "../../../api/threads";
+import {
+	CommentOnPostOrReplyToComment,
+	DeleteComment,
+	GetCommentsForPost,
+	GetReplyCommentsForComment,
+} from "../../../api/comments";
+import { DeletePost } from "../../../api/posts";
+import type { NavigateOptions } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { GetUserProfile } from "../../../api/users";
+import type { CommentData } from "../../../Interfaces/CommentData";
+import type { PostAndCommentData } from "../../../Interfaces/PostAndComment";
+import type { PostData } from "../../../Interfaces/PostData";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
 import { toast } from "react-toastify";
@@ -24,6 +39,34 @@ export interface CommunityMembers {
 	totalCount: number;
 	fetchedMembers: UserData[];
 	fetchMoreMembers: () => Promise<void>;
+
+	handleRoleChange: (userId: number, newRoleId: number) => Promise<void>;
+	handleBanAndUnban: (userId: number, shouldBan: boolean) => Promise<void>;
+}
+
+export interface DeletePostOrCommentInput {
+	isTopLevel: boolean;
+	originalPostId: number;
+	nodeId: number;
+}
+
+export interface CreateCommentInput {
+	isTopLevel: boolean;
+	originalPostId: number;
+	nodeId: number;
+	content: string;
+}
+
+export interface CommunityPosts {
+	isLoading: boolean;
+	hasMore: boolean;
+	totalCount: number;
+	fetchedPosts: PostAndCommentData[];
+	fetchMorePosts: () => Promise<void>;
+	loadMoreCommentsForComment: (commentId: number) => Promise<void>;
+	getSharePageFromEnd: (postId: number) => number | null;
+	createComment: (input: CreateCommentInput) => Promise<boolean>;
+	deletePostOrComment: (input: DeletePostOrCommentInput) => Promise<void>;
 }
 
 // Full return shape of `useCommunity` for explicit typing in consumers.
@@ -33,17 +76,316 @@ export interface UseCommunityReturn {
 	myId?: number;
 	handleJoin: () => Promise<void>;
 	handleLeave: () => Promise<void>;
+	handleInvite: () => Promise<void>;
 
 	members: CommunityMembers;
+	posts: CommunityPosts;
 }
 
 const profileStorageKey =
 	import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY ?? "jedligram_profile";
 
+const AGE_UNIT_TO_SECONDS: Record<string, number> = {
+	second: 1,
+	minute: 60,
+	hour: 60 * 60,
+	day: 60 * 60 * 24,
+	week: 60 * 60 * 24 * 7,
+	month: 60 * 60 * 24 * 30,
+	year: 60 * 60 * 24 * 365,
+};
+
+const AGE_VALUE_AND_UNIT_REGEX = /^(a|an|one|\d+)\s+([a-z]+)/;
+
+function parseAgeToSeconds(age: string | undefined | null): number {
+	// Unknown/missing values are treated as oldest so they naturally sort last.
+	if (typeof age !== "string") {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	const normalizedAge = age.trim().toLowerCase();
+	if (!normalizedAge) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	if (normalizedAge === "now" || normalizedAge === "just now") {
+		return 0;
+	}
+
+	const match = normalizedAge.match(AGE_VALUE_AND_UNIT_REGEX);
+	if (!match) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	const rawValue = match[1];
+	const value =
+		rawValue === "a" || rawValue === "an" || rawValue === "one"
+			? 1
+			: Number(rawValue);
+
+	const rawUnit = match[2];
+	const unit = rawUnit.endsWith("s") ? rawUnit.slice(0, -1) : rawUnit;
+	const unitInSeconds = AGE_UNIT_TO_SECONDS[unit];
+
+	if (!Number.isFinite(value) || !unitInSeconds) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	return value * unitInSeconds;
+}
+
+function sortNodesByNewest(nodes: PostAndCommentData[]): PostAndCommentData[] {
+	// Sort every level of the tree recursively to keep nested replies consistent.
+	return [...nodes]
+		.map((node) => ({
+			...node,
+			replies: Array.isArray(node.replies)
+				? sortNodesByNewest(node.replies)
+				: node.replies,
+		}))
+		.sort((a, b) => {
+			const ageDifference =
+				parseAgeToSeconds(a.age) - parseAgeToSeconds(b.age);
+
+			if (ageDifference !== 0) return ageDifference;
+
+			return b.id - a.id;
+		});
+}
+
+function mergePostsWithComments(
+	posts: PostData[],
+	commentsByPost: Record<number, PostAndCommentData[]>,
+): PostAndCommentData[] {
+	return posts.map((post) => ({
+		...post,
+		replies: commentsByPost[post.id] ?? [],
+	}));
+}
+
+function mergeRepliesById(
+	existingReplies: PostAndCommentData[] | undefined,
+	fetchedReplies: PostAndCommentData[],
+): PostAndCommentData[] {
+	// Merge by ID so re-fetching replies never duplicates existing items.
+	const currentReplies = Array.isArray(existingReplies)
+		? existingReplies
+		: [];
+	const repliesById = new Map<number, PostAndCommentData>();
+
+	for (const reply of [...currentReplies, ...fetchedReplies]) {
+		repliesById.set(reply.id, reply);
+	}
+
+	return Array.from(repliesById.values());
+}
+
+function attachRepliesToCommentById(
+	nodes: PostAndCommentData[],
+	targetCommentId: number,
+	fetchedReplies: PostAndCommentData[],
+): PostAndCommentData[] {
+	return nodes.map((node) => {
+		if (node.id === targetCommentId) {
+			return {
+				...node,
+				replies: mergeRepliesById(node.replies, fetchedReplies),
+			};
+		}
+
+		if (!Array.isArray(node.replies) || node.replies.length === 0) {
+			return node;
+		}
+
+		return {
+			...node,
+			replies: attachRepliesToCommentById(
+				node.replies,
+				targetCommentId,
+				fetchedReplies,
+			),
+		};
+	});
+}
+
+function markCommentAsDeleted(
+	nodes: PostAndCommentData[],
+	targetCommentId: number,
+): PostAndCommentData[] {
+	return nodes.map((node) => {
+		if (node.id === targetCommentId) {
+			return {
+				...node,
+				content: "[deleted]",
+				image: "",
+			};
+		}
+
+		if (!Array.isArray(node.replies) || node.replies.length === 0) {
+			return node;
+		}
+
+		return {
+			...node,
+			replies: markCommentAsDeleted(node.replies, targetCommentId),
+		};
+	});
+}
+
+function appendReplyToCommentById(
+	nodes: PostAndCommentData[],
+	targetCommentId: number,
+	newReply: PostAndCommentData,
+): PostAndCommentData[] {
+	// Walk the comment tree and insert the new reply into the matched parent.
+	return nodes.map((node) => {
+		if (node.id === targetCommentId) {
+			const existingReplies = Array.isArray(node.replies)
+				? node.replies
+				: [];
+			const nextReplies = sortNodesByNewest([
+				...existingReplies,
+				newReply,
+			]);
+
+			return {
+				...node,
+				replies: nextReplies,
+				replies_count: Math.max(
+					(node.replies_count ?? 0) + 1,
+					nextReplies.length,
+				),
+			};
+		}
+
+		if (!Array.isArray(node.replies) || node.replies.length === 0) {
+			return node;
+		}
+
+		return {
+			...node,
+			replies: appendReplyToCommentById(
+				node.replies,
+				targetCommentId,
+				newReply,
+			),
+		};
+	});
+}
+
+function mergePostsById(
+	currentPosts: PostAndCommentData[],
+	incomingPosts: PostAndCommentData[],
+): PostAndCommentData[] {
+	return sortNodesByNewest(
+		Array.from(
+			new Map(
+				[...currentPosts, ...incomingPosts].map((post) => [
+					post.id,
+					post,
+				]),
+			).values(),
+		),
+	);
+}
+
+function extractPageFromLink(linkValue: unknown): number | null {
+	if (typeof linkValue !== "string" || !linkValue) {
+		return null;
+	}
+
+	try {
+		const url = new URL(linkValue, window.location.origin);
+		const parsed = Number(url.searchParams.get("page"));
+		if (!Number.isFinite(parsed) || parsed < 1) {
+			return null;
+		}
+
+		return Math.floor(parsed);
+	} catch {
+		return null;
+	}
+}
+
+function extractTotalPages(responsePayload: unknown): number {
+	if (!responsePayload || typeof responsePayload !== "object") {
+		return 1;
+	}
+
+	const payloadRecord = responsePayload as Record<string, unknown>;
+	const meta =
+		payloadRecord.meta && typeof payloadRecord.meta === "object"
+			? (payloadRecord.meta as Record<string, unknown>)
+			: null;
+
+	const metaPageCandidates = [
+		meta?.last_page,
+		meta?.lastPage,
+		meta?.total_pages,
+		meta?.totalPages,
+	];
+
+	for (const candidate of metaPageCandidates) {
+		const parsed = Number(candidate);
+		if (Number.isFinite(parsed) && parsed >= 1) {
+			return Math.floor(parsed);
+		}
+	}
+
+	const links =
+		payloadRecord.links && typeof payloadRecord.links === "object"
+			? (payloadRecord.links as Record<string, unknown>)
+			: null;
+
+	const fromLastLink = extractPageFromLink(links?.last);
+	if (fromLastLink !== null) {
+		return fromLastLink;
+	}
+
+	const fromCurrentLink = extractPageFromLink(links?.self);
+	if (fromCurrentLink !== null) {
+		return fromCurrentLink;
+	}
+
+	return 1;
+}
+
+function extractTotalCount(responsePayload: unknown): number {
+	if (!responsePayload || typeof responsePayload !== "object") {
+		return 0;
+	}
+
+	const payloadRecord = responsePayload as Record<string, unknown>;
+	const meta =
+		payloadRecord.meta && typeof payloadRecord.meta === "object"
+			? (payloadRecord.meta as Record<string, unknown>)
+			: null;
+
+	const metaTotalCandidates = [
+		meta?.total,
+		meta?.total_count,
+		meta?.totalCount,
+	];
+
+	for (const candidate of metaTotalCandidates) {
+		const parsed = Number(candidate);
+		if (Number.isFinite(parsed) && parsed >= 0) {
+			return Math.floor(parsed);
+		}
+	}
+
+	if (Array.isArray(payloadRecord.data)) {
+		return payloadRecord.data.length;
+	}
+
+	return 0;
+}
+
 export const useCommunity = (
 	threadId: number,
-	navigateFn: (path: string, options?: any) => void,
+	navigateFn: (path: string, options?: NavigateOptions) => void,
 ): UseCommunityReturn => {
+	const { t } = useTranslation();
 	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
 
 	const [thread, setThread] = useState<ThreadData | null>(null);
@@ -63,7 +405,20 @@ export const useCommunity = (
 	const [MembersCurrentPage, setMembersCurrentPage] = useState(1);
 	const [MembersCount, setMembersCount] = useState(0);
 
-	async function fetchJoinedUsers(currentPage: number) {
+	/* POSTS LIST */
+	const [PostsFetched, setPostsFetched] = useState<PostAndCommentData[]>([]);
+	const [PostsIsThereMore, setPostsIsThereMore] = useState(false);
+	const [PostsIsLoading, setPostsIsLoading] = useState(false);
+	const [PostsCurrentPage, setPostsCurrentPage] = useState(1);
+	const [PostsCount, setPostsCount] = useState(0);
+	const postsTotalPagesRef = useRef(1);
+	const postPageByIdRef = useRef<Map<number, number>>(new Map());
+	const loadedMoreCommentIdsRef = useRef<Set<number>>(new Set());
+
+	async function fetchJoinedUsers(
+		currentPage: number,
+		initialLoad: boolean = false,
+	) {
 		setMembersIsLoading(true);
 		try {
 			const response = await GetThreadMembers(threadId, currentPage);
@@ -74,6 +429,7 @@ export const useCommunity = (
 			let total = response.data["meta"]["total"] || 0;
 
 			if (
+				initialLoad === true &&
 				isUserJoined &&
 				MembersFetched.some((user) => user.id === myId)
 			) {
@@ -88,8 +444,8 @@ export const useCommunity = (
 			setMembersCount(total);
 
 			return responseData.data;
-		} catch (error) {
-			toast.error("An error occurred while loading the members.");
+		} catch {
+			toast.error(t("community.messages.members_load_error"));
 			return [];
 		} finally {
 			setMembersIsLoading(false);
@@ -100,8 +456,10 @@ export const useCommunity = (
 		setMembersFetched([]);
 		setMembersCurrentPage(1);
 		setMembersIsThereMore(false);
+		setMembersCount(0);
+		setMembersIsLoading(true);
 
-		const users = await fetchJoinedUsers(MembersCurrentPage);
+		const users = await fetchJoinedUsers(1, true);
 		setMembersFetched(users);
 	}
 
@@ -111,6 +469,473 @@ export const useCommunity = (
 		setMembersFetched((prev) => [...prev, ...users]);
 	}
 
+	async function loadCommentsByPost(
+		posts: PostData[],
+	): Promise<Record<number, PostAndCommentData[]>> {
+		const entries = await Promise.all(
+			posts.map(async (post) => {
+				const commentsResponse = (await GetCommentsForPost(
+					post.id,
+				)) as {
+					data: CommentData[];
+				};
+
+				return [
+					post.id,
+					commentsResponse.data as PostAndCommentData[],
+				] as const;
+			}),
+		);
+
+		return Object.fromEntries(entries);
+	}
+
+	async function rehydrateLoadedReplies(
+		nodes: PostAndCommentData[],
+	): Promise<PostAndCommentData[]> {
+		const loadedCommentIds = Array.from(loadedMoreCommentIdsRef.current);
+
+		if (loadedCommentIds.length === 0) {
+			return nodes;
+		}
+
+		let hasRehydrateFailure = false;
+
+		const fetchedReplyGroups = await Promise.all(
+			loadedCommentIds.map(async (commentId) => {
+				try {
+					const replyCommentsResponse =
+						(await GetReplyCommentsForComment(commentId)) as {
+							data: CommentData[];
+						};
+
+					return {
+						commentId,
+						replies:
+							replyCommentsResponse.data as PostAndCommentData[],
+					};
+				} catch (error) {
+					console.error(
+						"Failed to rehydrate nested replies for comment:",
+						commentId,
+						error,
+					);
+					hasRehydrateFailure = true;
+
+					return {
+						commentId,
+						replies: [] as PostAndCommentData[],
+					};
+				}
+			}),
+		);
+
+		if (hasRehydrateFailure) {
+			toast.error(t("community.messages.replies_reload_partial_error"));
+		}
+
+		let nextNodes = nodes;
+
+		for (const group of fetchedReplyGroups) {
+			nextNodes = attachRepliesToCommentById(
+				nextNodes,
+				group.commentId,
+				group.replies,
+			);
+		}
+
+		return nextNodes;
+	}
+
+	async function fetchPosts(page: number = PostsCurrentPage) {
+		setPostsIsLoading(true);
+
+		try {
+			const response = await GetPostsInThread(threadId, page);
+			const responseData = response.data as {
+				data: PostData[];
+			};
+			const totalPages = extractTotalPages(response.data);
+			postsTotalPagesRef.current = totalPages;
+			setPostsCount(extractTotalCount(response.data));
+
+			for (const post of responseData.data) {
+				postPageByIdRef.current.set(post.id, page);
+			}
+
+			setPostsCurrentPage(page + 1);
+			setPostsIsThereMore(response.data["links"]["next"] !== null);
+
+			const commentsByPost = await loadCommentsByPost(responseData.data);
+			const mergedData = mergePostsWithComments(
+				responseData.data,
+				commentsByPost,
+			);
+			const mergedWithLoadedReplies =
+				await rehydrateLoadedReplies(mergedData);
+
+			return sortNodesByNewest(mergedWithLoadedReplies);
+		} catch (error) {
+			console.error("Failed to load posts:", error);
+			toast.error(t("community.messages.posts_load_error"));
+			return [];
+		} finally {
+			setPostsIsLoading(false);
+		}
+	}
+
+	async function InitialFetchPosts(resetLoadedReplies: boolean = false) {
+		setPostsFetched([]);
+		setPostsCurrentPage(1);
+		setPostsIsThereMore(false);
+		setPostsIsLoading(true);
+		setPostsCount(0);
+		postPageByIdRef.current.clear();
+		postsTotalPagesRef.current = 1;
+
+		if (resetLoadedReplies) {
+			loadedMoreCommentIdsRef.current.clear();
+		}
+
+		const posts = await fetchPosts(1);
+		setPostsFetched(posts);
+	}
+
+	async function FetchMorePosts() {
+		if (PostsIsLoading || !PostsIsThereMore) {
+			return;
+		}
+
+		const posts = await fetchPosts(PostsCurrentPage);
+		if (posts.length === 0) {
+			return;
+		}
+
+		setPostsFetched((prevPosts) => mergePostsById(prevPosts, posts));
+	}
+
+	async function LoadPagesForSharedTarget() {
+		const hash = window.location.hash;
+		if (!hash) {
+			return;
+		}
+
+		const decodedHash = decodeURIComponent(hash.slice(1));
+		if (!decodedHash.startsWith("post-")) {
+			return;
+		}
+
+		const params = new URLSearchParams(window.location.search);
+		const pageFromEndRaw = params.get("pfe") ?? params.get("pageFromEnd");
+
+		if (!pageFromEndRaw) {
+			return;
+		}
+
+		const pageFromEnd = Number(pageFromEndRaw);
+		if (!Number.isFinite(pageFromEnd) || pageFromEnd < 1) {
+			return;
+		}
+
+		const targetPage = Math.max(
+			1,
+			postsTotalPagesRef.current - Math.floor(pageFromEnd) + 1,
+		);
+
+		if (targetPage <= 1) {
+			return;
+		}
+
+		for (let page = 2; page <= targetPage; page += 1) {
+			const posts = await fetchPosts(page);
+			if (posts.length === 0) {
+				break;
+			}
+
+			setPostsFetched((prevPosts) => mergePostsById(prevPosts, posts));
+		}
+	}
+
+	function GetSharePageFromEndForPost(postId: number): number | null {
+		const pageFromStart = postPageByIdRef.current.get(postId);
+		if (!pageFromStart) {
+			return null;
+		}
+
+		const totalPages = Math.max(postsTotalPagesRef.current, pageFromStart);
+		return Math.max(1, totalPages - pageFromStart + 1);
+	}
+
+	async function LoadMoreCommentsForComment(commentId: number) {
+		try {
+			const replyCommentsResponse = (await GetReplyCommentsForComment(
+				commentId,
+			)) as {
+				data: CommentData[];
+			};
+			const fetchedReplies =
+				replyCommentsResponse.data as PostAndCommentData[];
+
+			loadedMoreCommentIdsRef.current.add(commentId);
+
+			setPostsFetched((currentNodes) => {
+				const nodesWithLoadedReplies = attachRepliesToCommentById(
+					currentNodes,
+					commentId,
+					fetchedReplies,
+				);
+
+				return sortNodesByNewest(nodesWithLoadedReplies);
+			});
+		} catch (error) {
+			console.error(
+				"Failed to load nested replies for comment:",
+				commentId,
+				error,
+			);
+			toast.error(t("community.messages.replies_load_error"));
+		}
+	}
+
+	async function HandleDeletePostOrComment({
+		isTopLevel,
+		originalPostId,
+		nodeId,
+	}: DeletePostOrCommentInput) {
+		try {
+			const response = isTopLevel
+				? await DeletePost(originalPostId)
+				: await DeleteComment(originalPostId, nodeId);
+
+			if (response.status === 200) {
+				setPostsFetched((prevPosts) => {
+					if (isTopLevel) {
+						return prevPosts.map((post) =>
+							post.id === originalPostId
+								? { ...post, content: "[deleted]", image: "" }
+								: post,
+						);
+					}
+
+					return prevPosts.map((post) => {
+						if (post.id !== originalPostId) {
+							return post;
+						}
+
+						return {
+							...post,
+							replies: markCommentAsDeleted(
+								post.replies ?? [],
+								nodeId,
+							),
+						};
+					});
+				});
+			}
+		} catch (error) {
+			console.error("Error deleting post/comment:", error);
+			toast.error(t("community.messages.delete_error"));
+		}
+	}
+
+	async function HandleCreateComment({
+		isTopLevel,
+		originalPostId,
+		nodeId,
+		content,
+	}: CreateCommentInput): Promise<boolean> {
+		const trimmedContent = content.trim();
+
+		if (!trimmedContent) {
+			return false;
+		}
+
+		try {
+			const response = isTopLevel
+				? await CommentOnPostOrReplyToComment(
+						originalPostId,
+						trimmedContent,
+					)
+				: await CommentOnPostOrReplyToComment(
+						originalPostId,
+						trimmedContent,
+						nodeId,
+					);
+
+			if (response.status < 200 || response.status >= 300) {
+				return false;
+			}
+
+			// The backend may return wrapped payloads (e.g. { data: ... } or { comment: ... }).
+			const responsePayload = response.data as unknown;
+			let payload: Partial<PostAndCommentData> = {};
+
+			if (responsePayload && typeof responsePayload === "object") {
+				const responseRecord = responsePayload as Record<
+					string,
+					unknown
+				>;
+				const extractedPayload =
+					responseRecord.data ??
+					responseRecord.comment ??
+					responsePayload;
+
+				if (extractedPayload && typeof extractedPayload === "object") {
+					payload = extractedPayload as Partial<PostAndCommentData>;
+				}
+			}
+
+			const fallbackUser: UserData = {
+				id: myId ?? 0,
+				email: "",
+				username: "",
+				password: "",
+				name: "",
+				image_url: "",
+			};
+
+			// Temporary negative IDs prevent key collisions if the API omits a comment ID.
+			const fallbackCommentId = -(
+				Date.now() + Math.floor(Math.random() * 1000)
+			);
+
+			const newComment: PostAndCommentData = {
+				id:
+					typeof payload.id === "number"
+						? payload.id
+						: fallbackCommentId,
+				content:
+					typeof payload.content === "string"
+						? payload.content
+						: trimmedContent,
+				age: typeof payload.age === "string" ? payload.age : "now",
+				user:
+					payload.user && typeof payload.user === "object"
+						? (payload.user as UserData)
+						: fallbackUser,
+				is_mine: payload.is_mine ?? true,
+				my_vote: payload.my_vote ?? null,
+				depth: payload.depth,
+				replies_count:
+					typeof payload.replies_count === "number"
+						? payload.replies_count
+						: 0,
+				replies: Array.isArray(payload.replies) ? payload.replies : [],
+				thread_id: payload.thread_id,
+				score: payload.score,
+				image: payload.image,
+			};
+
+			setPostsFetched((prevPosts) =>
+				prevPosts.map((post) => {
+					if (post.id !== originalPostId) {
+						return post;
+					}
+
+					if (isTopLevel) {
+						// Direct comment on a post: append to the post's first-level replies.
+						return {
+							...post,
+							replies: sortNodesByNewest([
+								...(post.replies ?? []),
+								newComment,
+							]),
+						};
+					}
+
+					// Reply to a comment: recursively insert at the matched comment node.
+					return {
+						...post,
+						replies: appendReplyToCommentById(
+							post.replies ?? [],
+							nodeId,
+							newComment,
+						),
+					};
+				}),
+			);
+
+			return true;
+		} catch (error) {
+			console.error("Failed to create comment:", error);
+			toast.error(t("community.messages.comment_send_error"));
+			return false;
+		}
+	}
+
+	async function HandleRoleChange(userId: number, newRoleId: number) {
+		try {
+			if (newRoleId < 1 || newRoleId > 4) throw new Error("Invalid role"); // Invalid role, do nothing
+
+			const response = await UpdateRoleOfMemberInThread(
+				threadId,
+				userId,
+				newRoleId,
+			);
+			if (response.status === 200) {
+				// Update the local state to reflect the role change
+				setMembersFetched((prevMembers) =>
+					prevMembers.map((member) =>
+						member.id === userId
+							? { ...member, role_id: newRoleId }
+							: member,
+					),
+				);
+			}
+		} catch (error) {
+			// console.error("Failed to update role:", error);
+			console.error("Failed to update role:", error);
+			toast.error(t("community.messages.role_update_error"));
+		}
+	}
+
+	async function HandleBanAndUnban(userId: number, shouldBan: boolean) {
+		try {
+			if (shouldBan) {
+				const confirmBan = window.confirm(
+					t("community.messages.ban_confirm"),
+				);
+				if (!confirmBan) throw new Error("Ban cancelled by user");
+
+				const response = await BanUserFromThread(threadId, userId);
+
+				if (response.status === 200) {
+					toast.success(t("community.messages.ban_success"));
+					// Update the local state to reflect the ban
+					setMembersFetched((prevMembers) =>
+						prevMembers.map((member) =>
+							member.id === userId
+								? { ...member, role_id: 4 } // Set role to Banned
+								: member,
+						),
+					);
+				}
+			} else {
+				const confirmUnban = window.confirm(
+					t("community.messages.unban_confirm"),
+				);
+				if (!confirmUnban) throw new Error("Unban cancelled by user");
+				const response = await UpdateRoleOfMemberInThread(
+					threadId,
+					userId,
+					3, // Set role to Member
+				);
+				if (response.status === 200) {
+					toast.success(t("community.messages.unban_success"));
+					// Update the local state to reflect the unban
+					setMembersFetched((prevMembers) =>
+						prevMembers.map((member) =>
+							member.id === userId
+								? { ...member, role_id: 3 } // Set role to Member
+								: member,
+						),
+					);
+				}
+			}
+		} catch (error) {
+			console.error("Failed to ban/unban user:", error);
+		}
+	}
 	/* END OF MEMBERS LIST */
 
 	//Get the current thread data
@@ -118,43 +943,35 @@ export const useCommunity = (
 		try {
 			const threadRes = (await GetThreadById(id)) as { data: ThreadData };
 
-			// console.log("Fetched thread data:", threadRes.data);
 			setThread(threadRes.data);
 			return threadRes.data;
 		} catch (err) {
 			if (!axios.isAxiosError(err)) {
-				toast.error(
-					"An unexpected error occurred while loading the community.",
-				);
+				toast.error(t("community.messages.community_load_unexpected"));
 				return null;
 			}
 
 			switch (err.response?.status) {
 				case 404:
-					toast.error("Community not found.");
+					toast.error(t("community.messages.community_not_found"));
 					navigateFn("/all-communities");
 					return null;
 				case 401:
-					toast.error(
-						"Unauthenticated. Please log in and try again.",
-					);
+					toast.error(t("community.messages.unauthenticated"));
 					navigateFn("/auth/login", { replace: true });
 					return null;
 				case 403:
-					toast.error(
-						"You do not have permission to view this community.",
-					);
+					toast.error(t("community.messages.permission_denied"));
 					navigateFn("/all-communities");
 					return null;
 				default:
-					toast.error(
-						"An error occurred while loading the community.",
-					);
+					toast.error(t("community.messages.community_load_error"));
 					return null;
 			}
 		}
 	}
 
+	// Handle join and leave actions
 	async function HandleJoin() {
 		try {
 			await JoinThread(threadId);
@@ -164,13 +981,15 @@ export const useCommunity = (
 				.catch(() => null);
 
 			if (myUser) {
-				myUser.role_id = 3;
+				if (myUser.role_id === null || myUser.role_id === undefined) {
+					myUser.role_id = 3;
+				}
 				setMembersFetched((prev) => [myUser!, ...prev]);
 				setMembersCount((prev) => prev + 1);
 			}
 			window.dispatchEvent(new Event("joined-threads-changed"));
-		} catch (error) {
-			toast.error("An error occurred while joining the community.");
+		} catch {
+			toast.error(t("community.messages.join_error"));
 		}
 	}
 
@@ -181,8 +1000,8 @@ export const useCommunity = (
 			setMembersFetched((prev) => prev.filter((u) => u.id !== myId));
 			setMembersCount((prev) => prev - 1);
 			window.dispatchEvent(new Event("joined-threads-changed"));
-		} catch (error) {
-			toast.error("An error occurred while leaving the community.");
+		} catch {
+			toast.error(t("community.messages.leave_error"));
 		}
 	}
 
@@ -200,11 +1019,16 @@ export const useCommunity = (
 			// console.log("User joined status:", threadRes.my_role !== null);
 
 			await InitialFetchMembers(); //Fetch the members of the thread
+			await InitialFetchPosts(true); //Fetch posts and comments for the thread
+			await LoadPagesForSharedTarget(); //Preload pages required by deep-link shares.
 		}
 
 		setMembersIsLoading(true);
+		setPostsIsLoading(true);
 
+		// Keep members and posts in sync whenever the viewed thread changes.
 		load();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [threadId, navigateFn]);
 
 	const saveRecentThread = (
@@ -234,12 +1058,40 @@ export const useCommunity = (
 		}
 	};
 
+	const HandleInvite = async () => {
+		if (Number.isNaN(threadId)) return;
+
+		try {
+			const inviteUrl = new URL(
+				`/communities/${threadId}`,
+				window.location.origin,
+			).toString();
+
+			if (typeof navigator.share !== "function") {
+				toast.error(t("community.messages.share_not_available"));
+				return;
+			}
+
+			await navigator.share({ url: inviteUrl });
+			return;
+		} catch (err) {
+			toast.error(t("community.messages.invite_error"));
+			if (axios.isAxiosError(err)) {
+				if (err.response?.status === 401) {
+					navigateFn("/auth/login", { replace: true });
+					return;
+				}
+			}
+		}
+	};
+
 	return {
 		thread,
 		isUserJoined,
 		myId,
 		handleJoin: HandleJoin,
 		handleLeave: HandleLeave,
+		handleInvite: HandleInvite,
 
 		members: {
 			isLoading: MembersIsLoading,
@@ -247,240 +1099,19 @@ export const useCommunity = (
 			totalCount: MembersCount,
 			fetchedMembers: MembersFetched,
 			fetchMoreMembers: FetchMoreMembers,
+			handleRoleChange: HandleRoleChange,
+			handleBanAndUnban: HandleBanAndUnban,
+		},
+		posts: {
+			isLoading: PostsIsLoading,
+			hasMore: PostsIsThereMore,
+			totalCount: PostsCount,
+			fetchedPosts: PostsFetched,
+			fetchMorePosts: FetchMorePosts,
+			loadMoreCommentsForComment: LoadMoreCommentsForComment,
+			getSharePageFromEnd: GetSharePageFromEndForPost,
+			createComment: HandleCreateComment,
+			deletePostOrComment: HandleDeletePostOrComment,
 		},
 	};
-	// const readProfile = (): any => {
-	// 	try {
-	// 		const raw = localStorage.getItem(profileStorageKey);
-	// 		return raw ? JSON.parse(raw) : {};
-	// 	} catch {
-	// 		return {};
-	// 	}
-	// };
-
-	// const getCurrentUserId = (): number | undefined => {
-	// 	const profile = readProfile();
-	// 	const userId = profile.id;
-	// 	return userId;
-	// };
-
-	// const refreshIsJoined = async () => {
-	// 	const userId = getCurrentUserId();
-
-	// 	try {
-	// 		const response = await GetUserThreads(userId!);
-	// 		const list = response.data;
-	// 		const joinedThreadIds = list.map((t: any) => Number(t.id));
-
-	// 		setIsJoined(joinedThreadIds.includes(threadId));
-	// 	} catch {
-	// 		setIsJoined(false);
-	// 	}
-	// };
-
-	// const saveRecentThread = (
-	// 	threadId: number,
-	// 	threadName?: string,
-	// 	threadImage?: string,
-	// ) => {
-	// 	if (!Number.isFinite(threadId)) return;
-
-	// 	try {
-	// 		const raw = localStorage.getItem(recentThreadsStorageKey);
-	// 		const current: RecentThreadItem[] = raw ? JSON.parse(raw) : [];
-
-	// 		const next: RecentThreadItem[] = [
-	// 			{
-	// 				id: threadId,
-	// 				name: threadName?.trim() || undefined,
-	// 				image: threadImage,
-	// 			},
-	// 			...current.filter((t) => t.id !== threadId),
-	// 		].slice(0, 5);
-
-	// 		localStorage.setItem(recentThreadsStorageKey, JSON.stringify(next));
-	// 		window.dispatchEvent(new Event("recent-threads-changed"));
-	// 	} catch {
-	// 		console.error("Failed to save recent thread.");
-	// 	}
-	// };
-
-	// const fetchJoinedUsers = async (
-	// 	threadIdValue: number,
-	// ): Promise<UserData[]> => {
-	// 	if (Number.isNaN(threadIdValue)) return [];
-
-	// 	const response = (await GetThreadMembers(threadIdValue)).data;
-	// 	const usersData = response.data?.users ?? response.data;
-
-	// 	if (!Array.isArray(usersData)) return [];
-	// 	return usersData as UserData[];
-	// };
-
-	// const handleJoin = useCallback(async () => {
-	// 	if (!isLoggedIn) {
-	// 		navigateFn("/auth/login", { replace: true });
-	// 		return;
-	// 	}
-
-	// 	if (Number.isNaN(threadId)) return;
-
-	// 	try {
-	// 		await JoinThread(threadId);
-	// 		setIsJoined(true);
-	// 		const users = await fetchJoinedUsers(threadId);
-	// 		setJoinedUsers(users);
-	// 		window.dispatchEvent(new Event("joined-threads-changed"));
-	// 	} catch (err) {
-	// 		if (axios.isAxiosError(err)) {
-	// 			if (err.response?.status === 401) {
-	// 				navigateFn("/auth/login", { replace: true });
-	// 				return;
-	// 			}
-	// 			const message = (err.response?.data as any).message;
-	// 			const lower = message.toLowerCase();
-	// 			const alreadyMember =
-	// 				lower.includes("already") && lower.includes("member");
-
-	// 			if (alreadyMember) {
-	// 				setIsJoined(true);
-	// 				const users = await fetchJoinedUsers(threadId);
-	// 				setJoinedUsers(users);
-	// 				window.dispatchEvent(new Event("joined-threads-changed"));
-	// 				return;
-	// 			}
-
-	// 			toast.error(message ?? "Nem sikerült csatlakozni.");
-	// 			return;
-	// 		}
-	// 	}
-	// }, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
-
-	// const handleLeave = useCallback(async () => {
-	// 	if (!isLoggedIn) {
-	// 		navigateFn("/auth/login", { replace: true });
-	// 		return;
-	// 	}
-
-	// 	if (Number.isNaN(threadId)) return;
-
-	// 	try {
-	// 		await LeaveThread(threadId);
-	// 		setIsJoined(false);
-
-	// 		const profile = readProfile();
-	// 		const currentUserId = profile.id;
-	// 		if (currentUserId) {
-	// 			setJoinedUsers((prev) =>
-	// 				prev.filter((u) => u.id !== currentUserId),
-	// 			);
-	// 		}
-
-	// 		window.dispatchEvent(new Event("joined-threads-changed"));
-	// 	} catch (err) {
-	// 		if (axios.isAxiosError(err)) {
-	// 			if (err.response?.status === 401) {
-	// 				navigateFn("/auth/login", { replace: true });
-	// 				return;
-	// 			}
-	// 			const message = (err.response?.data as any)?.message;
-	// 			toast.error(message ?? "Nem sikerült elhagyni a közösséget.");
-	// 			return;
-	// 		}
-	// 	}
-	// }, [threadId, isLoggedIn, navigateFn, refreshIsJoined]);
-
-	// useEffect(() => {
-	// 	void refreshIsJoined();
-	// 	window.addEventListener("joined-threads-changed", refreshIsJoined);
-	// 	return () =>
-	// 		window.removeEventListener(
-	// 			"joined-threads-changed",
-	// 			refreshIsJoined,
-	// 		);
-	// }, [refreshIsJoined]);
-
-	// useEffect(() => {
-	// 	if (!id) return;
-
-	// 	let isCancelled = false;
-	// 	const load = async () => {
-	// 		setJoinedUsers([]);
-	// 		try {
-	// 			const [threadRes, postsRes] = await Promise.all([
-	// 				GetThreadById(threadId),
-	// 				GetPostsInThread(threadId),
-	// 			]);
-
-	// 			const threadData = (threadRes.data?.thread ??
-	// 				threadRes.data) as ThreadData;
-	// 			const postsData = postsRes.data?.posts ?? postsRes.data;
-
-	// 			if (!isCancelled) {
-	// 				setThread(threadData);
-	// 				const postsArray = Array.isArray(postsData)
-	// 					? (postsData as Array<Record<string, unknown>>)
-	// 					: [];
-	// 				setPosts(postsArray);
-	// 				saveRecentThread(
-	// 					threadId,
-	// 					threadData?.name,
-	// 					threadData?.image,
-	// 				);
-	// 			}
-
-	// 			try {
-	// 				const users = await fetchJoinedUsers(threadId);
-	// 				if (!isCancelled) setJoinedUsers(users);
-	// 			} catch (err) {
-	// 				console.warn("Nem sikerült betölteni a tagokat.", err);
-	// 				if (!isCancelled) setJoinedUsers([]);
-	// 			}
-	// 		} catch (err) {
-	// 			if (isCancelled) return;
-
-	// 			if (axios.isAxiosError(err) && err.response?.status === 401) {
-	// 				navigateFn("/auth/login", { replace: true });
-	// 				return;
-	// 			}
-	// 		}
-	// 	};
-
-	// 	void load();
-	// 	return () => {
-	// 		isCancelled = true;
-	// 	};
-	// }, [id, isLoggedIn, threadId, navigateFn]);
-
-	// const handleInvite = async () => {
-	// 	if (Number.isNaN(threadId)) return;
-
-	// 	try {
-	// 		const inviteUrl = new URL(
-	// 			`/communities/${threadId}`,
-	// 			window.location.origin,
-	// 		).toString();
-	// 		await (navigator as any).share({ url: inviteUrl });
-	// 		return;
-	// 	} catch (err) {
-	// 		toast.error("Hiba történt az meghívás küldése során.");
-	// 		if (axios.isAxiosError(err)) {
-	// 			if (err.response?.status === 401) {
-	// 				navigateFn("/auth/login", { replace: true });
-	// 				return;
-	// 			}
-	// 		}
-	// 	}
-	// };
-
-	// return {
-	// 	thread,
-	// 	// posts,
-	// 	isJoined,
-	// 	// votingPostId,
-	// 	// joinedUsers,
-	// 	handleJoin,
-	// 	handleLeave,
-	// 	handleInvite,
-	// };
 };

@@ -1,22 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CommentOnPostOrReplyToComment } from "../../../../api/comments";
 import { TextAreaComponent } from "../../../../Components/InputFields/TextAreaComponent";
-import type { PostAndCommentData } from "../../../../Interfaces/PostAndComment";
 import { PrimaryButton, SecondaryButton } from "../../../../Components/Buttons";
+import { toast } from "react-toastify";
 
 const CommentWriter = ({
-	isTopLevel,
-	originalPostId,
-	nodeId,
 	replyToUsername,
+	onSubmitComment,
 	onCommentSent,
 	onCancel,
 }: {
-	isTopLevel: boolean;
-	originalPostId: number;
-	nodeId: number;
 	replyToUsername: string;
+	onSubmitComment: (content: string) => Promise<boolean>;
 	onCommentSent: () => void;
 	onCancel: () => void;
 }) => {
@@ -25,42 +20,27 @@ const CommentWriter = ({
 
 	async function HandleCommentSubmit(
 		e: React.MouseEvent<HTMLButtonElement>,
-		postId: number,
 		content: string,
 	) {
 		const btn = e.currentTarget as HTMLButtonElement;
-		btn.disabled = true; // Disable the submit button to prevent multiple clicks while the request is in flight.
+		btn.disabled = true;
 
-		let newComment: PostAndCommentData | null = null;
+		try {
+			if (!content.trim()) {
+				toast.error(t("community.comment_writer.empty_error"));
+				return;
+			}
 
-		if (isTopLevel) {
-			newComment = (
-				await CommentOnPostOrReplyToComment(originalPostId, content)
-			).data as PostAndCommentData;
-		} else {
-			newComment = (
-				await CommentOnPostOrReplyToComment(
-					originalPostId,
-					content,
-					postId,
-				)
-			).data as PostAndCommentData;
-		}
+			const isSuccess = await onSubmitComment(content);
+			if (!isSuccess) {
+				return;
+			}
 
-		if (!newComment) {
-			console.error(
-				"Failed to create comment: API response did not contain the new comment data.",
-			);
+			setCommentContent("");
+			onCommentSent();
+		} finally {
 			btn.disabled = false;
-			return;
 		}
-
-		window.dispatchEvent(new Event("comment-added"));
-		console.log("Dispatched comment-added event");
-
-		btn.disabled = false; // Re-enable the submit button after the request completes.
-		setCommentContent("");
-		onCommentSent();
 	}
 
 	return (
@@ -74,9 +54,7 @@ const CommentWriter = ({
 			/>
 			<div className="flex gap-2 *:mt-2 *:px-4 *:py-2">
 				<PrimaryButton
-					onClick={(e) =>
-						HandleCommentSubmit(e, nodeId, commentContent)
-					}
+					onClick={(e) => HandleCommentSubmit(e, commentContent)}
 					className=""
 				>
 					{t("community.comment_writer.send_button")}

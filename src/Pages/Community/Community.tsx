@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import CommunitySidebar from "./components/Sidebar/CommunitySidebar";
 import { useCommunity } from "./hooks/useCommunity";
 import CommunityHeader from "./components/CommunityHeader";
-import PostList from "./components/PostList";
+import PostList from "./components/PostList.tsx";
 // import { useComments } from "./hooks/useComments";
 
 const Community = () => {
@@ -24,20 +24,22 @@ const Community = () => {
 					isJoined={community.isUserJoined}
 					onJoin={community.handleJoin}
 					onLeave={community.handleLeave}
-					// onInvite={community.handleInvite}
+					onInvite={community.handleInvite}
 				/>
 				<div className="mt-8 grid gap-6 lg:grid-cols-3">
 					<div className="lg:col-span-2">
 						<PostList
 							id={threadId}
 							isJoined={community.isUserJoined}
-							myRank={community.thread?.my_role || 3}
+							myRank={community.thread?.my_role ?? 3}
+							posts={community.posts}
 						/>
 					</div>
 					<CommunitySidebar
 						threadId={threadId}
-						myRank={community.thread?.my_role || 3}
+						myRank={community.thread?.my_role ?? 3}
 						members={community.members || null}
+						postsCount={community.posts.totalCount}
 						myId={community.myId}
 					/>
 				</div>

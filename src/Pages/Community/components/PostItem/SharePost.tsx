@@ -5,20 +5,35 @@ import { GhostButton } from "../../../../Components/Buttons";
 const SharePost = ({
 	postId,
 	communityId,
+	pageFromEnd,
 }: {
 	postId: string;
 	communityId: number;
+	pageFromEnd?: number | null;
 }) => {
 	const { t } = useTranslation();
 
 	async function handleShare() {
 		try {
 			const inviteUrl = new URL(
-				`/communities/${communityId}#${postId}`,
+				`/communities/${communityId}`,
 				window.location.origin,
-			).toString();
+			);
+
+			if (
+				typeof pageFromEnd === "number" &&
+				Number.isFinite(pageFromEnd) &&
+				pageFromEnd >= 1
+			) {
+				inviteUrl.searchParams.set(
+					"pfe",
+					String(Math.floor(pageFromEnd)),
+				);
+			}
+
+			inviteUrl.hash = postId;
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			await (navigator as any).share({ url: inviteUrl });
+			await (navigator as any).share({ url: inviteUrl.toString() });
 			return;
 		} catch (err) {
 			console.error("Error sharing post:", err);
@@ -28,7 +43,9 @@ const SharePost = ({
 	return (
 		<GhostButton className="gap-1" onClick={handleShare}>
 			<DynamicFAIcon exportName="faShare" />
-			<span className="hidden md:inline">{t("community.post_item.share")}</span>
+			<span className="hidden md:inline">
+				{t("community.post_item.share")}
+			</span>
 		</GhostButton>
 	);
 };
