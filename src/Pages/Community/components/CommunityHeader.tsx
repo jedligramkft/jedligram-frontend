@@ -14,7 +14,7 @@ type Props = {
 	isJoined: boolean;
 	onJoin: () => void;
 	onLeave: () => void;
-	onInvite: () => void;
+	onInvite?: () => void;
 };
 
 const CommunityHeader = ({
@@ -53,7 +53,8 @@ const CommunityHeader = ({
 									/>
 								) : (
 									<span className="text-2xl font-bold text-white/60">
-										{thread?.name.charAt(0).toUpperCase() ?? "?"}
+										{thread?.name.charAt(0).toUpperCase() ??
+											"?"}
 									</span>
 								)}
 							</div>
@@ -64,26 +65,38 @@ const CommunityHeader = ({
 								</div>
 								<h1 className="text-3xl font-bold text-white md:text-4xl">
 									{thread?.name ??
-										t("community.community_header.unknown_community")}
+										t(
+											"community.community_header.unknown_community",
+										)}
 								</h1>
 							</div>
 						</div>
 						<div className="flex flex-wrap items-center gap-3">
 							{isJoined ? (
-								<DangerButton onClick={onLeave} className="px-5 py-2.5">
+								<DangerButton
+									onClick={onLeave}
+									className="px-5 py-2.5"
+								>
 									{t("community.community_header.leave")}
 								</DangerButton>
 							) : (
-								<PrimaryButton onClick={onJoin} className="px-5 py-2.5">
+								<PrimaryButton
+									onClick={onJoin}
+									className="px-5 py-2.5"
+								>
 									{t("community.community_header.join")}
 								</PrimaryButton>
 							)}
-							<SecondaryButton onClick={onInvite} className="px-5 py-2.5">
+							<SecondaryButton
+								onClick={onInvite}
+								className="px-5 py-2.5"
+							>
 								{t("community.community_header.invite")}
 							</SecondaryButton>
 							<SecondaryButton
 								onClick={() => navigate("/all-communities")}
-								className="px-5 py-2.5">
+								className="px-5 py-2.5"
+							>
 								{t("community.community_header.back")}
 							</SecondaryButton>
 						</div>
@@ -95,7 +108,9 @@ const CommunityHeader = ({
 							</div>
 							<div className="mt-2 text-sm text-white/75">
 								{thread?.description ||
-									t("community.community_header.no_description")}
+									t(
+										"community.community_header.no_description",
+									)}
 							</div>
 						</div>
 						<div className="rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -105,7 +120,10 @@ const CommunityHeader = ({
 							<ul className="mt-2 space-y-1 text-sm text-white/75">
 								{thread?.rules ? (
 									thread.rules.split("\n").map((rule, i) => (
-										<li key={i} className="flex items-start gap-2">
+										<li
+											key={i}
+											className="flex items-start gap-2"
+										>
 											<span className="mt-1 text-xs font-bold text-white/80">
 												•
 											</span>
@@ -114,7 +132,9 @@ const CommunityHeader = ({
 									))
 								) : (
 									<li className="text-white/70">
-										{t("community.community_header.no_rules")}
+										{t(
+											"community.community_header.no_rules",
+										)}
 									</li>
 								)}
 							</ul>

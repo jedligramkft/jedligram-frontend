@@ -7,7 +7,7 @@ import {
 	LeaveThread,
 	GetThreadMembers,
 } from "../../../api/threads";
-import { GetUserThreads } from "../../../api/users";
+import { GetUserProfile, GetUserThreads } from "../../../api/users";
 import type { ThreadData } from "../../../Interfaces/ThreadData";
 import type { UserData } from "../../../Interfaces/UserData";
 import { IsLoggedIn } from "../../../api/auth";
@@ -19,13 +19,35 @@ type RecentThreadItem = {
 	image?: string;
 };
 
+// Interface describing the `members` section returned by the hook.
+export interface CommunityMembers {
+	isLoading: boolean;
+	hasMore: boolean;
+	totalCount: number;
+	fetchedMembers: UserData[];
+	fetchMoreMembers: () => Promise<void>;
+}
+
+// Full return shape of `useCommunity` for explicit typing in consumers.
+export interface UseCommunityReturn {
+	thread: ThreadData | null;
+	isUserJoined: boolean;
+	myId?: number;
+	handleJoin: () => Promise<void>;
+	handleLeave: () => Promise<void>;
+
+	members: CommunityMembers;
+}
+
 const profileStorageKey =
 	import.meta.env.VITE_LOCAL_STORAGE_PROFILE_KEY ?? "jedligram_profile";
 
 export const useCommunity = (
 	threadId: number,
 	navigateFn: (path: string, options?: any) => void,
-) => {
+): UseCommunityReturn => {
+	const myId = JSON.parse(localStorage.getItem(profileStorageKey) ?? "{}").id;
+
 	const [thread, setThread] = useState<ThreadData | null>(null);
 	const [isUserJoined, setIsUserJoined] = useState(false);
 
@@ -37,10 +59,11 @@ export const useCommunity = (
 	// const recentThreadsStorageKey = "jedligram_recent_threads";
 
 	/* MEMBERS LIST */
-	const [MembersJoined, setMembersJoined] = useState<UserData[]>([]);
+	const [MembersFetched, setMembersFetched] = useState<UserData[]>([]);
 	const [MembersIsThereMore, setMembersIsThereMore] = useState(false);
 	const [MembersIsLoading, setMembersIsLoading] = useState(false);
 	const [MembersCurrentPage, setMembersCurrentPage] = useState(1);
+	const [MembersCount, setMembersCount] = useState(0);
 
 	async function fetchJoinedUsers(currentPage: number) {
 		setMembersIsLoading(true);
@@ -49,47 +72,62 @@ export const useCommunity = (
 			const responseData = response.data as {
 				data: UserData[];
 			};
+
+			let total = response.data["meta"]["total"] || 0;
+
+			if (
+				isUserJoined &&
+				MembersFetched.some((user) => user.id === myId)
+			) {
+				total = total - 1;
+				responseData.data = responseData.data.filter(
+					(user) => user.id !== myId,
+				);
+			}
+
 			setMembersIsThereMore(response.data["links"]["next"] !== null);
 			setMembersCurrentPage(currentPage + 1);
+			setMembersCount(total);
+
 			return responseData.data;
-		}
-		catch (error) {
+		} catch (error) {
 			toast.error("An error occurred while loading the members.");
 			return [];
-		}
-		finally {
+		} finally {
 			setMembersIsLoading(false);
 		}
 	}
 
 	async function InitialFetchMembers() {
-		setMembersJoined([]);
+		setMembersFetched([]);
 		setMembersCurrentPage(1);
 		setMembersIsThereMore(false);
 
 		const users = await fetchJoinedUsers(MembersCurrentPage);
-		setMembersJoined(users);
+		setMembersFetched(users);
 	}
 
 	async function FetchMoreMembers() {
 		if (MembersIsLoading || !MembersIsThereMore) return;
 		const users = await fetchJoinedUsers(MembersCurrentPage);
-		setMembersJoined((prev) => [...prev, ...users]);
+		setMembersFetched((prev) => [...prev, ...users]);
 	}
 
 	/* END OF MEMBERS LIST */
 
 	//Get the current thread data
 	async function fetchThreadData(id: number): Promise<ThreadData | null> {
-		try{
-			const threadRes = (await GetThreadById(id)) as {data: ThreadData};
+		try {
+			const threadRes = (await GetThreadById(id)) as { data: ThreadData };
 
 			// console.log("Fetched thread data:", threadRes.data);
 			setThread(threadRes.data);
 			return threadRes.data;
-		}catch(err){
+		} catch (err) {
 			if (!axios.isAxiosError(err)) {
-				toast.error("An unexpected error occurred while loading the community.");
+				toast.error(
+					"An unexpected error occurred while loading the community.",
+				);
 				return null;
 			}
 
@@ -99,17 +137,54 @@ export const useCommunity = (
 					navigateFn("/all-communities");
 					return null;
 				case 401:
-					toast.error("Unauthenticated. Please log in and try again.");
+					toast.error(
+						"Unauthenticated. Please log in and try again.",
+					);
 					navigateFn("/auth/login", { replace: true });
 					return null;
 				case 403:
-					toast.error("You do not have permission to view this community.");
+					toast.error(
+						"You do not have permission to view this community.",
+					);
 					navigateFn("/all-communities");
 					return null;
 				default:
-					toast.error("An error occurred while loading the community.");
+					toast.error(
+						"An error occurred while loading the community.",
+					);
 					return null;
 			}
+		}
+	}
+
+	async function HandleJoin() {
+		try {
+			await JoinThread(threadId);
+			setIsUserJoined(true);
+			const myUser = await GetUserProfile(myId)
+				.then((res) => res.data)
+				.catch(() => null);
+
+			if (myUser) {
+				myUser.role_id = 3;
+				setMembersFetched((prev) => [myUser!, ...prev]);
+				setMembersCount((prev) => prev + 1);
+			}
+			window.dispatchEvent(new Event("joined-threads-changed"));
+		} catch (error) {
+			toast.error("An error occurred while joining the community.");
+		}
+	}
+
+	async function HandleLeave() {
+		try {
+			await LeaveThread(threadId);
+			setIsUserJoined(false);
+			setMembersFetched((prev) => prev.filter((u) => u.id !== myId));
+			setMembersCount((prev) => prev - 1);
+			window.dispatchEvent(new Event("joined-threads-changed"));
+		} catch (error) {
+			toast.error("An error occurred while leaving the community.");
 		}
 	}
 
@@ -120,15 +195,32 @@ export const useCommunity = (
 
 		async function load() {
 			const threadRes = await fetchThreadData(threadId); //Get the thread the user is currently viewing
-			if(threadRes === null) return;
+			if (threadRes === null) return;
 			setIsUserJoined(threadRes.my_role !== null); //Check if the user is a member of the thread
 			// console.log("User joined status:", threadRes.my_role !== null);
 			await InitialFetchMembers(); //Fetch the members of the thread
 		}
+
+		setMembersIsLoading(true);
+
 		load();
 	}, [threadId, navigateFn]);
 
-	return { thread, isUserJoined };
+	return {
+		thread,
+		isUserJoined,
+		myId,
+		handleJoin: HandleJoin,
+		handleLeave: HandleLeave,
+
+		members: {
+			isLoading: MembersIsLoading,
+			hasMore: MembersIsThereMore,
+			totalCount: MembersCount,
+			fetchedMembers: MembersFetched,
+			fetchMoreMembers: FetchMoreMembers,
+		},
+	};
 	// const readProfile = (): any => {
 	// 	try {
 	// 		const raw = localStorage.getItem(profileStorageKey);
